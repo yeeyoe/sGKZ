@@ -1,0 +1,17 @@
+# ninja log v7
+1	1018	1785513993891537201	CMakeFiles/shortest_gkz.dir/src/main.cpp.o	146cf08fdd59fe6a
+1	1032	1785513993891740369	CMakeFiles/oracle_kernel_consistency_test.dir/tests/oracle_kernel_consistency_test.cpp.o	c5b304503f4b85bf
+1	1186	1785513993891642952	CMakeFiles/gkz_tests.dir/tests/gkz_tests.cpp.o	e4027e9acf174f09
+0	5971	1785513993891351783	CMakeFiles/gkz_core.dir/src/gkz.cpp.o	24a4673060cce4de
+5972	6067	1785513999863404007	libgkz_core.a	9dbbc105f3383528
+6067	6188	1785513999958073204	gkz_tests	a01d32ae8bfb67aa
+6067	6189	1785513999958166329	oracle_kernel_consistency_test	98ad53e85f27a6f
+6067	6189	1785513999957936953	shortest_gkz	24e997b04d0261a3
+8	1193	1785515666576600187	CMakeFiles/shortest_gkz.dir/src/main.cpp.o	146cf08fdd59fe6a
+8	1201	1785515666576806230	CMakeFiles/oracle_kernel_consistency_test.dir/tests/oracle_kernel_consistency_test.cpp.o	c5b304503f4b85bf
+8	1383	1785515666576706896	CMakeFiles/gkz_tests.dir/tests/gkz_tests.cpp.o	e4027e9acf174f09
+8	6533	1785515666576411810	CMakeFiles/gkz_core.dir/src/gkz.cpp.o	24a4673060cce4de
+6533	6636	1785515673101754692	libgkz_core.a	9dbbc105f3383528
+6636	6764	1785515673204604659	oracle_kernel_consistency_test	98ad53e85f27a6f
+6636	6765	1785515673204502824	gkz_tests	a01d32ae8bfb67aa
+6636	6766	1785515673204350448	shortest_gkz	24e997b04d0261a3

@@ -1,0 +1,88 @@
+% 预览源文件
+
+%% LyX 2.5.0 created this file.  For more info, see https://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+\usepackage{amstext}
+\usepackage{amssymb}
+\usepackage{esint}
+\usepackage{babel}
+\begin{document}
+$P\subset M_{\mathbb{R}}$ is a lattice polytope. $P_{k}=P\cap k^{-1}M$.
+Let $\sigma_{k}:P_{k}\rightarrow\mathbb{R}_{>0}$ be the shortest
+GKZ vector. Let 
+\[
+\phi_{k}\coloneqq k^{n}\sigma^{\vee}_{k},\ \psi_{k}\coloneqq2k\left(V_{P}\phi_{k}-1\right).
+\]
+$\sigma_{k}$ is convex, which means that the restriction $\phi_{k}|_{P_{k}}=k^{n}\sigma_{k}$. 
+
+Variational characterization of $\phi_{k},\psi_{k}$. 
+\begin{enumerate}
+\item $\phi_{k}=k^{n}\sigma^{\vee}_{k}$ is the unique minimizer of 
+\[
+\Phi_{k}(\eta)\coloneqq\frac{1}{2k^{n}}\sum_{u\in P_{k}}\eta(u)^{2}-\frac{1}{V_{P}}\int_{P}\eta,\ \eta\in\mathcal{C}(P).
+\]
+\[
+\lim_{k}\Phi_{k}(\eta)=\Phi(\eta)\coloneqq\frac{1}{2}\int_{P}\eta^{2}-\frac{1}{V_{P}}\int_{P}\eta,\ \text{minimizer is }\phi=V^{-1}_{P}.
+\]
+$\psi_{k}\coloneqq2k\left(V_{P}\phi_{k}-1\right)$ is the unique minimizer
+of 
+\[
+\Psi_{k}(\eta)\coloneqq\frac{1}{2k^{n}}\sum_{u\in P_{k}}\eta(u)^{2}+\frac{2}{k^{n-1}}\left(\sum_{u\in P_{k}}\eta(u)-k^{n}\int_{P}\eta\ \mathrm{d}x\right)
+\]
+\[
+\lim_{k}\Psi_{k}(\eta)=\Psi(\eta)\coloneqq\frac{1}{2}\int_{P}\eta^{2}\mathrm{d}x+\int_{\partial P}\eta\ \mathrm{d}\sigma,\ \text{minimizer is }\psi=-\Theta_{P}.
+\]
+\item Variational inequalities. For $\phi_{k}$, we have 
+\[
+\frac{1}{k^{n}}\sum_{u\in P_{k}}\phi_{k}(u)\eta(u)\geq\frac{1}{V_{P}}\int_{P}\eta\text{ and }\frac{1}{k^{n}}\sum_{u\in P_{k}}\phi_{k}(u)^{2}=\frac{1}{V_{P}}\int_{P}\phi_{k},
+\]
+for any $\eta\in\mathcal{C}(P)$. This is also the variational inequality
+of $\psi_{k}$. For $\psi=-\Theta_{P}$, we have 
+\[
+\int_{\partial P}\eta\ \mathrm{d}\sigma\ge\int_{P}\eta\Theta_{P},\ \forall\eta\in\mathcal{C}(P)\ \textrm{and}\ \int_{\partial P}\Theta_{P}\ \mathrm{d}\sigma=\int_{P}\Theta^{2}_{P}.
+\]
+\end{enumerate}
+Known bounds: 
+\begin{enumerate}
+\item $\int_{P}\phi_{k}\leq C$. Since we can construct a uniform triangulation
+$T_{k}$ of $(P,P_{k})$ such that $g_{T_{k}}\leq C_{P}k^{-n}$, then
+we have 
+\[
+\int_{P}\phi_{k}=k^{n}\int_{P}\sigma^{\vee}_{k}=k^{n}V_{P}\left\Vert \sigma_{k}\right\Vert ^{2}\le k^{n}V_{P}\left\Vert g_{T_{k}}\right\Vert ^{2}\le k^{n}V_{P}\max_{P_{k}}g_{T_{k}}\le C'_{P}.
+\]
+\item There exists constant $C_{P}>0$ such that 
+\[
+\fint_{P}\eta\leq\frac{C_{P}}{k^{n}}\sum_{u\in P_{k}}\eta(u),\text{ for all convex }\eta:P\rightarrow\mathbb{R}_{\ge0}.
+\]
+Since 
+\[
+\fint_{P}\eta\le\fint_{P}\left(\eta|_{P_{k}}\right)^{\vee}\le\sum_{u\in P_{k}}\eta(u)g_{T_{k}}(u)\le\frac{C_{P}}{k^{n}}\sum_{u\in P_{k}}\eta(u).
+\]
+\end{enumerate}
+Our final aim is the convergence $\psi_{k}\rightarrow\psi=-\Theta_{P}$.
+We have a plan as follows. 
+
+Step1. Show that $\phi_{k}\coloneqq k^{n}\sigma^{\vee}_{k}$ is uniformly
+bounded above. 
+
+Step2. Show that $\left\{ \phi_{k}\right\} $ is equicontinuous over
+$P$. 
+
+Step3. Show that $\psi_{k}\coloneqq2k\left(V_{P}\phi_{k}-1\right)$
+is uniformly bounded. \\
+Remark: similar to the proof of Theorem 5, by a Gamma-convergence
+argument, we can show that $\phi_{k}$ converges uniformly to $\phi=V^{-1}_{P}$,
+which is the minimizer of $\Phi=\lim\Phi_{k}$. However, this is not
+enough to imply that $\psi_{k}$ is bounded uniformly. 
+
+Step4. Show that $\left\{ \psi_{k}\right\} $ is equicontinuous over
+$P$. 
+
+Step5. Show $\psi_{k}\rightarrow\psi=-\Theta_{P}$, which has been
+done by Theorem 5. 
+\end{document}
+

@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+"""Standard-library regression test for plot_iterations.py."""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+
+def main() -> int:
+    script = Path(sys.argv[1]).resolve()
+    with tempfile.TemporaryDirectory(prefix="plot-iterations-test-") as name:
+        root = Path(name)
+        log = root / "sample.log"
+        log.write_text(
+            "iteration=0 active=1 norm2=0.5 gap=0.25\n"
+            "iteration=1 active=2 norm2=0.4 gap=1e-2\n"
+            "iteration=2 active=2 norm2=0.39 gap=1e-5\n",
+            encoding="utf-8",
+        )
+        subprocess.run(
+            [sys.executable, str(script), str(log), "--log-gap"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        output = root / "sample_iterations.html"
+        document = output.read_text(encoding="utf-8")
+        assert '"iteration":[0,1,2]' in document
+        assert '"active":[1,2,2]' in document
+        assert '"norm2":[0.5,0.4,0.39]' in document
+        assert '"gap":[0.25,0.01,1e-05]' in document
+        assert 'title: "active set size"' in document
+        assert 'title: "norm2"' in document
+        assert 'title: "gap"' in document
+        assert 'type: "log"' in document
+
+        bad_log = root / "multiple.log"
+        bad_log.write_text(
+            "iteration=0 active=1 norm2=0.5 gap=0.25\n"
+            "iteration=0 active=1 norm2=0.5 gap=0.25\n",
+            encoding="utf-8",
+        )
+        invalid = subprocess.run(
+            [sys.executable, str(script), str(bad_log)],
+            capture_output=True,
+            text=True,
+        )
+        assert invalid.returncode != 0
+        assert "strictly increasing" in invalid.stderr
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

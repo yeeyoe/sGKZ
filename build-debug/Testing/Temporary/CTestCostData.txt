@@ -1,0 +1,9 @@
+gkz_tests 2 0.0810757
+oracle_kernel_consistency 2 0.173602
+cli_square 2 0.0778216
+cli_square_k16_numerical 2 6.64373
+cli_plot_data_k2 2 0.00937654
+plot_results 2 0.118847
+plot_iterations 2 0.045339
+generate_wang_zhou 2 0.0532517
+---
