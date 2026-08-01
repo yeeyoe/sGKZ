@@ -639,10 +639,11 @@ python3 plot_results.py build/square_k8 --z-scale 10000 --color
 python3 plot_iterations.py results/Wang_Zhou_a5.log
 ```
 
-默认生成 `results/Wang_Zhou_a5_iterations.html`。图中包含三个共享 iteration
-横轴的面板，分别显示 active set 大小、$\|\sigma_t\|^2$（日志中的
-`norm2`）和 Frank--Wolfe `gap`。HTML 使用 Plotly CDN，不要求 Python
-安装 Plotly。
+默认生成 `results/Wang_Zhou_a5_iterations.html`。图中包含两个共享 iteration
+横轴的面板：上方显示 active set 大小，下方显示 Frank--Wolfe `gap` 的对数
+坐标，并叠画实际的停机阈值曲线
+`absolute_tolerance + tolerance * ||σ_t||^2`（蓝色实线）。HTML 使用 Plotly
+CDN，不要求 Python 安装 Plotly。
 
 迭代绘图参数：
 
@@ -650,16 +651,18 @@ python3 plot_iterations.py results/Wang_Zhou_a5.log
 | --- | --- |
 | `LOG` | 必选位置参数，由 `shortest_gkz --verbose` 写出的标准错误日志。 |
 | `--output-prefix PREFIX` | 指定输出路径但不写 `.html`/`.png` 后缀。 |
-| `--log-gap` | 将 gap 面板的纵轴改为对数坐标；要求所有 gap 严格为正。 |
+| `--tolerance VALUE` | 相对 gap 容差，用于画停机阈值线（默认：1e-11）。 |
+| `--absolute-tolerance VALUE` | 绝对 gap 容差，用于画停机阈值线（默认：1e-14）。 |
 | `--png` | 额外生成静态 PNG，需要 Matplotlib。 |
 | `--show` | 生成 PNG 后打开 Matplotlib 窗口。 |
 
-例如同时生成 HTML 和 PNG，并使用对数 gap 轴：
+例如同时生成 HTML 和 PNG：
 
 ```bash
 .venv/bin/python plot_iterations.py \
   results/Wang_Zhou_a5.log \
-  --log-gap \
+  --tolerance 1e-12 \
+  --absolute-tolerance 1e-14 \
   --png
 ```
 

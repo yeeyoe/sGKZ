@@ -127,7 +127,7 @@ $$
 | `src/main.cpp` | 命令行参数、运行摘要、退出状态 |
 | `include/gkz/gkz.hpp` | 公共数据结构和接口 |
 | `plot_results.py` | $\sigma_A^\vee$、$\psi_k$、subdivision 的 HTML/SVG/PNG 绘图 |
-| `plot_iterations.py` | active size、`norm2`、gap 关于 iteration 的图 |
+| `plot_iterations.py` | active size、log gap 与实际停机阈值曲线关于 iteration 的图 |
 | `generate_wang_zhou.py` | 生成 Wang--Zhou 多边形输入 |
 | `tests/` | C++ 与 Python 回归测试 |
 | `README.md` | 中文使用文档和算法说明 |

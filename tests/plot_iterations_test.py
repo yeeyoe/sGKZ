@@ -21,7 +21,7 @@ def main() -> int:
             encoding="utf-8",
         )
         subprocess.run(
-            [sys.executable, str(script), str(log), "--log-gap"],
+            [sys.executable, str(script), str(log)],
             check=True,
             capture_output=True,
             text=True,
@@ -30,12 +30,14 @@ def main() -> int:
         document = output.read_text(encoding="utf-8")
         assert '"iteration":[0,1,2]' in document
         assert '"active":[1,2,2]' in document
-        assert '"norm2":[0.5,0.4,0.39]' in document
         assert '"gap":[0.25,0.01,1e-05]' in document
+        assert '"threshold":[' in document
         assert 'title: "active set size"' in document
-        assert 'title: "norm2"' in document
         assert 'title: "gap"' in document
+        assert 'title: "norm2"' not in document
         assert 'type: "log"' in document
+        assert 'tickformat: ".0e"' in document
+        assert '"stopping threshold"' in document
 
         bad_log = root / "multiple.log"
         bad_log.write_text(

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plot active-set size, norm2, and gap from a shortest_gkz verbose log."""
+"""Plot active-set size and gap from a shortest_gkz verbose log."""
 
 from __future__ import annotations
 
@@ -69,18 +69,17 @@ def default_prefix(log_path: Path) -> Path:
 
 
 def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
-                     norm2_values, gaps, log_gap: bool) -> Path:
+                     gaps, thresholds) -> Path:
     payload = json.dumps(
         {
             "iteration": iterations,
             "active": active_sizes,
-            "norm2": norm2_values,
             "gap": gaps,
+            "threshold": thresholds,
         },
         separators=(",", ":"),
     )
     title_json = json.dumps(title)
-    gap_axis_type = json.dumps("log" if log_gap else "linear")
     document = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -102,12 +101,13 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
       {{...common, name: "active set size", x: history.iteration,
         y: history.active, xaxis: "x", yaxis: "y",
         line: {{color: "#2563eb", width: 2}}}},
-      {{...common, name: "norm2", x: history.iteration,
-        y: history.norm2, xaxis: "x2", yaxis: "y2",
-        line: {{color: "#047857", width: 2}}}},
       {{...common, name: "gap", x: history.iteration,
-        y: history.gap, xaxis: "x3", yaxis: "y3",
-        line: {{color: "#b91c1c", width: 2}}}}
+        y: history.gap, xaxis: "x2", yaxis: "y2",
+        line: {{color: "#b91c1c", width: 2}}}},
+      {{...common, name: "stopping threshold", x: history.iteration,
+        y: history.threshold, xaxis: "x2", yaxis: "y2",
+        line: {{color: "#2563eb", width: 2}},
+        hovertemplate: "threshold=%{{y:.3e}}<extra></extra>"}}
     ];
     const axisStyle = {{showgrid: true, gridcolor: "#e5e7eb",
                        zeroline: false, automargin: true}};
@@ -118,16 +118,13 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
       plot_bgcolor: "#ffffff",
       paper_bgcolor: "#ffffff",
       xaxis: {{...axisStyle, domain: [0, 1], anchor: "y",
-               matches: "x3", showticklabels: false}},
-      yaxis: {{...axisStyle, domain: [0.70, 1.00], title: "active set size",
+               matches: "x2", showticklabels: false}},
+      yaxis: {{...axisStyle, domain: [0.55, 1.00], title: "active set size",
                rangemode: "tozero", tickformat: "d"}},
       xaxis2: {{...axisStyle, domain: [0, 1], anchor: "y2",
-                matches: "x3", showticklabels: false}},
-      yaxis2: {{...axisStyle, domain: [0.35, 0.65], title: "norm2"}},
-      xaxis3: {{...axisStyle, domain: [0, 1], anchor: "y3",
                 title: "iteration"}},
-      yaxis3: {{...axisStyle, domain: [0.00, 0.30], title: "gap",
-                type: {gap_axis_type}}},
+      yaxis2: {{...axisStyle, domain: [0.00, 0.45], title: "gap",
+                type: "log", tickformat: ".0e"}},
       margin: {{l: 92, r: 34, b: 70, t: 64}}
     }};
     Plotly.newPlot("plot", traces, layout,
@@ -143,14 +140,13 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
 
 
 def draw_static(prefix: Path, title: str, iterations, active_sizes,
-                norm2_values, gaps, log_gap: bool, show: bool) -> Path:
+                gaps, thresholds, show: bool) -> Path:
     import matplotlib.pyplot as plt
-    from matplotlib.ticker import MaxNLocator
+    from matplotlib.ticker import FuncFormatter, MaxNLocator
 
-    figure, axes = plt.subplots(3, 1, sharex=True, figsize=(10, 9))
+    figure, axes = plt.subplots(2, 1, sharex=True, figsize=(10, 7))
     series = (
         (active_sizes, "active set size", "#2563eb"),
-        (norm2_values, "norm2", "#047857"),
         (gaps, "gap", "#b91c1c"),
     )
     for axes_item, (values, label, color) in zip(axes, series):
@@ -159,13 +155,19 @@ def draw_static(prefix: Path, title: str, iterations, active_sizes,
         axes_item.grid(True, color="#e5e7eb", linewidth=0.8)
         axes_item.margins(x=0)
     axes[0].yaxis.set_major_locator(MaxNLocator(integer=True))
-    if log_gap:
-        if any(value <= 0 for value in gaps):
-            raise ValueError("--log-gap requires every recorded gap to be positive")
-        axes[2].set_yscale("log")
-    axes[2].set_xlabel("iteration")
+    if any(value <= 0 for value in gaps):
+        raise ValueError("log scale requires every recorded gap to be positive")
+    axes[1].set_yscale("log")
+    axes[1].yaxis.set_major_formatter(
+        FuncFormatter(lambda value, _: f"{value:.0e}")
+    )
+    if all(value > 0 for value in thresholds):
+        axes[1].plot(iterations, thresholds, color="#2563eb", linewidth=1.8,
+                     label="stopping threshold")
+        axes[1].legend(loc="upper right", framealpha=0.9)
+    axes[1].set_xlabel("iteration")
     figure.suptitle(title)
-    figure.tight_layout(rect=(0, 0, 1, 0.97))
+    figure.tight_layout(rect=(0, 0, 1, 0.96))
     output = Path(str(prefix) + ".png")
     output.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(output, dpi=180)
@@ -181,23 +183,40 @@ def main() -> int:
     parser.add_argument("--output-prefix", type=Path,
                         help="output path without .html/.png")
     parser.add_argument("--log-gap", action="store_true",
-                        help="use a logarithmic y axis for gap")
+                        help=argparse.SUPPRESS)
+    parser.add_argument("--tolerance", type=float, default=1e-11,
+                        help="relative Frank--Wolfe gap tolerance (default: 1e-11)")
+    parser.add_argument("--absolute-tolerance", type=float, default=1e-14,
+                        help="absolute gap tolerance (default: 1e-14)")
     parser.add_argument("--png", action="store_true",
                         help="also export a static PNG")
     parser.add_argument("--show", action="store_true",
                         help="display the optional PNG after saving it")
     args = parser.parse_args()
 
+    if args.tolerance < 0 or args.absolute_tolerance < 0:
+        parser.error("tolerances must be nonnegative")
+
     try:
         history = read_history(args.log)
-        if args.log_gap and any(value <= 0 for value in history[3]):
-            parser.error("--log-gap requires every recorded gap to be positive")
     except (OSError, ValueError) as error:
         parser.error(str(error))
 
+    iterations, active_sizes, norm2_values, gaps = history
+    if any(value <= 0 for value in gaps):
+        parser.error("log scale requires every recorded gap to be positive")
+
+    # Per-iteration stopping threshold used by shortest_gkz:
+    # absolute_tolerance + tolerance * norm2.
+    thresholds = [
+        args.absolute_tolerance + args.tolerance * max(1e-300, norm2)
+        for norm2 in norm2_values
+    ]
+
     prefix = args.output_prefix or default_prefix(args.log)
     title = f"Iteration history: {args.log.stem}"
-    outputs = [draw_interactive(prefix, title, *history, args.log_gap)]
+    outputs = [draw_interactive(prefix, title, iterations, active_sizes,
+                                gaps, thresholds)]
 
     if args.png or args.show:
         try:
@@ -212,8 +231,8 @@ def main() -> int:
         except ImportError as error:
             parser.error("matplotlib is required for --png")
             raise error
-        outputs.append(draw_static(prefix, title, *history,
-                                   args.log_gap, args.show))
+        outputs.append(draw_static(prefix, title, iterations, active_sizes,
+                                   gaps, thresholds, args.show))
     else:
         plt = None
 
