@@ -1428,19 +1428,20 @@ SolverResult ShortestGkzSolver::solve(
     const double stopping_threshold =
         options_.absolute_tolerance +
         options_.tolerance * std::max(1e-300, result.norm_squared);
+    if (result.gap <= stopping_threshold && !exact_endgame) {
+      // Numerical gap met the threshold; redo this gap check with the
+      // exact oracle before trusting it. This happens before the verbose
+      // log so each iteration number is logged at most once.
+      exact_endgame = true;
+      --iteration;
+      continue;
+    }
     if (options_.verbose) {
       std::cerr << "iteration=" << iteration << " active=" << active.size()
                 << " norm2=" << std::setprecision(17)
                 << result.norm_squared << " gap=" << result.gap << '\n';
     }
     if (result.gap <= stopping_threshold) {
-      if (!exact_endgame) {
-        // Numerical gap met the threshold; redo this gap check with the
-        // exact oracle before trusting it.
-        exact_endgame = true;
-        --iteration;
-        continue;
-      }
       result.converged = true;
       result.sigma = candidate;
       result.active_vectors = active;

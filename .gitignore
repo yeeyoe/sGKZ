@@ -1,0 +1,21 @@
+# Build directories
+/build
+/build-debug
+/build-ubsan
+
+# Output and generated results
+/results
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Backup files (temporary)
+*.bak
+
+# Local notes / templates
+*.rtf
