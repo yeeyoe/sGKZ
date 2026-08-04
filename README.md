@@ -818,3 +818,12 @@ ctest --test-dir build-ubsan --output-on-failure
 因此，大 $k$ 探索建议先使用 `--no-exact` 和适当增大的
 `--max-iterations`，并依据 `gap` 与 `l2_error_bound` 判断数值精度。精确
 认证应在确认 active set 规模可承受后开启。
+
+## K-stability：$\ell_P$ 与相对 K-不稳定性检测
+
+独立子目录 [`K-stability/`](K-stability/README.md) 实现
+`paper/K-stability.tex` 的两个目标：精确计算连续 Donaldson $\ell_P$
+（与本程序的离散 $\ell_A$ 是不同的数学对象），并用 Donaldson 简单凸函数
+事实检测二维格点多边形的相对 K-不稳定性。生成独立二进制
+`build/K-stability/k_stability`，不链接 `gkz_core`，只读 `--polygon`
+文件；详见 [`K-stability/README.md`](K-stability/README.md)。

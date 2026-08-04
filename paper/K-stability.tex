@@ -1,0 +1,94 @@
+% 预览源文件
+
+%% LyX 2.5.0 created this file.  For more info, see https://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[oneside,english]{amsart}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+\usepackage{amstext}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{esint}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+
+\makeatother
+
+\theoremstyle{plain}
+\newtheorem{thm}{\protect\theoremname}
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{\protect\definitionname}
+\theoremstyle{plain}
+\newtheorem{fact}[thm]{\protect\factname}
+\usepackage{babel}
+\providecommand{\definitionname}{Definition}
+\providecommand{\factname}{Fact}
+\providecommand{\theoremname}{Theorem}
+
+\begin{document}
+\title{Code to compute $\ell_{P}$ and detect K-unstability}
+
+\maketitle
+Let $P\subset\mathbb{R}^{n}$ be a lattice polytope which is defined
+by 
+\[
+P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,v_{i}\right\rangle +a_{i}\ge0,\ \forall1\le i\le I\right\} ,
+\]
+where $v_{i}\in\mathbb{Z}^{n}$ are primitive vectors and $a_{i}\in\mathbb{Z}$.
+Let $\mathrm{d}\sigma$ be the lattice measure on the boundary $\partial P$,
+which is defined as follows. Consider a facet of $P$ 
+\[
+F_{i}=\left\{ x\in P\mid\left\langle x,v_{i}\right\rangle +a_{i}=0\right\} .
+\]
+Define 
+\[
+\mathrm{d}\sigma|_{F_{i}}=\frac{\mathrm{d}s}{\left|v_{i}\right|}
+\]
+where $\mathrm{d}s$ is the Euclidean surface measure on $F_{i}$,
+and $\left|v_{i}\right|$ is the Euclidean $2$-norm. Another way
+to define $\mathrm{d}\sigma$: it is the Lebesgue measure on the affine
+space spanned by $F_{i}$ which is normalized by the rank $n-1$ lattice
+$F_{i}\cap\mathbb{Z}^{n}$. 
+
+The relative DF invariant is 
+\[
+M_{\ell}(f)\coloneqq\int_{\partial P}f\mathrm{d}\sigma-\int_{P}f\ell_{P}\mathrm{d}x,\ \text{for convex }f:P\rightarrow\mathbb{R},
+\]
+where $\ell_{P}$ is the unique affine function such that 
+\[
+M_{\ell}(h)=\int_{\partial P}h\mathrm{d}\sigma-\int_{P}h\ell_{P}\mathrm{d}x=0,\ \text{for all affine function }h.
+\]
+Equivalently, take $h=1,x_{i}$, $\ell_{P}$ satisfies linear system:
+\[
+\int_{P}\ell_{P}=\left|\partial P\right|_{\mathrm{d}\sigma},\int_{P}x_{i}\ell_{P}=\int_{\partial P}x_{i}\mathrm{d}\sigma,\ i=1,\dots,n.
+\]
+
+\begin{defn}
+We say $P$ is relatively K-semistable if $M_{\ell}(f)\geq0$ for
+all $f\in\mathcal{C}(P)$, where $\mathcal{C}(P)$ is the space of
+continuous functions on $P$. Otherwise, if $M_{\ell}(f)<0$ for some
+$f\in\mathcal{C}(P)$, we say $P$ is relatively K-unstable. 
+\end{defn}
+
+\begin{fact}[Donaldson]
+ when $n=2$, $P$ is relatively K-unstable if and only if there
+is a simple convex function of the form 
+\[
+g=\max\left\{ ax+by+c,0\right\} 
+\]
+such that $M_{\ell}(g)<0$.
+\end{fact}
+
+Goal: 
+
+1. compute $\ell_{P}$ precisely. 
+
+2. develop an algorithm to test the un-stability of polygons using
+the fact of Donaldson. 
+\end{document}
+

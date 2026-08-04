@@ -73,3 +73,6 @@ if(BUILD_TESTING)
     )
   endif()
 endif()
+
+# K-stability：ell_P 精确计算与相对 K-不稳定性检测（自包含子目录）。
+add_subdirectory(K-stability)

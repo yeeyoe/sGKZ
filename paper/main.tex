@@ -59,7 +59,7 @@
 \providecommand{\remarkname}{Remark}
 \providecommand{\theoremname}{Theorem}
 
-\addbibresource{../5@part1.bib}
+\addbibresource{5@part1.bib}
 \begin{document}
 \title{Optimal Test Functions for K-unstable Toric Varieties and Secondary
 Polytopes}
@@ -77,9 +77,11 @@ aims to quantize $\Theta_{P}$ by the maximal destabilizers for Chow-stability.
 We determine these destabilizers by a combinatorial object called
 shortest GKZ vector, which is the least norm point on the secondary
 polytope associated to the lattice point set $P\cap k^{-1}\mathbb{Z}^{n}$.
-Under a precompactness assumption, we show these maximal Chow-destabilizers
-indeed converge to $\Theta_{P}$ as $k\rightarrow\infty$. It may
-provide an algorithm to detect K-unstability of toric varieties. 
+When the moment polytope is Delzant, we show that these maximal
+Chow-destabilizers converge to $\Theta_{P}$ in $L^{2}$ as
+$k\rightarrow\infty$, without any compactness assumption.
+Under a $C^{0}$-precompactness assumption the convergence is uniform.
+It may provide an algorithm to detect K-unstability of toric varieties.
 \end{abstract}
 
 \maketitle
@@ -249,8 +251,10 @@ are
 object called the shortest GKZ vector, see Theorem \ref{thm:main thm 2 INTRO}
 below. 
 
-(2) We show that the expected convergence holds under a pre-compactness
-assumption, see Theorem \ref{thm:main converge} below. 
+(2) For a Delzant polytope, we show that the expected convergence
+holds in $L^{2}$ without any compactness assumption. Under a
+$C^{0}$-precompactness assumption the convergence is uniform, see
+Theorem \ref{thm:main converge} below.
 
 \subsection*{Maximal Chow-destabilizers for toric varieties}
 
@@ -411,9 +415,21 @@ Its proof relies on the convexity of $\sigma_{k}$. The following
 is another main result. 
 %
 \begin{thm}[see §\ref{proof of convergence}]
-\label{thm:main converge}If the minimizer sequence $\psi_{k}$ (\ref{eq: quantum mini})
-is $C^{0}$-precompact, then $\psi_{k}$ converges uniformly to $-\Theta_{P}$,
-hence 
+\label{thm:main converge}Assume that $P$ is Delzant. The minimizer
+sequence $\psi_{k}$ (\ref{eq: quantum mini})
+converges to $-\Theta_{P}$ in $L^{2}(P)$, without any precompactness
+assumption. More precisely,
+\begin{equation}
+\lim_{k\rightarrow\infty}\frac{1}{k^{n}}\sum_{u\in P_{k}}\psi_{k}(u)^{2}
+=\int_{P}\Theta_{P}^{2}\,\mathrm{d}x.\label{eq: discrete L2 converge}
+\end{equation}
+Consequently,
+\begin{equation}
+V_{P}k^{n}\sigma^{\vee}_{k}=1-\frac{\Theta_{P}}{2k}
++\mathrm{o}_{L^{2}}(k^{-1}).\label{eq: dream converge L2}
+\end{equation}
+If, in addition, $\{\psi_{k}\}$ is $C^{0}$-precompact, then $\psi_{k}$
+converges uniformly to $-\Theta_{P}$, and hence
 \begin{equation}
 V_{P}k^{n}\sigma^{\vee}_{k}=1-\frac{\Theta_{P}}{2k}+\mathrm{o}(k^{-1}),\ k\rightarrow\infty.\label{eq: dream converge}
 \end{equation}
@@ -421,11 +437,13 @@ This means that the maximal Chow-destabilizer can quantize the maximal
 K-destabilizer. 
 \end{thm}
 
-The proof uses a Gamma convergence argument, building on the continuity
-of $\Theta_{P}$ and (\ref{eq:EM enhanced}). By Arzelà--Ascoli theorem,
-$C^{0}$-precompactness is equivalent to $\{\psi_{k}\}$ being uniformly
-bounded and equicontinuous. It needs more delicate analysis on this
-sequence, we leave it for the future. 
+The $L^{2}$ statement follows from a $\Gamma$-convergence argument together
+with a compactness lemma for convex lattice functions. The lemma allows
+positive mass to concentrate near $\partial P$, but shows that such
+concentration has a nonnegative cost in the limiting functional; minimality
+then rules it out. By Arzelà--Ascoli theorem, $C^{0}$-precompactness
+is equivalent to $\{\psi_{k}\}$ being uniformly bounded and equicontinuous.
+Establishing this stronger compactness remains open.
 
 If (\ref{eq: dream converge}) holds, it may provide a method to detect
 the K-unstability of $P$. When $P$ is K-unstable, (\ref{eq: dream converge})
@@ -1273,13 +1291,6 @@ regular subdivision $S$, the outer-normal cone of $F(S)$ is
 \label{exa: pentagon}Let $A=\left\{ (0,0),(1,0),(2,0),(1,1),(0,1)\right\} \subset\bbr^{2}$,
 $Q=\mathrm{conv}(A)$ is a trapezoid. Its secondary polytope $\Sigma(A)$
 is a pentagon. 
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.3]{de-pentagon}
-
-\caption{$\Sigma(A)$ and the corresponding subdivisions. }
-
-\end{figure}
 \end{example}
 
 
@@ -1321,11 +1332,6 @@ satisfying
 \fint_{Q}h=\sum_{u\in A}h(u)\ell_{A}(u),\ \forall\text{ affine }h.
 \]
 
-\begin{figure}[h]
-\centering
-\includegraphics[viewport=0bp 0bp 1150bp 670bp,clip,scale=0.3]{\string"position of Secondary Polytope\string".pdf}\caption{\label{fig: Location of second poly}We only shows the positional
-relations. }
-\end{figure}
 
 (2) We define the \emph{relative} Chow-weight functional $M^{\mathrm{rel}}_{A}:\bbr^{A}\rightarrow\mathbb{R}$
 is 
@@ -1364,11 +1370,7 @@ projective embedding $\iota_{k}(X)$ induced by $\left|kL\right|$
 is Chow-semistable if and only if $\left|P_{k}\right|^{-1}\in\Sigma(P_{k})$,
 where Chow-semistability is with regard to the whole linear group
 action. 
-\begin{figure}[h]
-\centering
-\includegraphics[viewport=150bp 200bp 1140bp 650bp,clip,scale=0.3]{\string"chow stable\string".pdf}\caption{\label{fig: stable}Left: $(Q,A)$ is Chow-semistable. Right: $(Q,A)$
-is Chow-unstable but relatively Chow-semistable. Refer to Figure \ref{fig: Location of second poly}. }
-\end{figure}
+
 \end{thm}
 
 \begin{proof}
@@ -1630,12 +1632,7 @@ to compute the shortest GKZ vector $\sigma_{A}$. The result is
 It shows that $(Q,A)$ is relatively Chow-unstable, and $\sigma_{A}$
 lies in the relative interior of a facet. In this example, we have
 $S(\sigma_{A})=S_{A}$. Figure \ref{fig: SA} shows subdivision $S_{A}$.
-\begin{figure}[h]
-\centering
-\includegraphics[viewport=200bp 120bp 800bp 620bp,clip,scale=0.3]{\string"example mGKZ\string".pdf}
 
-\caption{\label{fig: SA}subdivision $S(\sigma_{A})=S_{A}$}
-\end{figure}
  
 
 \section{\label{sec:4}Optimal test functions for K-stability}
@@ -2136,38 +2133,768 @@ Hence
 
 
 \subsection{Convergence problem}
-\begin{proof}[Proof of Theorem \ref{thm:main converge}]
-\label{proof of convergence} We use a Gamma-convergence argument.
-We choose the function space $\mathcal{C}(P)$ endowed with the $C^{0}$-norm.
-Functional $\Psi_{k}$ pointwisely converges to $\Psi$ by (\ref{eq:EM}).
-We know that $\Psi_{k}$ admits a unique minimizer $\psi_{k}$ by
-Theorem \ref{thm: min Psi_k INTRO}, and $\Psi$ also admits a unique
-minimizer $\psi\coloneqq-\Theta_{P}\in\mathcal{C}(P)$ by Proposition
-\ref{prop: recharac Theta} and Theorem \ref{thm: theta is continuous-INTRO}. 
-
-First, since $\Psi_{k}(\psi_{k})\leq\Psi_{k}(\psi)$, we have 
+For $f\in\mathcal{C}(P)$, set
 \[
-\limsup_{k\rightarrow\infty}\Psi_{k}(\psi_{k})\leq\lim_{k}\Psi_{k}(\psi)=\Psi(\psi)=\inf\Psi.
+\left\Vert f\right\Vert _{k,2}^{2}\coloneqq\frac{1}{k^{n}}
+\sum_{u\in P_{k}}f(u)^{2},\qquad
+B_{k}(f)\coloneqq\frac{2}{k^{n-1}}\left(\sum_{u\in P_{k}}f(u)
+-k^{n}\int_{P}f\,\mathrm{d}x\right).
 \]
-If one can show that each subsequence of $\psi_{k}$ has a subsequence
-which converges to $\psi$, then it follows that $\psi_{k}$ converges
-to $\psi$ via a contradiction argument. Without loss of generality,
-we consider the sequence $\psi_{k}$ itself. 
+Thus $\Psi_{k}(f)=\frac{1}{2}\left\Vert f\right\Vert _{k,2}^{2}+B_{k}(f)$.
+We use the following standard compactness form of the convex quadrature
+lemma. Notice that no control of the values on faces of codimension
+at least two is assumed.
 
-By the \textit{pre-compactness assumption}, $\psi_{k}$ has a subsequence
-$\psi_{k_{j}}$ which uniformly converges to $\psi_{\infty}\in\mathcal{C}(P)$.
-It remains to show $\psi_{\infty}=\psi$. By (\ref{eq:EM enhanced}),
-we have 
+\begin{lem}[convex quadrature compactness]
+\label{lem: convex quadrature compactness}Assume that $P$ is Delzant.
+There is a constant $C_{P}$ such that
+\begin{equation}
+B_{k}(f)\geq-C_{P}\left\Vert f\right\Vert _{k,2},\qquad
+\left\Vert f\right\Vert _{L^{2}(P)}\leq C_{P}\left\Vert f\right\Vert _{k,2}
+\label{eq: convex quadrature coercivity}
+\end{equation}
+for every sufficiently large $k$ and every $f\in\mathcal{C}(P)$. Since
+only the limit $k\rightarrow\infty$ is used below, the finitely many
+smaller values of $k$ are irrelevant. Moreover, suppose that
+$f_{k}\in\mathcal{C}(P)$ and $\sup_{k}\left\Vert f_{k}\right\Vert _{k,2}<\infty$.
+After passing to a subsequence, there is a convex $f\in L^{2}(P)$
+such that $f_{k}\rightharpoonup f$ weakly in $L^{2}(P)$ and
+$f_{k}\rightarrow f$ locally uniformly on $\mathrm{int}P$. We use
+the lower semicontinuous extension of $f$ to $P$ and allow its boundary
+integral to be $+\infty$. For this subsequence,
+\begin{equation}
+\liminf_{k\rightarrow\infty}\left\Vert f_{k}\right\Vert _{k,2}^{2}
+\geq\left\Vert f\right\Vert _{L^{2}(P)}^{2},\qquad
+\liminf_{k\rightarrow\infty}B_{k}(f_{k})
+\geq\int_{\partial P}f\,\mathrm{d}\sigma.\label{eq: convex quadrature liminf}
+\end{equation}
+If, in addition,
+\begin{equation}
+\lim_{k\rightarrow\infty}\left\Vert f_{k}\right\Vert _{k,2}^{2}
+=\left\Vert f\right\Vert _{L^{2}(P)}^{2},\label{eq: no discrete L2 defect}
+\end{equation}
+then $f_{k}\rightarrow f$ strongly in $L^{2}(P)$.
+\end{lem}
+
+\begin{proof}
+We divide the proof into four steps. Write the facets as
+$F_{1},\ldots,F_{N}$, choose primitive integral affine functions
+$l_{r}$ such that
 \[
-\liminf_{j\rightarrow\infty}\Psi_{k_{j}}(\psi_{k_{j}})=\Psi(\psi_{\infty})\geq\Psi(\psi)=\inf\Psi.
+P=\{l_{r}\geq0,\ 1\leq r\leq N\},\qquad F_{r}=\{l_{r}=0\},
 \]
-We already show $\limsup_{j}\Psi_{k_{j}}(\psi_{k_{j}})\leq\inf\Psi$.
-It forces $\Psi(\psi_{\infty})=\Psi(\psi)$, so $\psi_{\infty}=\psi$
-by the uniqueness of minimizer of $\Psi$. 
+and, for $\delta>0$, put
+\[
+P^{\delta}\coloneqq\{x\in P\mid l_{r}(x)\geq\delta
+\text{ for every }r\}.
+\]
+Changing the Euclidean norm only changes constants, so below all
+constants depend only on $P$. The Delzant assumption is used only in
+the lattice trapezoid calculation below.
+
+\textbf{Step 1: sampling estimates for convex functions.}
+Fix a triangulation $\mathcal{T}$ of $P$ whose vertices are lattice
+points. The standard $k$-fold edgewise subdivision gives a
+triangulation $\mathcal{T}_{k}$ with the following uniform properties:
+\begin{enumerate}
+\item every vertex of $\mathcal{T}_{k}$ belongs to $P_{k}$;
+\item every simplex has diameter at most $C/k$;
+\item only finitely many affine shapes occur after rescaling by $k$;
+\item every vertex belongs to at most $C$ simplices.
+\end{enumerate}
+If $\Delta\in\mathcal{T}_{k}$ has vertices
+$u_{0},\ldots,u_{n}$ and $x=\sum_{i=0}^{n}\lambda_{i}u_{i}$, convexity
+gives
+\begin{equation}
+h(x)\leq\sum_{i=0}^{n}\lambda_{i}h(u_{i}).\label{eq: convex upper interpolation}
+\end{equation}
+Consequently,
+\[
+h_{+}(x)^{2}\leq
+\left(\sum_{i=0}^{n}\lambda_{i}|h(u_{i})|\right)^{2}
+\leq\sum_{i=0}^{n}\lambda_{i}h(u_{i})^{2}.
+\]
+Integration over $\Delta$, followed by summation over
+$\mathcal{T}_{k}$, yields
+\begin{equation}
+\int_{P}h_{+}^{2}\,\mathrm{d}x
+\leq\frac{C}{k^{n}}\sum_{u\in P_{k}}h(u)^{2}.
+\label{eq: positive sampling estimate}
+\end{equation}
+
+We also need to control the negative part. We first spell out the
+geometric observation used for this purpose. There are constants
+$A$ and $k_{0}$ such that, if $k\geq k_{0}$ and
+$\Delta\in\mathcal{T}_{k}$ has vertices $u_{0},\ldots,u_{n}$, one
+can find $p=p(\Delta)\in P_{k}$ satisfying
+\begin{equation}
+2p-u_{i}\in P_{k},\qquad
+\operatorname{dist}(p,\Delta)+
+\max_{i}\operatorname{dist}(2p-u_{i},\Delta)\leq A/k.
+\label{eq: reflected lattice stencil}
+\end{equation}
+Here is the construction. Let $I(\Delta)$ consist of those $r$ for
+which $\min_{\Delta}l_{r}\leq A_{0}/k$. If $I(\Delta)$ is empty,
+take $p=u_{0}$. The diameter bound in property (2), with $A_{0}$
+sufficiently large, then shows that every reflection $2p-u_{i}$ lies
+in $P$. If $I(\Delta)$ is nonempty, then, for all sufficiently large
+$k$, the facets $F_{r}$ with $r\in I(\Delta)$ have a common face
+$G$: a collection of facets with empty intersection has a fixed
+positive lower bound for $\max_{r}l_{r}$ on the compact set $P$.
+Choose once and for all an integral vector $w_{G}$ pointing strictly
+into every facet containing $G$. Put
+$p=u_{0}+a w_{G}/k$, where the fixed integer $a$ is larger than the
+maximum, over the finitely many rescaled simplex shapes, of the
+oscillation of each defining function $l_{r}$ on that simplex. Then
+\[
+l_{r}(2p-u_{i})=2l_{r}(p)-l_{r}(u_{i})\geq0
+\]
+for every facet containing $G$. For $r\notin I(\Delta)$, the negative
+change caused by the fixed vector $2a w_{G}/k$ is bounded by $C/k$,
+whereas $l_{r}\geq A_{0}/k$ on $\Delta$. Increasing $A_{0}$ once
+therefore gives the same inequality for those facets. Since there are
+only finitely many faces and
+rescaled simplex shapes, uniform $a,A$ and $k_{0}$ may be chosen.
+This proves (\ref{eq: reflected lattice stencil}).
+
+Write $x=\sum_{i}\lambda_{i}u_{i}$ and set
+$y=2p-x=\sum_{i}\lambda_{i}(2p-u_{i})$. Convexity, first on the
+segment $[x,y]$ and then on the reflected simplex, gives
+\[
+h(p)\leq\frac{h(x)+h(y)}{2},\qquad
+h(y)\leq\sum_{i=0}^{n}\lambda_{i}h(2p-u_{i}).
+\]
+It follows that
+\[
+h(x)\geq2h(p)-\sum_{i=0}^{n}\lambda_{i}h(2p-u_{i})
+\]
+and hence
+\begin{equation}
+h_{-}(x)^{2}\leq C\left(h(p)^{2}
++\sum_{i=0}^{n}h(2p-u_{i})^{2}\right).
+\label{eq: negative pointwise sampling}
+\end{equation}
+The points on the right form a stencil of uniformly bounded size in
+the $A/k$-neighborhood of $\Delta$. Each lattice point occurs in only
+a uniformly bounded number of stencils, because the mesh has bounded
+overlap and all its simplices have diameter $O(k^{-1})$. Integrating
+(\ref{eq: negative pointwise sampling}), adding
+(\ref{eq: positive sampling estimate}), and summing over the relevant
+simplices gives
+\begin{equation}
+\int_{E}h^{2}\,\mathrm{d}x
+\leq\frac{C}{k^{n}}
+\sum_{\substack{u\in P_{k}\\ \operatorname{dist}(u,E)\leq C/k}}
+h(u)^{2}\label{eq: local sampling estimate}
+\end{equation}
+for every union $E$ of simplices of $\mathcal{T}_{k}$. Approximating
+an arbitrary measurable set from outside by such a union only changes
+$C/k$ to $2C/k$. Taking $E=P$ proves
+\begin{equation}
+\left\Vert h\right\Vert _{L^{2}(P)}
+\leq C\left\Vert h\right\Vert _{k,2}.
+\label{eq: detailed discrete continuous bound}
+\end{equation}
+
+We shall also use the following interior estimate. If
+$K\Subset K'\Subset\mathrm{int}P$ and $h$ is convex, then
+\begin{equation}
+\sup_{K}|h|+\operatorname{Lip}_{K}(h)
+\leq C_{K,K'}\left\Vert h\right\Vert _{L^{2}(K')}.
+\label{eq: interior convex estimate}
+\end{equation}
+For completeness, choose $r>0$ so that every ball of radius $4r$
+centered in $K$ is contained in $K'$. Jensen's inequality on
+$B(x,r)$ gives
+\[
+h(x)\leq |B(x,r)|^{-1}\int_{B(x,r)}h
+\leq C_{r}\left\Vert h\right\Vert _{L^{2}(K')}.
+\]
+This is the required upper bound. For the lower bound, write
+$h(x)=-M$ and denote the preceding upper bound on the
+$2r$-neighborhood of $K$ by $A$. For $z\in B(x,r)$, convexity gives
+\[
+h\left(\frac{x+z}{2}\right)
+\leq\frac{h(x)+h(z)}{2}\leq\frac{-M+A}{2}.
+\]
+If $M>2A$, then $|h|\geq M/4$ on the ball $B(x,r/2)$ obtained as
+$z$ varies, and therefore $M\leq C_{r}\Vert h\Vert_{L^{2}(K')}$.
+If $M\leq2A$, the same conclusion is immediate. Thus $|h|$ is
+bounded on the $2r$-neighborhood of $K$. Finally, if
+$q\in\partial h(x)$ and $x\in K$, the subgradient inequalities at
+$x\pm r e_{i}$ give
+\[
+h(x)\pm r\langle q,e_{i}\rangle\leq h(x\pm r e_{i}).
+\]
+The $C^{0}$ bound therefore bounds all components of $q$, and the
+subgradient inequality on line segments gives the Lipschitz estimate
+in (\ref{eq: interior convex estimate}).
+
+We next prove the first estimate for $B_{k}$. Fix
+$p\in\mathrm{int}P$ and choose a supporting affine function
+\[
+\ell(x)=h(p)+\langle q,x-p\rangle,\qquad q\in\partial h(p),
+\]
+and set $g=h-\ell\geq0$. Apply
+(\ref{eq: interior convex estimate}) to a compact neighborhood of
+$p$, and then use (\ref{eq: detailed discrete continuous bound}).
+The value $h(p)$ and every component of $q$ are bounded by
+$C\Vert h\Vert_{k,2}$. Since $P$ is bounded, this proves
+\[
+\Vert\ell\Vert_{C^{0}(P)}\leq C\Vert h\Vert_{k,2}.
+\]
+Moreover, Ehrhart's estimate $k^{-n}|P_{k}|\leq C$ implies
+$\Vert\ell\Vert_{k,2}\leq C\Vert\ell\Vert_{C^{0}(P)}$. The discrete
+triangle inequality for $g=h-\ell$ now gives
+\begin{equation}
+\left\Vert\ell\right\Vert _{C^{0}(P)}
++\left\Vert g\right\Vert _{k,2}
+\leq C\left\Vert h\right\Vert _{k,2}.
+\label{eq: supporting affine control}
+\end{equation}
+
+We now give the lattice trapezoid calculation which will be used both
+here and in Step 2. If compact polytopes
+$K_{F}\Subset\operatorname{relint}F$ are prescribed, then there are
+fixed compact convex sets
+$Q\Subset Q'\Subset\operatorname{int}P$ such that every
+nonnegative convex $g$ satisfies
+\begin{equation}
+\sum_{u\in P_{k}}g(u)-k^{n}\int_{P}g\,\mathrm{d}x
+\geq\frac{1}{2}\sum_{F}
+\sum_{u\in K_{F}\cap P_{k}}g(u)
+-Ck^{n-2}\left(\sup_{Q}g+\operatorname{Lip}_{Q}(g)\right).
+\label{eq: lattice trapezoid estimate}
+\end{equation}
+When $n=1$, the last term is absent.
+
+Here is the cell bookkeeping behind this estimate. At a codimension
+$r$ face of a Delzant polytope, the primitive defining functions of
+the $r$ facets through that face extend to integral affine
+coordinates. In these coordinates a sufficiently small face
+neighborhood is an orthant, and the coordinate change has determinant
+$\pm1$. Thus it preserves both the lattice and the volume form.
+Subdivide the neighborhood into half-open lattice boxes
+of side $1/k$. If $R$ is one such box, with vertices
+$v_{\varepsilon}$, $\varepsilon\in\{0,1\}^{n}$, every $x\in R$ is
+the convex combination of these vertices with the multilinear
+barycentric weights. More explicitly, in the box coordinates put
+$t_i=k(x_i-a_i)\in[0,1]$ and
+$\lambda_{\varepsilon}(x)=\prod_i t_i^{\varepsilon_i}
+(1-t_i)^{1-\varepsilon_i}$. Then
+$\int_R\lambda_{\varepsilon}\,\mathrm{d}x=2^{-n}k^{-n}$.
+Integrating the convexity inequality gives
+\begin{equation}
+k^{n}\int_{R}g\,\mathrm{d}x
+\leq2^{-n}\sum_{\varepsilon\in\{0,1\}^{n}}
+g(v_{\varepsilon}).
+\label{eq: box trapezoid}
+\end{equation}
+After summing (\ref{eq: box trapezoid}), an interior mesh point occurs
+in $2^{n}$ boxes and has total weight $1$; a point in the relative
+interior of a facet occurs in $2^{n-1}$ boxes and has weight $1/2$;
+more generally, a point in the relative interior of a codimension
+$r$ face has weight $2^{-r}$. Each of these weights is no larger than
+the coefficient $1$ with which that point occurs in
+$\sum_{u\in P_{k}}g(u)$.
+
+For clarity, the global cell decomposition is obtained as follows.
+First make the box decomposition on every face and extend it
+successively in the inward normal directions. At level $k$, choose
+each artificial separating interface on the nearest lattice layer
+and triangulate the one-layer slab between two different box charts.
+Only finitely many rescaled slab shapes occur. Assign one half of the
+lattice points on such an interface to each adjacent chart. For a
+constant function their two half-weights add exactly to the interior
+weight one. For a general $g$, subtract its value at one vertex of
+each slab cell. The constant parts still cancel, whereas the remaining
+part is bounded by $Ck^{-1}\operatorname{Lip}_{Q}(g)$ per cell. Since
+there are $O(k^{n-1})$ cells along all codimension-one interfaces,
+their total contribution is at most
+$Ck^{n-2}\operatorname{Lip}_{Q}(g)$.
+
+Fill the remaining core by lattice boxes and triangulate the finitely
+many cut-cell shapes. A cut cell which is not already included in a
+codimension-one slab must meet two separating interfaces, so there
+are only $O(k^{n-2})$ such cells. All their vertices lie in one fixed
+compact set $Q\Subset\operatorname{int}P$, and their rescaled volumes
+and numbers of vertices are uniformly bounded. Their total error is
+therefore at most $Ck^{n-2}\sup_{Q}g$. The genuine boundary
+coefficients are nonnegative, and on each prescribed $K_{F}$ they
+equal $1/2$ for all sufficiently large $k$. Dropping all remaining
+nonnegative coefficients proves
+(\ref{eq: lattice trapezoid estimate}).
+
+Take all $K_{F}$ empty in
+(\ref{eq: lattice trapezoid estimate}), multiply by $2/k^{n-1}$,
+and use (\ref{eq: interior convex estimate}) and
+(\ref{eq: detailed discrete continuous bound}). This gives
+\begin{equation}
+B_{k}(g)\geq-C\left\Vert g\right\Vert _{k,2}.
+\label{eq: nonnegative quadrature lower bound}
+\end{equation}
+For an affine function $\ell$, the first two coefficients of the
+weighted Ehrhart polynomial give
+\[
+B_{k}(\ell)=\int_{\partial P}\ell\,\mathrm{d}\sigma
++O(k^{-1})\left\Vert\ell\right\Vert _{C^{0}(P)}.
+\]
+Since $B_{k}$ is linear, combining this identity with
+(\ref{eq: supporting affine control}) and
+(\ref{eq: nonnegative quadrature lower bound}) proves
+\[
+B_{k}(h)\geq-C\left\Vert h\right\Vert _{k,2}.
+\]
+Together with (\ref{eq: detailed discrete continuous bound}), this
+proves (\ref{eq: convex quadrature coercivity}).
+
+\textbf{Step 2: the boundary liminf.}
+We first establish the compactness needed in this step. By
+(\ref{eq: detailed discrete continuous bound}), the sequence
+$\{f_{k}\}$ is bounded in $L^{2}(P)$, so a subsequence converges
+weakly to some $f\in L^{2}(P)$. Convexity passes to the weak limit:
+for every nonnegative $\chi\in C_{c}^{\infty}(\mathrm{int}P)$ and
+every vector $\xi$,
+\[
+\int_{P}f_{k}\,\partial_{\xi\xi}\chi\,\mathrm{d}x\geq0.
+\]
+Weak convergence permits passage to the limit. Thus the
+distributional Hessian of $f$ is nonnegative, and the standard
+distributional characterization of convexity gives a convex
+representative of $f$, which we continue to denote by $f$.
+
+For each $K\Subset K'\Subset\mathrm{int}P$, the right-hand side of
+(\ref{eq: interior convex estimate}) is uniformly bounded. Hence
+$\{f_{k}\}$ is uniformly bounded and equicontinuous on $K$. Choose
+an exhaustion
+$K_{1}\Subset K_{2}\Subset\cdots\Subset\mathrm{int}P$.
+Arzelà--Ascoli first gives a uniformly convergent subsequence on
+$K_{1}$; from it choose one converging on $K_{2}$, and continue
+inductively. The diagonal subsequence converges locally uniformly on
+$\mathrm{int}P$. Local uniform convergence implies distributional
+convergence, while the same subsequence converges weakly in $L^{2}$;
+therefore its local uniform limit is the weak limit $f$.
+
+Fix compact polytopes $K_{F}\Subset\operatorname{relint}F$, one for
+each facet. Applying (\ref{eq: lattice trapezoid estimate}) to a
+nonnegative convex sequence $g_{k}$ and recalling the definition of
+$B_{k}$ gives the explicit estimate
+\begin{equation}
+B_{k}(g_{k})\geq
+\sum_{F}\frac{1}{k^{n-1}}
+\sum_{y\in K_{F}\cap P_{k}}g_{k}(y)
+-\frac{C}{k}\left(\sup_{Q}g_{k}
++\operatorname{Lip}_{Q}(g_{k})\right).
+\label{eq: facet lattice lower bound}
+\end{equation}
+The coefficient is $1$ because the facet weight $1/2$ in
+(\ref{eq: lattice trapezoid estimate}) is multiplied by the factor
+$2$ in $B_{k}$. The error is $O(k^{-1})$ whenever $g_{k}$ is locally
+uniformly bounded on $\mathrm{int}P$, because
+(\ref{eq: interior convex estimate}) also gives a uniform Lipschitz
+bound on $Q$.
+
+We apply this to the subsequence just constructed. Choose the same
+point $p\in\mathrm{int}P$ as above and
+$q_{k}\in\partial f_{k}(p)$. Local uniform boundedness on a ball
+around $p$ implies that $\{q_{k}\}$ is bounded: if
+$B(p,2r)\Subset P$, the subgradient inequality at
+$p\pm r e_{i}$ gives
+\[
+|\langle q_{k},e_{i}\rangle|
+\leq r^{-1}\left(
+|f_{k}(p+r e_{i})|+|f_{k}(p-r e_{i})|+2|f_{k}(p)|\right).
+\]
+After passing to a further subsequence, the supporting affine
+functions
+\[
+\ell_{k}(x)=f_{k}(p)+\langle q_{k},x-p\rangle
+\]
+converge uniformly to an affine function $\ell$, and
+$g_{k}=f_{k}-\ell_{k}\geq0$ converges locally uniformly to
+$g=f-\ell$ on $\mathrm{int}P$.
+
+For every facet $F$, primitivity of $l_{F}$ gives an integral vector
+$v_{F}$ with $l_{F}(v_{F})=1$. Since $K_{F}$ is separated from all
+the other facets, this vector points into $P$ above $K_{F}$ for a
+sufficiently short time. Thus we may choose $\delta>0$ so small that
+\[
+\{y+t v_{F}\mid y\in K_{F},\ 0\leq t\leq2\delta\}
+\Subset P\setminus\bigcup_{F'\neq F}F'.
+\]
+Put $m_{k}=\lfloor k\delta\rfloor$. Then
+$y+jv_{F}/k\in P_{k}$ for $y\in K_{F}\cap P_{k}$ and
+$0\leq j\leq2m_{k}$, once $k$ is sufficiently large.
+
+For $y\in K_{F}\cap k^{-1}\mathbb{Z}^{n}$, convexity on the segment
+$[y,y+2m_{k}v_{F}/k]$ gives
+\begin{equation}
+g_{k}(y)\geq
+2g_{k}(y+m_{k}v_{F}/k)-g_{k}(y+2m_{k}v_{F}/k).
+\label{eq: recover boundary value}
+\end{equation}
+Both points on the right stay in a compact subset of
+$\mathrm{int}P$. Hence local uniform convergence and the ordinary
+Riemann-sum theorem on $F$ imply, using
+(\ref{eq: facet lattice lower bound}) and the boundedness of
+$\sup_{Q}g_{k}+\operatorname{Lip}_{Q}(g_{k})$,
+\[
+\liminf_{k\rightarrow\infty}B_{k}(g_{k})
+\geq\sum_{F}\int_{K_{F}}
+\left(2g(y+\delta v_{F})-g(y+2\delta v_{F})\right)
+\,\mathrm{d}\sigma_{F}.
+\]
+For a one-dimensional convex function $t\mapsto g(y+t v_{F})$, the
+quantities
+$2g(y+\delta v_{F})-g(y+2\delta v_{F})$ converge increasingly along
+dyadic $\delta\downarrow0$ to the lower semicontinuous boundary value
+$g(y)$. Indeed, if $\phi(t)=g(y+t v_{F})$, monotonicity of the secant
+slopes gives
+\[
+2\bigl(\phi(t)-\phi(t/2)\bigr)
+\leq\phi(2t)-\phi(t),
+\]
+which is exactly
+$2\phi(t/2)-\phi(t)\geq2\phi(t)-\phi(2t)$. The limit is
+$\phi(0)$ by the definition of the lower semicontinuous extension.
+On a fixed $K_{F}$ these functions have a common lower bound after
+restricting to $0<\delta\leq\delta_{0}$, because their possible
+negative part is bounded by $g(y+2\delta v_{F})$ on a compact subset
+of the interior. We may therefore add one constant and apply monotone
+convergence. We first let dyadic $\delta\downarrow0$ and then take an
+increasing exhaustion $K_{F}\nearrow\mathrm{relint}F$. A second
+application of monotone convergence gives
+\[
+\liminf_{k\rightarrow\infty}B_{k}(g_{k})
+\geq\sum_{F}\int_{F}g\,\mathrm{d}\sigma_{F}.
+\]
+Finally, the affine Ehrhart formula and
+$\ell_{k}\to\ell$ uniformly give
+$B_{k}(\ell_{k})\to\int_{\partial P}\ell\,\mathrm{d}\sigma$.
+Since $f_{k}=g_{k}+\ell_{k}$, we obtain
+\begin{equation}
+\liminf_{k\rightarrow\infty}B_{k}(f_{k})
+\geq\int_{\partial P}f\,\mathrm{d}\sigma.
+\label{eq: detailed boundary liminf}
+\end{equation}
+If the right-hand side is $+\infty$, the same argument applied to an
+increasing exhaustion by the $K_{F}$ shows that the left-hand side
+is $+\infty$ as well.
+
+\textbf{Step 3: the quadratic liminf.}
+Fix $\delta>0$ for which $P^{\delta}$ has nonempty interior. Local
+uniform convergence and the ordinary Riemann-sum theorem give
+\[
+\lim_{k\rightarrow\infty}\frac{1}{k^{n}}
+\sum_{u\in P_{k}\cap P^{\delta}}f_{k}(u)^{2}
+=\int_{P^{\delta}}f^{2}\,\mathrm{d}x.
+\]
+All omitted summands are nonnegative, hence
+\[
+\liminf_{k\rightarrow\infty}\left\Vert f_{k}\right\Vert _{k,2}^{2}
+\geq\int_{P^{\delta}}f^{2}\,\mathrm{d}x.
+\]
+Letting $\delta\downarrow0$ and using monotone convergence proves
+\[
+\liminf_{k\rightarrow\infty}\left\Vert f_{k}\right\Vert _{k,2}^{2}
+\geq\left\Vert f\right\Vert _{L^{2}(P)}^{2}.
+\]
+Together with (\ref{eq: detailed boundary liminf}), this proves
+(\ref{eq: convex quadrature liminf}).
+
+\textbf{Step 4: absence of an $L^{2}$ boundary defect.}
+Assume now (\ref{eq: no discrete L2 defect}).
+For every fixed $\delta>0$, the interior Riemann-sum convergence then
+implies
+\begin{align}
+\limsup_{k\rightarrow\infty}\frac{1}{k^{n}}
+\sum_{u\in P_{k}\setminus P^{\delta}}f_{k}(u)^{2}
+&\leq\left\Vert f\right\Vert _{L^{2}(P)}^{2}
+-\int_{P^{\delta}}f^{2}\,\mathrm{d}x\nonumber\\
+&=\int_{P\setminus P^{\delta}}f^{2}\,\mathrm{d}x.
+\label{eq: boundary discrete mass}
+\end{align}
+Apply the local sampling estimate
+(\ref{eq: local sampling estimate}) to
+$E=P\setminus P^{2\delta}$. For all sufficiently large $k$, the
+$C/k$-neighborhood of $E$ is contained in
+$P\setminus P^{\delta}$. Thus
+\[
+\limsup_{k\rightarrow\infty}
+\int_{P\setminus P^{2\delta}}f_{k}^{2}\,\mathrm{d}x
+\leq C\int_{P\setminus P^{\delta}}f^{2}\,\mathrm{d}x.
+\]
+On $P^{2\delta}$ the convergence is uniform, hence strong in
+$L^{2}$. Therefore
+\begin{align*}
+\limsup_{k\rightarrow\infty}
+\left\Vert f_{k}-f\right\Vert _{L^{2}(P)}^{2}
+&\leq2\limsup_{k\rightarrow\infty}
+\int_{P\setminus P^{2\delta}}f_{k}^{2}\,\mathrm{d}x
++2\int_{P\setminus P^{2\delta}}f^{2}\,\mathrm{d}x\\
+&\leq2C\int_{P\setminus P^{\delta}}f^{2}\,\mathrm{d}x
++2\int_{P\setminus P^{2\delta}}f^{2}\,\mathrm{d}x.
+\end{align*}
+Both terms tend to zero as $\delta\downarrow0$, because
+$f\in L^{2}(P)$. Hence $f_{k}\to f$ strongly in $L^{2}(P)$, which
+proves the last assertion.
 \end{proof}
 
 \begin{rem}
-We have a plan to verify the precompactness of $\psi_{k}=2V_{P}k^{n+1}\sigma^{\vee}_{k}-2k$. 
+The Delzant hypothesis in Lemma
+\ref{lem: convex quadrature compactness} cannot be omitted for a
+general lattice polytope. For example, let
+\[
+P_{m}=\operatorname{conv}\{(0,0),(1,0),(1,m)\},\qquad m>6,
+\]
+and write a point as $(x_{1},x_{2})$. The primitive edge directions
+at the origin have determinant $m$, so $P_{m}$ is not Delzant. The
+convex functions
+\[
+g_{k}(x_{1},x_{2})=k\max\{1-kx_{1},0\}
+\]
+vanish at every point of $(P_{m})_{k}$ except the origin, where their
+value is $k$. Therefore
+\[
+\Vert g_{k}\Vert_{k,2}^{2}=1,
+\qquad
+\int_{P_{m}}g_{k}\,\mathrm{d}x
+=\int_{0}^{1/k}kmx_{1}(1-kx_{1})\,\mathrm{d}x_{1}
+=\frac{m}{6k},
+\]
+and hence
+\[
+B_{k}(g_{k})=\frac{2}{k}
+\left(k-k^{2}\frac{m}{6k}\right)
+=2\left(1-\frac{m}{6}\right)<0.
+\]
+On the other hand, $g_{k}\to0$ locally uniformly away from the origin
+and $g_{k}\rightharpoonup0$ weakly in $L^{2}(P_{m})$; indeed
+$\int_{P_{m}}g_{k}^{2}\,\mathrm{d}x=m/12$. Thus the boundary liminf
+in (\ref{eq: convex quadrature liminf}) would read
+$2(1-m/6)\geq0$, which is false. The lattice-box weights in
+(\ref{eq: box trapezoid}) explain exactly why smoothness of the
+transverse lattice cones removes this defect.
+\end{rem}
+
+\begin{proof}[Proof of Theorem \ref{thm:main converge}]
+\label{proof of convergence} Put $\psi=-\Theta_{P}$. By Proposition
+\ref{prop: recharac Theta} and Theorem \ref{thm: theta is continuous-INTRO},
+$\psi\in\mathcal{C}(P)$ is the unique minimizer of $\Psi$. Minimality
+of $\psi_{k}$ and (\ref{eq:EM}) give
+\begin{equation}
+\limsup_{k\rightarrow\infty}\Psi_{k}(\psi_{k})
+\leq\lim_{k\rightarrow\infty}\Psi_{k}(\psi)
+=\Psi(\psi)=\inf\Psi.\label{eq: minimizer limsup}
+\end{equation}
+On the other hand, (\ref{eq: convex quadrature coercivity}) and Young's
+inequality imply
+\[
+\Psi_{k}(f)\geq\frac{1}{2}\left\Vert f\right\Vert _{k,2}^{2}
+-C_{P}\left\Vert f\right\Vert _{k,2}
+\geq\frac{1}{4}\left\Vert f\right\Vert _{k,2}^{2}-C_{P}^{2}.
+\]
+Together with (\ref{eq: minimizer limsup}), this shows that
+$\sup_{k}\left\Vert\psi_{k}\right\Vert _{k,2}<\infty$.
+
+\textbf{Step 1}. We first prove convergence of the discrete quadratic
+terms. Set
+\[
+a_{k}\coloneqq\left\Vert\psi_{k}\right\Vert _{k,2}^{2}.
+\]
+The preceding coercivity argument shows that $\{a_{k}\}$ is bounded.
+Let $A$ be any subsequential limit of $\{a_{k}\}$, and choose a
+subsequence $\{k_{j}\}$ such that
+\begin{equation}
+\lim_{j\rightarrow\infty}a_{k_{j}}=A.\label{eq: choose discrete norm limit}
+\end{equation}
+Lemma \ref{lem: convex quadrature compactness}, applied to
+$\{\psi_{k_{j}}\}$, provides a further subsequence, still denoted by
+$\{k_{j}\}$, and a convex function $u\in L^{2}(P)$ such that
+\[
+\psi_{k_{j}}\rightharpoonup u\quad\text{weakly in }L^{2}(P),\qquad
+\psi_{k_{j}}\longrightarrow u\quad\text{locally uniformly on }
+\mathrm{int}P.
+\]
+We claim first that $\int_{\partial P}u\,\mathrm{d}\sigma$ is finite.
+Indeed, Lemma \ref{lem: convex quadrature compactness} interprets this
+integral in the extended sense. If it were $+\infty$, then
+(\ref{eq: choose discrete norm limit}) and
+(\ref{eq: convex quadrature liminf}) would imply
+\[
+\liminf_{j\rightarrow\infty}\Psi_{k_{j}}(\psi_{k_{j}})
+\geq\frac{1}{2}A+\int_{\partial P}u\,\mathrm{d}\sigma=+\infty,
+\]
+contradicting (\ref{eq: minimizer limsup}). Thus
+$u\in\mathcal{C}_{1}(P)\cap L^{2}(P)$ and $\Psi(u)$ is well-defined.
+
+Since $a_{k_{j}}\rightarrow A$, the elementary inequality
+$\liminf(x_{j}+y_{j})\geq\lim x_{j}+\liminf y_{j}$ and
+(\ref{eq: convex quadrature liminf}) give
+\begin{align*}
+\liminf_{j\rightarrow\infty}\Psi_{k_{j}}(\psi_{k_{j}})
+&=\liminf_{j\rightarrow\infty}
+\left(\frac{1}{2}a_{k_{j}}+B_{k_{j}}(\psi_{k_{j}})\right)\\
+&\geq\frac{1}{2}A+\liminf_{j\rightarrow\infty}
+B_{k_{j}}(\psi_{k_{j}})\\
+&\geq\frac{1}{2}A+\int_{\partial P}u\,\mathrm{d}\sigma\\
+&\geq\frac{1}{2}\left\Vert u\right\Vert _{L^{2}(P)}^{2}
++\int_{\partial P}u\,\mathrm{d}\sigma
+=\Psi(u).
+\end{align*}
+Here the last inequality uses
+$A=\lim_{j}a_{k_{j}}\geq\left\Vert u\right\Vert _{L^{2}(P)}^{2}$,
+which is the first inequality in (\ref{eq: convex quadrature liminf}).
+Combining this with (\ref{eq: minimizer limsup}) and the minimality of
+$\psi$ gives the complete chain
+\begin{align*}
+\Psi(\psi)
+&\geq\limsup_{j\rightarrow\infty}\Psi_{k_{j}}(\psi_{k_{j}})
+\geq\liminf_{j\rightarrow\infty}\Psi_{k_{j}}(\psi_{k_{j}})\\
+&\geq\frac{1}{2}A+\int_{\partial P}u\,\mathrm{d}\sigma
+\geq\Psi(u)\geq\Psi(\psi).
+\end{align*}
+Hence every inequality in this chain is an equality. In particular,
+$\Psi(u)=\Psi(\psi)$, so the uniqueness of the minimizer of $\Psi$
+implies
+\begin{equation}
+u=\psi.\label{eq: weak limit is psi}
+\end{equation}
+Moreover, the equality chain contains the identity
+\[
+\frac{1}{2}A+\int_{\partial P}u\,\mathrm{d}\sigma
+=\Psi(u)
+=\frac{1}{2}\left\Vert u\right\Vert _{L^{2}(P)}^{2}
++\int_{\partial P}u\,\mathrm{d}\sigma.
+\]
+Since the boundary integral is finite, subtracting it from both sides
+gives
+\[
+A=\left\Vert u\right\Vert _{L^{2}(P)}^{2}
+=\left\Vert\psi\right\Vert _{L^{2}(P)}^{2}.
+\]
+Thus every subsequential limit of the bounded sequence $\{a_{k}\}$
+equals $\left\Vert\psi\right\Vert _{L^{2}(P)}^{2}$. It follows that
+the whole sequence converges:
+\begin{equation}
+\lim_{k\rightarrow\infty}\left\Vert\psi_{k}\right\Vert _{k,2}^{2}
+=\left\Vert\psi\right\Vert _{L^{2}(P)}^{2}.
+\label{eq: full discrete norm convergence}
+\end{equation}
+For completeness, if this conclusion failed, there would be an
+$\varepsilon>0$ and a subsequence along which
+$|a_{k}-\left\Vert\psi\right\Vert _{L^{2}(P)}^{2}|\geq\varepsilon$.
+Boundedness would give a further convergent subsequence, whose limit
+would be a subsequential limit different from
+$\left\Vert\psi\right\Vert _{L^{2}(P)}^{2}$, a contradiction.
+
+\textbf{Step 2}. We next prove strong $L^{2}$ convergence of the
+functions. Let $\{\psi_{k_{j}}\}$ be an arbitrary subsequence. By
+Lemma \ref{lem: convex quadrature compactness}, after passing to a
+further subsequence $\{\psi_{k_{j_{\ell}}}\}$, there is a convex
+$v\in L^{2}(P)$ such that
+\[
+\psi_{k_{j_{\ell}}}\rightharpoonup v\quad\text{weakly in }L^{2}(P)
+\]
+and the convergence is locally uniform on $\mathrm{int}P$. The
+boundary integral of $v$ must be finite: otherwise the boundary
+liminf in (\ref{eq: convex quadrature liminf}) would contradict
+(\ref{eq: minimizer limsup}), exactly as in Step 1. Hence
+$v\in\mathcal{C}_{1}(P)\cap L^{2}(P)$.
+
+By (\ref{eq: full discrete norm convergence}),
+\[
+\lim_{\ell\rightarrow\infty}
+\left\Vert\psi_{k_{j_{\ell}}}\right\Vert _{k_{j_{\ell}},2}^{2}
+=\left\Vert\psi\right\Vert _{L^{2}(P)}^{2}.
+\]
+The quadratic liminf in (\ref{eq: convex quadrature liminf}) first
+shows that
+$\left\Vert\psi\right\Vert _{L^{2}(P)}^{2}
+\geq\left\Vert v\right\Vert _{L^{2}(P)}^{2}$. Using this inequality,
+the boundary liminf, (\ref{eq: minimizer limsup}), and minimality of
+$\psi$, we obtain
+\begin{align*}
+\Psi(\psi)
+&\geq\liminf_{\ell\rightarrow\infty}
+\Psi_{k_{j_{\ell}}}(\psi_{k_{j_{\ell}}})\\
+&\geq\frac{1}{2}\left\Vert\psi\right\Vert _{L^{2}(P)}^{2}
++\int_{\partial P}v\,\mathrm{d}\sigma\\
+&\geq\frac{1}{2}\left\Vert v\right\Vert _{L^{2}(P)}^{2}
++\int_{\partial P}v\,\mathrm{d}\sigma
+=\Psi(v)\geq\Psi(\psi).
+\end{align*}
+Thus equality holds throughout. The uniqueness of the minimizer gives
+$v=\psi$, and consequently
+\[
+\lim_{\ell\rightarrow\infty}
+\left\Vert\psi_{k_{j_{\ell}}}\right\Vert _{k_{j_{\ell}},2}^{2}
+=\left\Vert v\right\Vert _{L^{2}(P)}^{2}.
+\]
+Therefore the no-defect hypothesis
+(\ref{eq: no discrete L2 defect}) in the last assertion of
+Lemma \ref{lem: convex quadrature compactness} is satisfied. That
+assertion yields
+\[
+\psi_{k_{j_{\ell}}}\longrightarrow\psi
+\quad\text{strongly in }L^{2}(P).
+\]
+We have proved that every subsequence of $\{\psi_{k}\}$ has a further
+subsequence converging strongly to $\psi$. This implies convergence
+of the whole sequence. Indeed, otherwise there would be an
+$\varepsilon>0$ and a subsequence $\{\psi_{k_{j}}\}$ satisfying
+\[
+\left\Vert\psi_{k_{j}}-\psi\right\Vert _{L^{2}(P)}\geq\varepsilon
+\quad\text{for every }j,
+\]
+but this subsequence would have a further subsequence converging
+strongly to $\psi$, which is impossible. Hence
+\begin{equation}
+\psi_{k}\longrightarrow\psi=-\Theta_{P}
+\quad\text{strongly in }L^{2}(P).\label{eq: strong L2 psi}
+\end{equation}
+Since $\psi=-\Theta_{P}$, (\ref{eq: full discrete norm convergence})
+is precisely (\ref{eq: discrete L2 converge}). Furthermore,
+(\ref{eq: quantum mini}) and (\ref{eq: strong L2 psi}) give
+\[
+\left\Vert V_{P}k^{n}\sigma_{k}^{\vee}-1
++\frac{\Theta_{P}}{2k}\right\Vert _{L^{2}(P)}
+=\frac{1}{2k}\left\Vert\psi_{k}+\Theta_{P}\right\Vert _{L^{2}(P)}
+=\mathrm{o}(k^{-1}),
+\]
+which proves (\ref{eq: dream converge L2}).
+
+\textbf{Step 3}. Finally, assume that $\{\psi_{k}\}$ is
+$C^{0}$-precompact. We show that the convergence is uniform. If not,
+there would be an $\varepsilon>0$ and a subsequence $\{\psi_{k_{j}}\}$
+such that
+\begin{equation}
+\left\Vert\psi_{k_{j}}-\psi\right\Vert _{C^{0}(P)}
+\geq\varepsilon\quad\text{for every }j.\label{eq: not uniform}
+\end{equation}
+By $C^{0}$-precompactness, a further subsequence converges uniformly
+to some $w\in\mathcal{C}(P)$. Uniform convergence implies convergence
+to $w$ in $L^{2}(P)$, whereas (\ref{eq: strong L2 psi}) says that the
+same subsequence converges to $\psi$ in $L^{2}(P)$. Uniqueness of the
+$L^{2}$ limit gives $w=\psi$ almost everywhere. Both functions are
+continuous on $P$, so $w=\psi$ everywhere. The further subsequence
+therefore converges uniformly to $\psi$, contradicting
+(\ref{eq: not uniform}). Thus $\psi_{k}\rightarrow\psi$ uniformly.
+Finally,
+\[
+\left\Vert V_{P}k^{n}\sigma_{k}^{\vee}-1
++\frac{\Theta_{P}}{2k}\right\Vert _{C^{0}(P)}
+=\frac{1}{2k}\left\Vert\psi_{k}+\Theta_{P}\right\Vert _{C^{0}(P)}
+=\mathrm{o}(k^{-1}),
+\]
+which is (\ref{eq: dream converge}).
+\end{proof}
+
+\begin{rem}
+The theorem gives unconditional $L^{2}$ convergence but does not control
+values on lower-dimensional faces. To obtain uniform convergence, we
+still need to verify the $C^{0}$-precompactness of
+$\psi_{k}=2V_{P}k^{n+1}\sigma^{\vee}_{k}-2k$.
 
 Step1. 
 \end{rem}
@@ -2176,7 +2903,8 @@ Step1.
 \section*{Remaining questions\label{sec:Remaining-questions}}
 \begin{enumerate}
 \item Show the sequence $\psi_{k}$ is uniformly bounded and equicontinuous,
-then drop the assumption of Theorem \ref{thm:main converge}. 
+thereby upgrading the unconditional $L^{2}$ convergence in Theorem
+\ref{thm:main converge} to uniform convergence.
 \item Since Theorem \ref{thm: Gabor paper} (4) shows that $\Theta_{P}$
 induces a semistable decomposition of $P$, we should investigate
 the semistability of each piece of the subdivision induced by $\sigma_{A}$. 
@@ -2233,4 +2961,3 @@ omitted.
 \printbibliography
 
 \end{document}
-
