@@ -205,7 +205,7 @@ where
 The relative DF invariant is 
 \begin_inset Formula 
 \[
-M_{\ell}(f)\coloneqq\int_{\partial P}f\ \mathrm{d}\sigma-\int_{P}f\ell_{P}\ \mathrm{d}x,\ \text{for convex }f:P\rightarrow\mathbb{R},
+M_{\ell}(f)\coloneqq\int_{\partial P}f\mathrm{d}\sigma-\int_{P}f\ell_{P}\mathrm{d}x,\ \text{for convex }f:P\rightarrow\mathbb{R},
 \]
 
 \end_inset
@@ -217,7 +217,7 @@ where
  is the unique affine function such that 
 \begin_inset Formula 
 \[
-M_{\ell}(h)=\int_{\partial P}h\ \mathrm{d}\sigma-\int_{P}h\ell_{P}\ \mathrm{d}x=0,\ \text{for all affine function }h.
+M_{\ell}(h)=\int_{\partial P}h\mathrm{d}\sigma-\int_{P}h\ell_{P}\mathrm{d}x=0,\ \text{for all affine function }h.
 \]
 
 \end_inset
@@ -236,7 +236,7 @@ Equivalently,
  
 \begin_inset Formula 
 \[
-\int_{P}\ell_{P}=\left|\partial P\right|_{\mathrm{d}\sigma},\int_{P}x_{i}\ell_{P}=\int_{\partial P}x_{i}\ \mathrm{d}\sigma,\ i=1,\dots,n.
+\int_{P}\ell_{P}=\left|\partial P\right|_{\mathrm{d}\sigma},\int_{P}x_{i}\ell_{P}=\int_{\partial P}x_{i}\mathrm{d}\sigma,\ i=1,\dots,n.
 \]
 
 \end_inset

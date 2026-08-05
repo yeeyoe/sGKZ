@@ -1,16 +1,10 @@
-% 预览源文件
-
-%% LyX 2.5.0 created this file.  For more info, see https://www.lyx.org/.
-%% Do not edit unless you really know what you are doing.
 \documentclass[oneside,english]{amsart}
 \usepackage[T1]{fontenc}
-\usepackage{textcomp}
 \usepackage[utf8]{inputenc}
 \usepackage{mathtools}
 \usepackage{amstext}
 \usepackage{amsthm}
 \usepackage{amssymb}
-\usepackage{esint}
 
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
@@ -37,7 +31,7 @@
 Let $P\subset\mathbb{R}^{n}$ be a lattice polytope which is defined
 by 
 \[
-P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,v_{i}\right\rangle +a_{i}\ge0,\ \forall1\le i\le I\right\} ,
+P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,v_{i}\right\rangle +a_{i}\ge0,\ \forall1\le i\le d\right\} ,
 \]
 where $v_{i}\in\mathbb{Z}^{n}$ are primitive vectors and $a_{i}\in\mathbb{Z}$.
 Let $\mathrm{d}\sigma$ be the lattice measure on the boundary $\partial P$,
@@ -90,5 +84,27 @@ Goal:
 
 2. develop an algorithm to test the un-stability of polygons using
 the fact of Donaldson. 
+
+3. 前面是给定多面体，探测它是否unstable. 现在我想搜索2维的relative K-unstable 多面体. 
+
+输入面facet的个数$d$, 正整数$N$, 遍历$d$个primitive integer vector $v_{i}=\left(a_{i},b_{i}\right)\in\mathbb{Z}^{2}$
+使得
+\[
+\gcd\left(a_{i},b_{i}\right)=1\text{ and }\max\left\{ \left|a_{i}\right|,\left|b_{i}\right|\right\} \le N.
+\]
+然后再选取 $t_{1},\dots,t_{d}$ 定义多面体
+\[
+P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,v_{i}\right\rangle \ge t_{i},\ \forall1\le i\le d\right\} .
+\]
+要使得$P$没有hidden facet, 即每个$v_{i}$都对应着一个facet, 否则某些$v_{i}$是多余的. 然后check
+$P$是否是relatively K-unstable? 可用现成的Donaldson简单凸函数判别程序. 
+
+注意上述参数$v_{i},t_{i}$有自由度的冗余. 
+
+(1) 对$\forall a>0$, $(t_{i})$ 和 $(at_{i})$ 是等价的, 因为$(at_{i})$对应$aP$,
+与$P$的稳定性一致.
+
+(2) 对$\forall y\in\mathbb{R}^{n}$, $(t_{i}+\left\langle y,v_{i}\right\rangle )$
+和 $(t_{i})$ 是等价的. 因为前者对应着$P+y$, 与$P$的稳定性一致. 
 \end{document}
 
