@@ -1,5 +1,40 @@
 # Shortest GKZ 向量求解器
 
+## 目录
+
+- [依赖与编译](#依赖与编译)
+- [快速调用](#快速调用)
+- [输入文件](#输入文件)
+  - [生成 Wang-Zhou 多边形](#生成-wang-zhou-多边形)
+- [主算法](#主算法)
+  - [第 1 步：读取和预处理点集](#第-1-步读取和预处理点集)
+  - [第 2 步：regular triangulation oracle](#第-2-步regular-triangulation-oracle)
+  - [第 3 步：初始化 active set](#第-3-步初始化-active-set)
+  - [第 4 步：在 active hull 上完全校正](#第-4-步在-active-hull-上完全校正)
+  - [第 5 步：Frank--Wolfe oracle 和停止判据](#第-5-步frank--wolfe-oracle-和停止判据)
+  - [第 6 步：最终精确 QP 和全局认证](#第-6-步最终精确-qp-和全局认证)
+  - [第 7 步：计算 $\ell_A$ 和写出结果](#第-7-步计算-ell_a-和写出结果)
+  - [使用的外部算法汇总](#使用的外部算法汇总)
+- [主程序参数](#主程序参数)
+  - [输入模式参数](#输入模式参数)
+  - [求解参数](#求解参数)
+  - [文件输出参数](#文件输出参数)
+- [终端输出解释](#终端输出解释)
+- [CSV 输出解释](#csv-输出解释)
+  - [`--output FILE`](#--output-file)
+  - [`--plot-prefix PREFIX`](#--plot-prefix-prefix)
+- [$\ell_A$ 与 relative Chow-semistability](#ell_a-与-relative-chow-semistability)
+- [绘图脚本](#绘图脚本)
+- [迭代历史折线图](#迭代历史折线图)
+- [完整调用示例](#完整调用示例)
+  - [例 1：一般六点点集，数值求解加精确认证](#例-1一般六点点集数值求解加精确认证)
+  - [例 2：较大的 `examples/my`, $k=8$ 探索性计算](#例-2较大的-examplesmy-k8-探索性计算)
+  - [例 3：允许较大的 exact active set](#例-3允许较大的-exact-active-set)
+- [退出状态](#退出状态)
+- [测试设计](#测试设计)
+- [当前性能边界](#当前性能边界)
+- [K-stability：$\ell_P$ 与相对 K-不稳定性检测](#k-stabilityell_p-与相对-k-不稳定性检测)
+
 本目录包含一个二维求解器，用于计算 secondary polytope 的最小模长点
 
 $$
