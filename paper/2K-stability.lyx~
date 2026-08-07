@@ -344,12 +344,13 @@ Goal:
 3.
  前面是给定多面体，
 探测它是否unstable.
- 现在我想搜索2维的relative K-unstable 多面体.
+ 现在我想搜索2维的relative K-unstable 格点多面体.
  
 \end_layout
 
 \begin_layout Standard
-输入面facet的个数
+输入参数：
+顶点个数
 \begin_inset Formula $d$
 \end_inset
 
@@ -358,160 +359,30 @@ Goal:
 \begin_inset Formula $N$
 \end_inset
 
-,
- 遍历
-\begin_inset Formula $d$
+约束法向量的复杂度，
+
+\begin_inset Formula $M$
 \end_inset
 
-个primitive integer vector 
-\begin_inset Formula $n_{i}=\left(a_{i},b_{i}\right)\in\mathbb{Z}^{2}$
-\end_inset
+约束边长。
 
- 使得
-\begin_inset Formula 
-\[
-\gcd\left(a_{i},b_{i}\right)=1\text{ and }\max\left\{ \left|a_{i}\right|,\left|b_{i}\right|\right\} \le N.
-\]
-
-\end_inset
-
-然后再选取整数 
-\begin_inset Formula $t_{1},\dots,t_{d}$
-\end_inset
-
- 定义多面体
-\begin_inset Formula 
-\[
-P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle \ge t_{i},\ \forall1\le i\le d\right\} .
-\]
-
-\end_inset
-
-注意
-\begin_inset Formula $t_{i}$
-\end_inset
-
-是整数不能保证
-\begin_inset Formula $P$
-\end_inset
-
-的顶点是整点.
- 还要使得
-\begin_inset Formula $P$
-\end_inset
-
-没有hidden facet,
- 即每个
-\begin_inset Formula $n_{i}$
-\end_inset
-
-都对应着一个facet,
- 否则某些
-\begin_inset Formula $n_{i}$
-\end_inset
-
-是多余的.
- 
 \end_layout
 
 \begin_layout Standard
-然后check 
+用逐步选取边向量和边长的方法来生成
 \begin_inset Formula $P$
 \end_inset
 
-是否是relatively K-unstable?
- 可用现成的Donaldson简单凸函数判别程序.
- 
-\end_layout
-
-\begin_layout Standard
-注意上述参数
-\begin_inset Formula $n_{i},t_{i}$
-\end_inset
-
-有自由度的冗余.
- 
-\end_layout
-
-\begin_layout Standard
-(1) 对
-\begin_inset Formula $\forall a>0$
-\end_inset
-
-,
- 
-\begin_inset Formula $(t_{i})$
-\end_inset
-
- 和 
-\begin_inset Formula $(at_{i})$
-\end_inset
-
- 是等价的,
- 因为
-\begin_inset Formula $(at_{i})$
-\end_inset
-
-对应
-\begin_inset Formula $aP$
-\end_inset
-
-,
- 与
-\begin_inset Formula $P$
-\end_inset
-
-的稳定性一致.
-\end_layout
-
-\begin_layout Standard
-(2) 对
-\begin_inset Formula $\forall y\in\mathbb{R}^{n}$
-\end_inset
-
-,
- 
-\begin_inset Formula $(t_{i}+\left\langle y,n_{i}\right\rangle )$
-\end_inset
-
- 和 
-\begin_inset Formula $(t_{i})$
-\end_inset
-
- 是等价的.
- 因为前者对应着
-\begin_inset Formula $P+y$
-\end_inset
-
-,
- 与
-\begin_inset Formula $P$
-\end_inset
-
-的稳定性一致.
- 
-\end_layout
-
-\begin_layout Standard
-更好的表示
-\begin_inset Formula $P$
-\end_inset
-
-的方法：
-给定
-\begin_inset Formula $N$
-\end_inset
-
-，
+。
 记 
 \begin_inset Formula 
 \[
-\mathcal{P}=\left\{ (a,b)\in\mathbb{Z}^{2}\mid\gcd\left(a,b\right)=1,(a,b)\neq(0,0),\left|a\right|\le N,\left|b\right|\le N\right\} 
+\mathcal{P}_{N}=\left\{ (a,b)\in\mathbb{Z}^{2}\mid\gcd\left(a,b\right)=1,(a,b)\neq(0,0),\left|a\right|\le N,\left|b\right|\le N\right\} 
 \]
 
 \end_inset
 
-为所有非零primitive integer vectors构成的集合。
+为非零primitive integer vectors构成的集合。
 按如下方式依次选取
 \begin_inset Formula $d$
 \end_inset
@@ -532,7 +403,7 @@ P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle \ge t_{i},\ \f
 
 。
  选正整数步长
-\begin_inset Formula $k_{1}$
+\begin_inset Formula $k_{1}\le M$
 \end_inset
 
 ,
@@ -542,7 +413,7 @@ P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle \ge t_{i},\ \f
 
 。
 选第二个方向
-\begin_inset Formula $p_{2}\in\mathcal{P}$
+\begin_inset Formula $p_{2}\in\mathcal{P}_{N}$
 \end_inset
 
 使得
@@ -563,7 +434,7 @@ P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle \ge t_{i},\ \f
 
 之间。
 选正整数步长
-\begin_inset Formula $k_{2}$
+\begin_inset Formula $k_{2}\le M$
 \end_inset
 
 ,
@@ -586,11 +457,12 @@ P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle \ge t_{i},\ \f
 \end_inset
 
 )开始，
- 选方向
-\begin_inset Formula $p_{i}\in\mathcal{P}$
+ 选前进方向
+\begin_inset Formula $p_{i}\in\mathcal{P}_{N}$
 \end_inset
 
-使得
+满足两个条件:
+ (1) 使得
 \begin_inset Formula $p_{i-1}$
 \end_inset
 
@@ -606,9 +478,26 @@ P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle \ge t_{i},\ \f
 \begin_inset Formula $\pi$
 \end_inset
 
-之间。
-选正整数步长
-\begin_inset Formula $k_{i}$
+之间;
+ (2) 
+\begin_inset Formula $p_{i}$
+\end_inset
+
+ 到到
+\begin_inset Formula $-v_{i}$
+\end_inset
+
+的逆时针夹角介于
+\begin_inset Formula $0$
+\end_inset
+
+到
+\begin_inset Formula $\pi$
+\end_inset
+
+之间;
+ 然后选正整数步长
+\begin_inset Formula $k_{i}\le M$
 \end_inset
 
 ,
@@ -639,46 +528,31 @@ P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle \ge t_{i},\ \f
 \begin_inset Formula $v_{1}$
 \end_inset
 
-得到一个位于上半平面的整点多边形。
-在整点测度
+,
+ 得到一个位于上半平面的整点多边形。
+然后用现成的Donaldson程序探测其非稳定性.
+ 注意边
+\begin_inset Formula $\overline{v_{i}v_{i+1}}$
+\end_inset
+
+的
 \begin_inset Formula $d\sigma$
 \end_inset
 
-下，
-边
-\begin_inset Formula $v_{i}v_{i+1}$
-\end_inset
-
-的测度为
+测度为
 \begin_inset Formula $k_{i}$
 \end_inset
 
 。
-然后用Donaldson程序探测非稳定性.
- 
-\end_layout
-
-\begin_layout Standard
-搜索中的界限。
-除了上面的
-\begin_inset Formula $N$
+ 边
+\begin_inset Formula $\overline{v_{d}v_{1}}$
 \end_inset
 
-，
-还有约束
-\begin_inset Formula $k_{i}\le M$
+的primitive向量和步长都没有被
+\begin_inset Formula $M$
 \end_inset
 
- (
-\begin_inset Formula $1\le i<d$
-\end_inset
-
-)。
-
-\begin_inset Formula $M,N$
-\end_inset
-
-作为参数输入。
+约束。
 
 \end_layout
 
@@ -707,19 +581,6 @@ P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle \ge t_{i},\ \f
 就查看约去公因子后的向量是否已经检测过，
 避免重复Donaldson检测。
 
-\end_layout
-
-\begin_layout Standard
-注意根据handoff的记录,
- 5边形没有找到unstable例子,
- 所以
-\begin_inset Formula $d$
-\end_inset
-
-至少取6.
- 根据K-stability-toric-literature.md,
- Wang–Zhou发现有unstable的9边形存在.
- 
 \end_layout
 
 \end_body

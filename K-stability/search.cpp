@@ -311,6 +311,15 @@ std::string candidate_key(const PolygonCandidate& candidate) {
          "|k=" + join_steps(candidate.steps);
 }
 
+std::string current_validation_profile(const AreaSearchOptions& options) {
+  // This is the cache key for the complete probe -> confirm -> final pipeline.
+  // Bump both revisions when geometry validation or detector mathematics changes.
+  return "validation-v2|geometry=strict-convex-hull-v2|detector=area-search-detector-v1|"
+         "probe=32x16:norefine|confirm=128x64:refine|final=720x512:refine|"
+         "integer-normals=4,8,16|certify-cap=" +
+         std::to_string(options.certify_max_denominator);
+}
+
 DetectorOutcome detect_candidate(const PolygonCandidate& candidate,
                                  const DetectorProfile& profile,
                                  std::int64_t max_denominator) {
@@ -344,7 +353,8 @@ SearchDatabase::SearchDatabase(const std::filesystem::path& path) : impl_(new Im
   const char* schema =
       "PRAGMA journal_mode=WAL;"
       "CREATE TABLE IF NOT EXISTS candidates(key TEXT PRIMARY KEY,d INTEGER,directions TEXT,steps TEXT,twice_area TEXT,probe_score REAL,status TEXT,ell0 TEXT,ell1 TEXT,ell2 TEXT,vertices TEXT,normals TEXT);"
-      "CREATE TABLE IF NOT EXISTS attempts(candidate_key TEXT,profile TEXT,status TEXT,value REAL,witness_ux REAL,witness_uy REAL,witness_t REAL,exact_a TEXT,exact_b TEXT,exact_c TEXT,exact_value TEXT,PRIMARY KEY(candidate_key,profile));"
+      "CREATE TABLE IF NOT EXISTS attempts(candidate_key TEXT,profile TEXT,status TEXT,value REAL,witness_ux REAL,witness_uy REAL,witness_t REAL,exact_a TEXT,exact_b TEXT,exact_c TEXT,exact_value TEXT,numerical_negative INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(candidate_key,profile));"
+      "CREATE TABLE IF NOT EXISTS candidate_validations(candidate_key TEXT,validation_profile TEXT,status TEXT,last_stage TEXT,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(candidate_key,validation_profile));"
       "CREATE TABLE IF NOT EXISTS state(name TEXT PRIMARY KEY,value TEXT);";
   char* error = nullptr;
   if (sqlite3_exec(impl_->db, schema, nullptr, nullptr, &error) != SQLITE_OK) {
@@ -353,6 +363,7 @@ SearchDatabase::SearchDatabase(const std::filesystem::path& path) : impl_(new Im
     throw std::runtime_error(message);
   }
   // Keep databases made by an earlier development revision usable.
+  sqlite3_exec(impl_->db, "ALTER TABLE attempts ADD COLUMN numerical_negative INTEGER NOT NULL DEFAULT 0;", nullptr, nullptr, nullptr);
   sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN vertices TEXT;", nullptr, nullptr, nullptr);
   sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN normals TEXT;", nullptr, nullptr, nullptr);
 }
@@ -397,7 +408,10 @@ bool SearchDatabase::has_attempt(const std::string& key, const std::string& prof
 
 void SearchDatabase::save_attempt(const PolygonCandidate& c, const DetectorOutcome& o) {
   const auto& w = o.numerical.witness;
-  std::string sql = "INSERT OR REPLACE INTO attempts VALUES(" + sql_quote(c.key) + "," +
+  std::string sql = "INSERT OR REPLACE INTO attempts "
+      "(candidate_key,profile,status,value,witness_ux,witness_uy,witness_t,"
+      "exact_a,exact_b,exact_c,exact_value,numerical_negative) VALUES(" +
+      sql_quote(c.key) + "," +
       sql_quote(o.profile) + "," + sql_quote(o.verified_unstable ? "verified_unstable" : "unverified") + "," +
       std::to_string(w.value) + ",";
   if (o.verified_unstable) {
@@ -409,7 +423,7 @@ void SearchDatabase::save_attempt(const PolygonCandidate& c, const DetectorOutco
   } else {
     sql += "NULL,NULL,NULL,NULL,NULL,NULL,NULL";
   }
-  sql += ");";
+  sql += "," + std::to_string(o.numerical_negative ? 1 : 0) + ");";
   char* error = nullptr;
   if (sqlite3_exec(impl_->db, sql.c_str(), nullptr, nullptr, &error) != SQLITE_OK) {
     const std::string message = error ? error : "attempt insert failed";
@@ -419,6 +433,97 @@ void SearchDatabase::save_attempt(const PolygonCandidate& c, const DetectorOutco
   if (o.verified_unstable) {
     const std::string update = "UPDATE candidates SET status='verified_unstable' WHERE key=" +
                                sql_quote(c.key) + ";";
+    sqlite3_exec(impl_->db, update.c_str(), nullptr, nullptr, nullptr);
+  }
+}
+
+std::optional<AttemptRecord> SearchDatabase::get_attempt(
+    const std::string& key, const std::string& profile) const {
+  const std::string sql =
+      "SELECT status,value,numerical_negative,exact_a,exact_b,exact_c,exact_value "
+      "FROM attempts WHERE candidate_key=" + sql_quote(key) +
+      " AND profile=" + sql_quote(profile) + " LIMIT 1;";
+  sqlite3_stmt* statement = nullptr;
+  if (sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr) != SQLITE_OK)
+    return std::nullopt;
+  std::optional<AttemptRecord> result;
+  if (sqlite3_step(statement) == SQLITE_ROW) {
+    const auto text_column = [&](int column) {
+      const auto* text = sqlite3_column_text(statement, column);
+      return text ? std::string(reinterpret_cast<const char*>(text)) : std::string();
+    };
+    const bool exact = sqlite3_column_type(statement, 3) != SQLITE_NULL &&
+                       sqlite3_column_type(statement, 4) != SQLITE_NULL &&
+                       sqlite3_column_type(statement, 5) != SQLITE_NULL &&
+                       sqlite3_column_type(statement, 6) != SQLITE_NULL &&
+                       !text_column(6).empty();
+    result = AttemptRecord{text_column(0), sqlite3_column_double(statement, 1),
+                           sqlite3_column_int(statement, 2) != 0, exact};
+  }
+  sqlite3_finalize(statement);
+  return result;
+}
+
+std::optional<ValidationRecord> SearchDatabase::get_validation(
+    const std::string& key, const std::string& profile) const {
+  const std::string sql =
+      "SELECT validation_profile,status,last_stage FROM candidate_validations "
+      "WHERE candidate_key=" + sql_quote(key) +
+      " AND validation_profile=" + sql_quote(profile) + " LIMIT 1;";
+  sqlite3_stmt* statement = nullptr;
+  sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr);
+  std::optional<ValidationRecord> result;
+  if (sqlite3_step(statement) == SQLITE_ROW) {
+    const auto text_column = [&](int column) {
+      const auto* text = sqlite3_column_text(statement, column);
+      return text ? std::string(reinterpret_cast<const char*>(text)) : std::string();
+    };
+    result = ValidationRecord{text_column(0), text_column(1), text_column(2)};
+  }
+  sqlite3_finalize(statement);
+  return result;
+}
+
+bool SearchDatabase::has_verified_candidate(const std::string& key) const {
+  const std::string sql =
+      "SELECT 1 FROM candidate_validations WHERE candidate_key=" +
+      sql_quote(key) + " AND status='verified_unstable' "
+      "UNION SELECT 1 FROM candidates AS c JOIN attempts AS a "
+      "ON a.candidate_key=c.key WHERE c.key=" + sql_quote(key) +
+      " AND c.status='verified_unstable' AND a.status='verified_unstable' "
+      "AND a.exact_a IS NOT NULL AND a.exact_b IS NOT NULL "
+      "AND a.exact_c IS NOT NULL AND a.exact_value IS NOT NULL "
+      "AND length(trim(a.exact_a)) > 0 AND length(trim(a.exact_b)) > 0 "
+      "AND length(trim(a.exact_c)) > 0 AND length(trim(a.exact_value)) > 0 LIMIT 1;";
+  sqlite3_stmt* statement = nullptr;
+  sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr);
+  const bool result = sqlite3_step(statement) == SQLITE_ROW;
+  sqlite3_finalize(statement);
+  return result;
+}
+
+void SearchDatabase::save_validation(const PolygonCandidate& c,
+                                     const std::string& profile,
+                                     const std::string& status,
+                                     const std::string& last_stage) {
+  const std::string sql =
+      "INSERT OR REPLACE INTO candidate_validations "
+      "(candidate_key,validation_profile,status,last_stage,updated_at) VALUES(" +
+      sql_quote(c.key) + "," + sql_quote(profile) + "," + sql_quote(status) +
+      "," + sql_quote(last_stage) + ",CURRENT_TIMESTAMP);";
+  char* error = nullptr;
+  if (sqlite3_exec(impl_->db, sql.c_str(), nullptr, nullptr, &error) != SQLITE_OK) {
+    const std::string message = error ? error : "validation insert failed";
+    sqlite3_free(error);
+    throw std::runtime_error(message);
+  }
+  if (status == "verified_unstable") {
+    const std::string update = "UPDATE candidates SET status='verified_unstable' WHERE key=" +
+                               sql_quote(c.key) + ";";
+    sqlite3_exec(impl_->db, update.c_str(), nullptr, nullptr, nullptr);
+  } else if (!has_verified_candidate(c.key)) {
+    const std::string update = "UPDATE candidates SET status=" + sql_quote(status) +
+                               " WHERE key=" + sql_quote(c.key) + ";";
     sqlite3_exec(impl_->db, update.c_str(), nullptr, nullptr, nullptr);
   }
 }
@@ -444,15 +549,7 @@ std::vector<PolygonCandidate> SearchDatabase::load_candidates() const {
 }
 
 bool SearchDatabase::candidate_is_verified(const std::string& key) const {
-  const std::string sql = "SELECT status FROM candidates WHERE key=" + sql_quote(key) + ";";
-  sqlite3_stmt* statement = nullptr;
-  sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr);
-  bool result = false;
-  if (sqlite3_step(statement) == SQLITE_ROW && sqlite3_column_text(statement, 0))
-    result = std::string(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0))) ==
-             "verified_unstable";
-  sqlite3_finalize(statement);
-  return result;
+  return has_verified_candidate(key);
 }
 
 void SearchDatabase::save_state(const std::string& name, const std::string& value) {
@@ -569,26 +666,45 @@ SearchSummary run_search(const AreaSearchOptions& options) {
       options.time_limit_seconds <= 0 || options.shell_seconds <= 0)
     throw std::invalid_argument("invalid search options");
   SearchDatabase database(options.database);
+  const std::string validation_profile = current_validation_profile(options);
   std::mt19937_64 rng(options.seed);
   restore_rng(rng, database.load_state("rng"));
   std::unordered_set<std::string> queued;
   std::vector<PolygonCandidate> area_frontier;
   std::vector<PolygonCandidate> score_frontier;
   SearchSummary summary;
-  for (auto candidate : database.load_candidates()) {
-    if (database.candidate_is_verified(candidate.key)) {
-      if (summary.first_verified_key.empty()) summary.first_verified_key = candidate.key;
-      if (!summary.have_verified || candidate.twice_area < summary.best_twice_area) {
-        summary.have_verified = true;
-        summary.best_twice_area = candidate.twice_area;
-        summary.best_verified_key = candidate.key;
-      }
+  const auto started = std::chrono::steady_clock::now();
+  const auto deadline = started + std::chrono::duration<double>(options.time_limit_seconds);
+  std::uint64_t shell = 0;
+  if (!database.load_state("shell").empty()) shell = std::stoull(database.load_state("shell"));
+  std::unordered_set<std::string> generated;
+  bool stop_requested = false;
+
+  const auto stage_name = [](DetectorTier tier) {
+    switch (tier) {
+      case DetectorTier::probe: return std::string("probe");
+      case DetectorTier::confirm: return std::string("confirm");
+      case DetectorTier::final: return std::string("final");
     }
+    return std::string("unknown");
+  };
+  const auto stage_profile = [&](DetectorTier tier) {
+    return validation_profile + "|stage=" + stage_name(tier);
+  };
+  const auto mark_verified = [&](const PolygonCandidate& candidate) {
+    if (summary.first_verified_key.empty()) summary.first_verified_key = candidate.key;
+    if (!summary.have_verified || candidate.twice_area < summary.best_twice_area) {
+      summary.have_verified = true;
+      summary.best_twice_area = candidate.twice_area;
+      summary.best_verified_key = candidate.key;
+    }
+  };
+  const auto enqueue = [&](PolygonCandidate candidate) {
     if (queued.insert(candidate.key).second) {
       area_frontier.push_back(candidate);
       score_frontier.push_back(std::move(candidate));
     }
-  }
+  };
   const auto finish = [&]() {
     summary.unverified = database.count_status("unverified");
     summary.verified = database.count_status("verified_unstable");
@@ -596,39 +712,132 @@ SearchSummary run_search(const AreaSearchOptions& options) {
                           summary);
     return summary;
   };
-  const auto started = std::chrono::steady_clock::now();
-  const auto deadline = started + std::chrono::duration<double>(options.time_limit_seconds);
-  std::uint64_t shell = 0;
-  if (!database.load_state("shell").empty()) shell = std::stoull(database.load_state("shell"));
-  std::unordered_set<std::string> generated;
-  for (const auto& c : area_frontier) generated.insert(c.key);
-  bool stop_requested = options.stop_on_first && summary.have_verified;
 
-  auto add_candidate = [&](PolygonCandidate candidate) {
-    if (!generated.insert(candidate.key).second) return;
-    ++summary.generated;
-    database.save_candidate(candidate, "unverified");
-    const DetectorProfile profile{DetectorTier::probe, 4, options.certify_max_denominator};
-    if (!database.has_attempt(candidate.key, profile.fingerprint())) {
-      const DetectorOutcome outcome = detect_candidate(candidate, profile, options.certify_max_denominator);
-      candidate.probe_score = outcome.numerical.witness.value;
-      database.update_probe_score(candidate.key, candidate.probe_score);
-      database.save_attempt(candidate, outcome);
-      ++summary.probes;
-      if (outcome.verified_unstable) {
-        ++summary.verified;
-        if (!summary.have_verified || candidate.twice_area < summary.best_twice_area) {
-          summary.have_verified = true;
-          summary.best_twice_area = candidate.twice_area;
-          summary.best_verified_key = candidate.key;
-        }
-        if (summary.first_verified_key.empty()) summary.first_verified_key = candidate.key;
+  const auto run_probe = [&](PolygonCandidate& candidate, bool resume_existing) {
+    // A crash after the probe attempt was committed but before the validation
+    // row was advanced must resume at confirm without evaluating the probe again.
+    if (resume_existing) {
+      const auto previous = database.get_attempt(candidate.key,
+                                                 stage_profile(DetectorTier::probe));
+      if (previous && previous->status == "verified_unstable" &&
+          previous->has_exact_witness) {
+        database.save_validation(candidate, validation_profile,
+                                 "verified_unstable", "probe");
+        mark_verified(candidate);
         if (options.stop_on_first) stop_requested = true;
+        return false;
+      }
+      if (previous && previous->status == "unverified") {
+        candidate.probe_score = previous->value;
+        database.update_probe_score(candidate.key, candidate.probe_score);
+        database.save_validation(candidate, validation_profile, "pending", "confirm");
+        return true;
       }
     }
-    area_frontier.push_back(candidate);
-    score_frontier.push_back(std::move(candidate));
+    database.save_validation(candidate, validation_profile, "pending", "probe");
+    DetectorProfile profile{DetectorTier::probe, 4, options.certify_max_denominator};
+    DetectorOutcome outcome = detect_candidate(candidate, profile,
+                                                options.certify_max_denominator);
+    outcome.profile = stage_profile(DetectorTier::probe);
+    database.save_attempt(candidate, outcome);
+    ++summary.probes;
+    candidate.probe_score = outcome.numerical.witness.value;
+    database.update_probe_score(candidate.key, candidate.probe_score);
+    if (outcome.verified_unstable) {
+      database.save_validation(candidate, validation_profile,
+                               "verified_unstable", "probe");
+      mark_verified(candidate);
+      if (options.stop_on_first) stop_requested = true;
+      return false;
+    }
+    // Probe is only a ranking stage. Even a nonnegative probe must reach the
+    // area/score frontier so that confirm periodically samples shallow cases.
+    database.save_validation(candidate, validation_profile, "pending", "confirm");
+    return true;
   };
+
+  const auto run_final = [&](PolygonCandidate& candidate) {
+    const std::string profile_key = stage_profile(DetectorTier::final);
+    if (const auto previous = database.get_attempt(candidate.key, profile_key)) {
+      if (previous->status == "verified_unstable" && previous->has_exact_witness) {
+        database.save_validation(candidate, validation_profile,
+                                 "verified_unstable", "final");
+        mark_verified(candidate);
+        if (options.stop_on_first) stop_requested = true;
+      } else if (previous->status == "unverified") {
+        database.save_validation(candidate, validation_profile,
+                                 "unverified", "complete");
+        return;
+      }
+    }
+    database.save_validation(candidate, validation_profile, "pending", "final");
+    DetectorProfile profile{DetectorTier::final, 16, options.certify_max_denominator};
+    DetectorOutcome outcome = detect_candidate(candidate, profile,
+                                                options.certify_max_denominator);
+    outcome.profile = profile_key;
+    database.save_attempt(candidate, outcome);
+    ++summary.finals;
+    if (outcome.verified_unstable) {
+      database.save_validation(candidate, validation_profile,
+                               "verified_unstable", "final");
+      mark_verified(candidate);
+      if (options.stop_on_first) stop_requested = true;
+    } else {
+      database.save_validation(candidate, validation_profile,
+                               "unverified", "complete");
+    }
+  };
+
+  const auto prepare_loaded_candidate = [&](PolygonCandidate candidate,
+                                             bool count_as_generated) {
+    generated.insert(candidate.key);
+    if (count_as_generated) ++summary.generated;
+    if (database.has_verified_candidate(candidate.key)) {
+      mark_verified(candidate);
+      if (!database.get_validation(candidate.key, validation_profile)) {
+        // A legacy verified row is reusable only after load_candidates has
+        // rebuilt and strictly validated the polygon and an exact witness was
+        // found by has_verified_candidate().
+        database.save_validation(candidate, validation_profile,
+                                 "verified_unstable", "legacy");
+      }
+      ++summary.skipped;
+      return;
+    }
+    const auto validation = database.get_validation(candidate.key, validation_profile);
+    if (validation && validation->status == "unverified") {
+      ++summary.skipped;
+      return;
+    }
+    if (!validation) {
+      database.save_candidate(candidate, "pending");
+      if (std::chrono::steady_clock::now() >= deadline) {
+        stop_requested = true;
+        return;
+      }
+      if (run_probe(candidate, false)) enqueue(std::move(candidate));
+      return;
+    }
+    if (validation->status == "pending" && validation->last_stage == "probe") {
+      if (std::chrono::steady_clock::now() >= deadline) {
+        stop_requested = true;
+        return;
+      }
+      if (run_probe(candidate, true)) enqueue(std::move(candidate));
+      return;
+    }
+    if (validation->status == "pending" &&
+        (validation->last_stage == "confirm" || validation->last_stage == "final")) {
+      enqueue(std::move(candidate));
+      return;
+    }
+    ++summary.skipped;
+  };
+
+  for (auto candidate : database.load_candidates()) {
+    prepare_loaded_candidate(std::move(candidate), false);
+  }
+  if (options.stop_on_first && summary.have_verified) stop_requested = true;
 
   while (!stop_requested && std::chrono::steady_clock::now() < deadline) {
     const int n_bound = static_cast<int>(shell_value(options.initial_N, shell, true));
@@ -670,7 +879,11 @@ SearchSummary run_search(const AreaSearchOptions& options) {
           continue;
         }
         PolygonCandidate candidate;
-        if (build_candidate(options.d, dirs, steps, candidate)) add_candidate(std::move(candidate));
+        if (build_candidate(options.d, dirs, steps, candidate)) {
+          if (generated.insert(candidate.key).second) {
+            prepare_loaded_candidate(std::move(candidate), true);
+          }
+        }
         else ++summary.rejected;
       }
       auto pop_area = [&]() -> std::optional<PolygonCandidate> {
@@ -699,39 +912,64 @@ SearchSummary run_search(const AreaSearchOptions& options) {
         });
         PolygonCandidate c = std::move(*it); score_frontier.erase(it); return c;
       };
-      for (int take = 0; take < 4 && std::chrono::steady_clock::now() < deadline; ++take) {
+      for (int take = 0; take < 4 && !stop_requested &&
+           std::chrono::steady_clock::now() < deadline; ++take) {
         const bool use_score = (take % 4) == 3;
         auto candidate = use_score ? pop_score() : pop_area();
         if (!candidate) break;
-        const DetectorProfile confirm{DetectorTier::confirm, 8, options.certify_max_denominator};
-        if (!database.has_attempt(candidate->key, confirm.fingerprint())) {
-          const DetectorOutcome outcome = detect_candidate(*candidate, confirm, options.certify_max_denominator);
-          database.save_attempt(*candidate, outcome); ++summary.confirms;
+        const auto validation = database.get_validation(candidate->key, validation_profile);
+        if (!validation || validation->status != "pending") {
+          ++summary.skipped;
+          continue;
+        }
+        if (validation->last_stage == "final") {
+          run_final(*candidate);
+          continue;
+        }
+        if (validation->last_stage == "probe") {
+          if (run_probe(*candidate, true)) enqueue(std::move(*candidate));
+          continue;
+        }
+        database.save_validation(*candidate, validation_profile, "pending", "confirm");
+        const std::string confirm_key = stage_profile(DetectorTier::confirm);
+        const auto previous_confirm = database.get_attempt(candidate->key, confirm_key);
+        bool need_final = false;
+        if (previous_confirm && previous_confirm->status == "verified_unstable" &&
+            previous_confirm->has_exact_witness) {
+          database.save_validation(*candidate, validation_profile,
+                                   "verified_unstable", "confirm");
+          mark_verified(*candidate);
+          if (options.stop_on_first) stop_requested = true;
+          continue;
+        }
+        if (previous_confirm && previous_confirm->status == "unverified") {
+          need_final = previous_confirm->numerical_negative ||
+                       previous_confirm->value < -1e-8 ||
+                       candidate->probe_score < -1e-8;
+        } else {
+          DetectorProfile profile{DetectorTier::confirm, 8,
+                                  options.certify_max_denominator};
+          DetectorOutcome outcome = detect_candidate(*candidate, profile,
+                                                     options.certify_max_denominator);
+          outcome.profile = confirm_key;
+          database.save_attempt(*candidate, outcome);
+          ++summary.confirms;
           if (outcome.verified_unstable) {
-            ++summary.verified;
-            if (summary.first_verified_key.empty()) summary.first_verified_key = candidate->key;
-            if (!summary.have_verified || candidate->twice_area < summary.best_twice_area) {
-              summary.have_verified = true; summary.best_twice_area = candidate->twice_area;
-              summary.best_verified_key = candidate->key;
-            }
-            if (options.stop_on_first) return finish();
-          } else if (outcome.numerical_negative || candidate->probe_score < -1e-8) {
-            const DetectorProfile final{DetectorTier::final, 16, options.certify_max_denominator};
-            if (!database.has_attempt(candidate->key, final.fingerprint())) {
-              const DetectorOutcome final_outcome = detect_candidate(*candidate, final, options.certify_max_denominator);
-              database.save_attempt(*candidate, final_outcome); ++summary.finals;
-              if (final_outcome.verified_unstable) {
-                ++summary.verified;
-                if (summary.first_verified_key.empty()) summary.first_verified_key = candidate->key;
-                if (!summary.have_verified || candidate->twice_area < summary.best_twice_area) {
-                  summary.have_verified = true; summary.best_twice_area = candidate->twice_area;
-                  summary.best_verified_key = candidate->key;
-                }
-                if (options.stop_on_first) return finish();
-              }
-            }
+            database.save_validation(*candidate, validation_profile,
+                                     "verified_unstable", "confirm");
+            mark_verified(*candidate);
+            if (options.stop_on_first) stop_requested = true;
+            continue;
           }
-        } else ++summary.skipped;
+          need_final = outcome.numerical_negative || candidate->probe_score < -1e-8;
+        }
+        if (need_final) {
+          database.save_validation(*candidate, validation_profile, "pending", "final");
+          run_final(*candidate);
+        } else {
+          database.save_validation(*candidate, validation_profile,
+                                   "unverified", "complete");
+        }
       }
       database.save_state("rng", serialize_rng(rng));
       database.save_state("shell", std::to_string(shell));

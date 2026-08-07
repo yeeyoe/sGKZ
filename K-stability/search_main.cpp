@@ -11,7 +11,7 @@ namespace {
 void usage(std::ostream& out) {
   out << "Usage: k_stability_search --d D --N N --M M --time-limit SEC [options]\n\n"
       << "Options:\n"
-      << "  --database FILE       SQLite state file (default k_stability_search.sqlite)\n"
+      << "  --database FILE       SQLite state file (default K-stability/k_stability_search.sqlite)\n"
       << "  --output-dir DIR      Result report directory (default .)\n"
       << "  --shell-seconds SEC   Per-shell time slice (default 60)\n"
       << "  --beam-width N        Candidates per generation batch (default 48)\n"

@@ -457,11 +457,16 @@ Goal:
 \end_inset
 
 )开始，
- 选方向
+ 选前进方向
 \begin_inset Formula $p_{i}\in\mathcal{P}_{N}$
 \end_inset
 
-使得
+满足两个条件:
+ 
+\end_layout
+
+\begin_layout Standard
+(1) 使得
 \begin_inset Formula $p_{i-1}$
 \end_inset
 
@@ -477,8 +482,32 @@ Goal:
 \begin_inset Formula $\pi$
 \end_inset
 
-之间。
-选正整数步长
+之间 (可用cross product 的z分量符号检测) 
+\end_layout
+
+\begin_layout Standard
+(2) 
+\begin_inset Formula $p_{i}$
+\end_inset
+
+ 到到
+\begin_inset Formula $-v_{i}$
+\end_inset
+
+的逆时针夹角介于
+\begin_inset Formula $0$
+\end_inset
+
+到
+\begin_inset Formula $\pi$
+\end_inset
+
+之间;
+ 
+\end_layout
+
+\begin_layout Standard
+然后选正整数步长
 \begin_inset Formula $k_{i}\le M$
 \end_inset
 
@@ -510,7 +539,8 @@ Goal:
 \begin_inset Formula $v_{1}$
 \end_inset
 
-得到一个位于上半平面的整点多边形。
+,
+ 得到一个位于上半平面的整点多边形。
 然后用现成的Donaldson程序探测其非稳定性.
  注意边
 \begin_inset Formula $\overline{v_{i}v_{i+1}}$
@@ -529,7 +559,7 @@ Goal:
 \begin_inset Formula $\overline{v_{d}v_{1}}$
 \end_inset
 
-的步长没有被
+的primitive向量和步长都没有被
 \begin_inset Formula $M$
 \end_inset
 
@@ -562,19 +592,6 @@ Goal:
 就查看约去公因子后的向量是否已经检测过，
 避免重复Donaldson检测。
 
-\end_layout
-
-\begin_layout Standard
-注意根据handoff的记录,
- 5边形没有找到unstable例子,
- 所以
-\begin_inset Formula $d$
-\end_inset
-
-至少取6.
- 根据K-stability-toric-literature.md,
- Wang–Zhou发现有unstable的9边形存在.
- 
 \end_layout
 
 \end_body

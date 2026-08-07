@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -44,6 +45,19 @@ struct DetectorOutcome {
   std::string profile;
 };
 
+struct ValidationRecord {
+  std::string profile;
+  std::string status;
+  std::string last_stage;
+};
+
+struct AttemptRecord {
+  std::string status;
+  double value = 0.0;
+  bool numerical_negative = false;
+  bool has_exact_witness = false;
+};
+
 struct AreaSearchOptions {
   int d = 6;
   int initial_N = 4;
@@ -54,7 +68,7 @@ struct AreaSearchOptions {
   double shell_seconds = 60.0;
   bool stop_on_first = false;
   bool verbose = false;
-  std::filesystem::path database = "k_stability_search.sqlite";
+  std::filesystem::path database = "K-stability/k_stability_search.sqlite";
   std::filesystem::path output_directory = ".";
   std::int64_t certify_max_denominator = 1048576;
 };
@@ -82,6 +96,7 @@ bool build_candidate(int d, const std::vector<Direction>& first_directions,
 
 std::vector<Direction> primitive_directions(int bound);
 std::string candidate_key(const PolygonCandidate& candidate);
+std::string current_validation_profile(const AreaSearchOptions& options);
 
 DetectorOutcome detect_candidate(const PolygonCandidate& candidate,
                                  const DetectorProfile& profile,
@@ -98,6 +113,15 @@ class SearchDatabase {
   void update_probe_score(const std::string& key, double score);
   bool has_attempt(const std::string& key, const std::string& profile) const;
   void save_attempt(const PolygonCandidate& candidate, const DetectorOutcome& outcome);
+  std::optional<AttemptRecord> get_attempt(
+      const std::string& candidate_key, const std::string& profile) const;
+  std::optional<ValidationRecord> get_validation(
+      const std::string& candidate_key, const std::string& profile) const;
+  bool has_verified_candidate(const std::string& candidate_key) const;
+  void save_validation(const PolygonCandidate& candidate,
+                       const std::string& profile,
+                       const std::string& status,
+                       const std::string& last_stage);
   std::vector<PolygonCandidate> load_candidates() const;
   bool candidate_is_verified(const std::string& key) const;
   void save_state(const std::string& name, const std::string& value);

@@ -57,6 +57,43 @@ void test_profile_and_database() {
   require(!database.has_attempt(candidate.key, changed_cap.fingerprint()),
           "changed certification cap must be eligible");
   require(database.load_candidates().size() == 1, "candidate should survive SQLite round trip");
+
+  kstab::AreaSearchOptions profile_options;
+  const std::string full_profile =
+      kstab::current_validation_profile(profile_options);
+  database.save_validation(candidate, full_profile, "unverified", "complete");
+  const auto unverified = database.get_validation(candidate.key, full_profile);
+  require(unverified && unverified->status == "unverified" &&
+              unverified->last_stage == "complete",
+          "candidate-level unverified validation should round trip");
+  require(!database.has_verified_candidate(candidate.key),
+          "unverified validation must not be considered verified");
+  auto changed_options = profile_options;
+  changed_options.certify_max_denominator += 1;
+  const std::string changed_profile =
+      kstab::current_validation_profile(changed_options);
+  require(changed_profile != full_profile &&
+              !database.get_validation(candidate.key, changed_profile),
+          "changed complete profile must be eligible for revalidation");
+
+  kstab::DetectorOutcome pending_attempt;
+  pending_attempt.profile = full_profile + "|stage=confirm";
+  pending_attempt.numerical_negative = true;
+  pending_attempt.numerical.witness.value = -0.25;
+  database.save_validation(candidate, full_profile, "pending", "confirm");
+  database.save_attempt(candidate, pending_attempt);
+  const auto attempt = database.get_attempt(candidate.key, pending_attempt.profile);
+  require(attempt && attempt->status == "unverified" &&
+              attempt->numerical_negative && attempt->value == -0.25,
+          "pending stage attempt should be resumable without re-running it");
+
+  database.save_validation(candidate, full_profile, "verified_unstable", "confirm");
+  require(database.has_verified_candidate(candidate.key),
+          "verified validation must be skipped permanently");
+  require(database.get_validation(candidate.key, full_profile)->status ==
+              "verified_unstable",
+          "verified validation status should be retained");
+
   const auto report = std::filesystem::temp_directory_path() / "kstab_search_report.txt";
   kstab::SearchSummary none;
   database.write_report(report, none);

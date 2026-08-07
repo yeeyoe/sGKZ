@@ -140,12 +140,15 @@ probe 分数进入两个 frontier，依次使用 `probe`、`confirm`、`final` p
 最终只有 `df_simple_exact(...) < 0` 才计为 `verified_unstable`。
 
 搜索状态、候选的方向/步长/顶点/facet normals/`ell_P`、各 detector profile
-和认证 witness 均保存在 SQLite 中；同一 profile 的 `unverified` 候选在重启
-后会跳过。搜索不内置文献多边形或种子。
+和认证 witness 均保存在 SQLite 中。`candidate_validations` 按候选和完整
+probe→confirm→final profile 保存 `pending`、`unverified` 或
+`verified_unstable`：verified 永久跳过；同一 profile 的 unverified 跳过；
+旧 profile 的 unverified 重新完整检测；pending 按 `last_stage` 恢复。搜索不
+内置文献多边形或种子。
 
 ```bash
 ./build/K-stability/k_stability_search --d 6 --N 4 --M 4 \
-  --time-limit 3600 --database search.sqlite
+  --time-limit 3600
 ```
 
 ### 输入参数
@@ -163,7 +166,7 @@ probe 分数进入两个 frontier，依次使用 `probe`、`confirm`、`final` p
 
 | 参数 | 默认值 | 含义 |
 | --- | --- | --- |
-| `--database FILE` | `k_stability_search.sqlite` | SQLite 状态及候选记录文件。 |
+| `--database FILE` | `K-stability/k_stability_search.sqlite` | SQLite 状态及候选记录文件。 |
 | `--output-dir DIR` | `.` | 结果报告目录；写入 `k_stability_search_result.txt`。 |
 | `--shell-seconds SEC` | `60` | 每个 `(N,M)` 自动扩展 shell 的时间片。 |
 | `--beam-width K` | `48` | 每批随机/beam 候选生成数量。 |
@@ -184,10 +187,11 @@ detector profile 下的 `unverified` 候选不会重复检测。
 | --- | --- |
 | `database` | 实际使用的 SQLite 路径。 |
 | `report_file` | 实际写出的结果报告路径。 |
-| `generated` / `rejected` | 本次运行接受/拒绝的候选生成数量。 |
-| `probes` / `confirms` / `finals` | 本次运行各检测 profile 的调用数量。 |
-| `verified` / `unverified` | 数据库中当前已认证/未认证候选数量。 |
-| `skipped` | 因已有相同 detector profile 记录而跳过的检测数量。 |
+| `generated` | 本次运行新生成且通过几何校验、尚未在内存中去重的候选数量。 |
+| `rejected` | 本次运行生成但未通过方向、上半平面、严格凸性、自交或面积等几何校验的数量。 |
+| `probes` / `confirms` / `finals` | 本次运行实际调用 probe、confirm、final 检测的次数；从已保存 stage 恢复时不重复计数。 |
+| `verified` / `unverified` | 搜索结束时数据库中 `candidates.status` 的累计数量，不是本次新增数量。verified 只表示存在精确认证的 `M_l<0`；unverified 只表示当前完整 profile 已完成但未找到 witness。 |
+| `skipped` | 本次运行跳过的候选处理次数，包括 verified 候选、当前 profile 已完成的 unverified 候选，以及 frontier 中因状态已改变而失效的重复条目。 |
 | `have_verified` | 是否已经找到精确认证的不稳定候选。 |
 | `best_twice_area` | 当前数据库中已认证候选的最小二倍面积；实际面积为该值的一半。 |
 | `first_verified_key` | 首个认证候选的 canonical key。 |
@@ -201,10 +205,11 @@ detector profile 下的 `unverified` 候选不会重复检测。
 SQLite 持久化输出在 `--database FILE` 指定的文件中，文字结果报告在
 `--output-dir DIR/k_stability_search_result.txt`：
 
-- 相对路径相对于启动命令时的当前工作目录解析；
+- 默认数据库路径为项目根目录下的 `K-stability/k_stability_search.sqlite`；显式给出的相对路径相对于启动命令时的当前工作目录解析；
 - 文件不存在时自动创建父目录和数据库；
 - `candidates` 表保存方向序列、步长序列、顶点、facet normals、`ell_P`、面积和状态；
-- `attempts` 表保存每个候选/profile 的检测结果，只有认证记录含 witness 字段；
+- `candidate_validations` 表保存候选级完整 profile 状态和最后完成阶段；
+- `attempts` 表保存每个候选/profile/stage 的检测结果，只有认证记录含 witness 字段；
 - `state` 表保存 shell、随机游标等断点状态。
 - 找到认证候选时，报告文件保存其完整几何信息、面积、边界测度、`ell_P`、
   profile 和精确 witness；没有找到时报告内容为 `没找到`。
@@ -215,6 +220,9 @@ SQLite 运行期间可能同时出现同名的 `-wal` 和 `-shm` 临时文件；
 
 返回码 `0` 表示数据库中已有精确认证候选，`2` 表示时间预算内尚未找到，
 `1` 表示参数、输入或运行错误。
+
+SQLite 数据库的统计、指定 key 查询和 witness 查看命令见
+[search_database_commands.md](search_database_commands.md)。
 
 ## 测试
 
