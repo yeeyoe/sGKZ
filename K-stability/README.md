@@ -131,16 +131,90 @@ k_stability --polygon FILE [options]
 退出码：`0` 找到（且若要求则已认证）witness；`2` 未发现反例或认证失败；
 `1` 参数/输入/运行错误。
 
-## 当前经验结论（重要）
+## 面积优先搜索
 
-对仓库全部例子（单位正方形、`my`、`hexgon`、`Wang_Zhou_a1/a5`）、
-五边形族 $(0,0),(a,0),(a,1),(b,2),(0,2)$（$a\le10$）以及 400 个随机
-格点凸多边形（5–8 顶点），搜索均未找到反例（归一化最小值 $>-10^{-9}$，
-仅为舍入噪声）。这与 Wang–Zhou 定理（紧致 toric 曲面上 extremal metric
-恒存在，即每个二维格点多边形都相对 K-半稳定）一致——在二维，Donaldson
-测试预计总是输出 `no_counterexample_found`，本程序因此对给定多边形起到
-验证作用，并把 $\ell_P$（此时 $\Theta_P=\ell_P$）精确算出来。搜索与认证
-管线本身由机械测试验证：传入错误的 $\ell$ 时能稳定找到并认证负值 witness。
+`k_stability_search` 在固定顶点数 `d` 下随机生成严格凸整点多边形。前
+`d-1` 条边的方向和步长按极角递增生成，闭合边自动计算且不受 `N,M`
+限制；整体步长公因子会被约去。候选按精确 `twice_area` 与 Donaldson
+probe 分数进入两个 frontier，依次使用 `probe`、`confirm`、`final` profile，
+最终只有 `df_simple_exact(...) < 0` 才计为 `verified_unstable`。
+
+搜索状态、候选的方向/步长/顶点/facet normals/`ell_P`、各 detector profile
+和认证 witness 均保存在 SQLite 中；同一 profile 的 `unverified` 候选在重启
+后会跳过。搜索不内置文献多边形或种子。
+
+```bash
+./build/K-stability/k_stability_search --d 6 --N 4 --M 4 \
+  --time-limit 3600 --database search.sqlite
+```
+
+### 输入参数
+
+必需参数：
+
+| 参数 | 含义 |
+| --- | --- |
+| `--d D` | 固定顶点数，`D >= 3`。实际搜索通常从 `D >= 6` 开始。 |
+| `--N N` | 初始受约束方向的坐标上界，`|p_x|,|p_y| <= N`。 |
+| `--M M` | 初始前 `d-1` 条边的步长上界，`1 <= k_i <= M`。闭合边不受此限制。 |
+| `--time-limit SEC` | 全局搜索时间预算，单位为秒，必须为正数。 |
+
+可选参数：
+
+| 参数 | 默认值 | 含义 |
+| --- | --- | --- |
+| `--database FILE` | `k_stability_search.sqlite` | SQLite 状态及候选记录文件。 |
+| `--output-dir DIR` | `.` | 结果报告目录；写入 `k_stability_search_result.txt`。 |
+| `--shell-seconds SEC` | `60` | 每个 `(N,M)` 自动扩展 shell 的时间片。 |
+| `--beam-width K` | `48` | 每批随机/beam 候选生成数量。 |
+| `--seed S` | `1` | 随机搜索种子；相同数据库会优先恢复已保存的随机状态。 |
+| `--stop-on-first` | 关闭 | 第一个精确认证候选出现后立即结束。默认持续搜索到时间预算耗尽。 |
+| `--certify-max-denom Q` | `1048576` | 数值 witness 有理化时的最大分母。该值改变会产生新的 detector profile。 |
+| `--verbose` | 关闭 | 输出额外进度信息。 |
+
+自动 shell 按 `(N,M)`, `(N,2M)`, `(2N,2M)`, `(2N,4M), ...` 扩展，直到达到
+`--time-limit`。重新运行同一个数据库会恢复 shell、随机状态和已有候选；同一
+detector profile 下的 `unverified` 候选不会重复检测。
+
+### 输出说明
+
+程序向标准输出写逐行 `key=value`：
+
+| 字段 | 含义 |
+| --- | --- |
+| `database` | 实际使用的 SQLite 路径。 |
+| `report_file` | 实际写出的结果报告路径。 |
+| `generated` / `rejected` | 本次运行接受/拒绝的候选生成数量。 |
+| `probes` / `confirms` / `finals` | 本次运行各检测 profile 的调用数量。 |
+| `verified` / `unverified` | 数据库中当前已认证/未认证候选数量。 |
+| `skipped` | 因已有相同 detector profile 记录而跳过的检测数量。 |
+| `have_verified` | 是否已经找到精确认证的不稳定候选。 |
+| `best_twice_area` | 当前数据库中已认证候选的最小二倍面积；实际面积为该值的一半。 |
+| `first_verified_key` | 首个认证候选的 canonical key。 |
+| `best_verified_key` | 当前最小面积认证候选的 canonical key。 |
+
+只有 `verified_unstable` 候选才会记录数值 witness、精确有理 witness 及精确
+`M_l<0`；`unverified` 不能解释为半稳定或稳定。
+
+### 输出文件位置
+
+SQLite 持久化输出在 `--database FILE` 指定的文件中，文字结果报告在
+`--output-dir DIR/k_stability_search_result.txt`：
+
+- 相对路径相对于启动命令时的当前工作目录解析；
+- 文件不存在时自动创建父目录和数据库；
+- `candidates` 表保存方向序列、步长序列、顶点、facet normals、`ell_P`、面积和状态；
+- `attempts` 表保存每个候选/profile 的检测结果，只有认证记录含 witness 字段；
+- `state` 表保存 shell、随机游标等断点状态。
+- 找到认证候选时，报告文件保存其完整几何信息、面积、边界测度、`ell_P`、
+  profile 和精确 witness；没有找到时报告内容为 `没找到`。
+
+SQLite 运行期间可能同时出现同名的 `-wal` 和 `-shm` 临时文件；它们与主
+数据库放在同一目录。除上述 SQLite 和结果报告外，程序不会生成多边形文本
+或 SVG 文件。
+
+返回码 `0` 表示数据库中已有精确认证候选，`2` 表示时间预算内尚未找到，
+`1` 表示参数、输入或运行错误。
 
 ## 测试
 

@@ -1,3 +1,7 @@
+% 预览源文件
+
+%% LyX 2.5.0 created this file.  For more info, see https://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
 \documentclass[oneside,english]{amsart}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -31,20 +35,20 @@
 Let $P\subset\mathbb{R}^{n}$ be a lattice polytope which is defined
 by 
 \[
-P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,v_{i}\right\rangle +a_{i}\ge0,\ \forall1\le i\le d\right\} ,
+P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle +a_{i}\ge0,\ \forall1\le i\le d\right\} ,
 \]
-where $v_{i}\in\mathbb{Z}^{n}$ are primitive vectors and $a_{i}\in\mathbb{Z}$.
+where $n_{i}\in\mathbb{Z}^{n}$ are primitive vectors and $a_{i}\in\mathbb{Z}$.
 Let $\mathrm{d}\sigma$ be the lattice measure on the boundary $\partial P$,
 which is defined as follows. Consider a facet of $P$ 
 \[
-F_{i}=\left\{ x\in P\mid\left\langle x,v_{i}\right\rangle +a_{i}=0\right\} .
+F_{i}=\left\{ x\in P\mid\left\langle x,n_{i}\right\rangle +a_{i}=0\right\} .
 \]
 Define 
 \[
-\mathrm{d}\sigma|_{F_{i}}=\frac{\mathrm{d}s}{\left|v_{i}\right|}
+\mathrm{d}\sigma|_{F_{i}}=\frac{\mathrm{d}s}{\left|n_{i}\right|}
 \]
 where $\mathrm{d}s$ is the Euclidean surface measure on $F_{i}$,
-and $\left|v_{i}\right|$ is the Euclidean $2$-norm. Another way
+and $\left|n_{i}\right|$ is the Euclidean $2$-norm. Another way
 to define $\mathrm{d}\sigma$: it is the Lebesgue measure on the affine
 space spanned by $F_{i}$ which is normalized by the rank $n-1$ lattice
 $F_{i}\cap\mathbb{Z}^{n}$. 
@@ -85,26 +89,28 @@ Goal:
 2. develop an algorithm to test the un-stability of polygons using
 the fact of Donaldson. 
 
-3. 前面是给定多面体，探测它是否unstable. 现在我想搜索2维的relative K-unstable 多面体. 
+3. 前面是给定多面体，探测它是否unstable. 现在我想搜索2维的relative K-unstable 格点多面体. 
 
-输入面facet的个数$d$, 正整数$N$, 遍历$d$个primitive integer vector $v_{i}=\left(a_{i},b_{i}\right)\in\mathbb{Z}^{2}$
-使得
+输入参数：顶点个数$d$, 正整数$N$约束法向量的复杂度，$M$约束边长。
+
+用逐步选取边向量和边长的方法来生成$P$。记 
 \[
-\gcd\left(a_{i},b_{i}\right)=1\text{ and }\max\left\{ \left|a_{i}\right|,\left|b_{i}\right|\right\} \le N.
+\mathcal{P}_{N}=\left\{ (a,b)\in\mathbb{Z}^{2}\mid\gcd\left(a,b\right)=1,(a,b)\neq(0,0),\left|a\right|\le N,\left|b\right|\le N\right\} 
 \]
-然后再选取 $t_{1},\dots,t_{d}$ 定义多面体
-\[
-P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,v_{i}\right\rangle \ge t_{i},\ \forall1\le i\le d\right\} .
-\]
-要使得$P$没有hidden facet, 即每个$v_{i}$都对应着一个facet, 否则某些$v_{i}$是多余的. 然后check
-$P$是否是relatively K-unstable? 可用现成的Donaldson简单凸函数判别程序. 
+为非零primitive integer vectors构成的集合。按如下方式依次选取$d$个顶点。
 
-注意上述参数$v_{i},t_{i}$有自由度的冗余. 
+取第一个顶点$v_{1}=(0,0)$, 第一个方向$p_{1}=(1,0)$。 选正整数步长$k_{1}\le M$, 得到第2个顶点$v_{2}=v_{1}+k_{1}p_{1}$。选第二个方向$p_{2}\in\mathcal{P}_{N}$使得$p_{1}$到$p_{2}$的逆时针夹角介于$0$到$\pi$之间。选正整数步长$k_{2}\le M$,
+得到第3个顶点$v_{3}=v_{2}+k_{2}p_{2}$。 
 
-(1) 对$\forall a>0$, $(t_{i})$ 和 $(at_{i})$ 是等价的, 因为$(at_{i})$对应$aP$,
-与$P$的稳定性一致.
+一般地， 从顶点$v_{i}$ ($i\le d-1$)开始， 选方向$p_{i}\in\mathcal{P}_{N}$使得$p_{i-1}$到$p_{i}$的逆时针夹角介于$0$到$\pi$之间。选正整数步长$k_{i}\le M$,
+使得下一个顶点$v_{i+1}=v_{i}+k_{i}p_{i}$的第二分量大于0 (即$v_{i+1}$在上半平面中)。如此下去，直到得到$v_{d}$（位于上半平面）。
 
-(2) 对$\forall y\in\mathbb{R}^{n}$, $(t_{i}+\left\langle y,v_{i}\right\rangle )$
-和 $(t_{i})$ 是等价的. 因为前者对应着$P+y$, 与$P$的稳定性一致. 
+连接$v_{d}$和$v_{1}$得到一个位于上半平面的整点多边形。然后用现成的Donaldson程序探测其非稳定性. 注意边$\overline{v_{i}v_{i+1}}$的$d\sigma$测度为$k_{i}$。
+边$\overline{v_{d}v_{1}}$的步长没有被$M$约束。
+
+冗余：注意$(k_{1},\dots,k_{d-1})$与$(lk_{1},\dots,lk_{d-1})$可视为等价，因为它们给出的多边形相似。搜索中记录Donaldson检测过的$(k_{1},\dots,k_{d-1})$。一旦发现新的$(k_{1},\dots,k_{d-1})$向量不是primitive的，就查看约去公因子后的向量是否已经检测过，避免重复Donaldson检测。
+
+注意根据handoff的记录, 5边形没有找到unstable例子, 所以$d$至少取6. 根据K-stability-toric-literature.md,
+Wang--Zhou发现有unstable的9边形存在. 
 \end{document}
 

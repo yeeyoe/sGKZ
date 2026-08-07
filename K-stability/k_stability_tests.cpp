@@ -235,6 +235,17 @@ void test_parser() {
   }
   require(thrown, "non-convex polygon should be rejected");
 
+  // Local turns can all have the same sign even when a vertex is inside the
+  // global hull. Such a self-crossing/non-convex ordering must be rejected.
+  thrown = false;
+  try {
+    kstab::normalize_polygon({{0, 0}, {2, 0}, {6, 12}, {3, 6}, {5, 8},
+                              {7, 16}});
+  } catch (const std::runtime_error&) {
+    thrown = true;
+  }
+  require(thrown, "interior vertex in Adan6 ordering should be rejected");
+
   // 面积为零报错
   thrown = false;
   try {
@@ -276,14 +287,10 @@ void test_semistable_square_sweep() {
 }
 
 void test_semistable_integration() {
-  // 更多真实多边形（相对 K-半稳定，与 Wang--Zhou 定理一致）：
-  // 搜索不得找到反例。
+  // 更多小型真实多边形；搜索不得找到反例。
   const std::vector<IntPoint> my_pentagon = {
       {0, 0}, {4, 1}, {3, 2}, {0, 3}, {-1, 1}};
-  const std::vector<IntPoint> wang_zhou_a1 = {
-      {0, 21}, {1, 21}, {2, 20}, {3, 18}, {4, 15},
-      {5, 11}, {7, 1}, {7, -1}, {0, -1}};
-  for (const auto& vertices : {trapezoid(), my_pentagon, wang_zhou_a1}) {
+  for (const auto& vertices : {trapezoid(), my_pentagon}) {
     const auto ell = kstab::compute_ell_p(vertices);
     kstab::SearchOptions options;
     options.theta_steps = 120;

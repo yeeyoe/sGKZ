@@ -5,23 +5,39 @@ if(NOT TARGET CGAL::CGAL)
   find_package(CGAL REQUIRED)
 endif()
 
-add_executable(k_stability
-  main.cpp
+find_package(SQLite3 REQUIRED)
+
+add_library(k_stability_core
   k_stability.cpp
 )
+target_include_directories(k_stability_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(k_stability_core PUBLIC CGAL::CGAL)
+target_compile_options(k_stability_core PRIVATE -Wall -Wextra -Wpedantic)
+
+add_executable(k_stability
+  main.cpp
+)
 target_include_directories(k_stability PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(k_stability PRIVATE CGAL::CGAL)
-target_compile_options(k_stability PRIVATE -Wall -Wextra -Wpedantic)
+target_link_libraries(k_stability PRIVATE k_stability_core)
+
+add_library(k_stability_search_core
+  search.cpp
+)
+target_include_directories(k_stability_search_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(k_stability_search_core PUBLIC k_stability_core SQLite3::SQLite3)
+target_compile_options(k_stability_search_core PRIVATE -Wall -Wextra -Wpedantic)
+
+add_executable(k_stability_search search_main.cpp)
+target_link_libraries(k_stability_search PRIVATE k_stability_search_core)
+target_compile_options(k_stability_search PRIVATE -Wall -Wextra -Wpedantic)
 
 if(BUILD_TESTING)
   add_executable(k_stability_tests
     k_stability_tests.cpp
-    k_stability.cpp
   )
   target_include_directories(k_stability_tests
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-  target_link_libraries(k_stability_tests PRIVATE CGAL::CGAL)
-  target_compile_options(k_stability_tests PRIVATE -Wall -Wextra -Wpedantic)
+  target_link_libraries(k_stability_tests PRIVATE k_stability_core)
   add_test(NAME k_stability_tests COMMAND k_stability_tests)
 
   # 单位正方形半稳定：期望退出码 2（no_counterexample_found），
@@ -30,6 +46,11 @@ if(BUILD_TESTING)
     NAME k_stability_cli_square
     COMMAND /bin/sh -c "$<TARGET_FILE:k_stability> --polygon ${CMAKE_SOURCE_DIR}/examples/unit_square.polygon > ${CMAKE_CURRENT_BINARY_DIR}/square.out 2>&1; rc=$?; test $rc -eq 2 && grep -q 'ell_P(x,y) = 4' ${CMAKE_CURRENT_BINARY_DIR}/square.out"
   )
+
+  add_executable(k_stability_search_tests search_tests.cpp)
+  target_link_libraries(k_stability_search_tests PRIVATE k_stability_search_core)
+  target_compile_options(k_stability_search_tests PRIVATE -Wall -Wextra -Wpedantic)
+  add_test(NAME k_stability_search_tests COMMAND k_stability_search_tests)
 
   add_test(
     NAME k_stability_cli_square_check_line

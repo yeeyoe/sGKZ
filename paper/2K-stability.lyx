@@ -118,13 +118,13 @@ Let
  be a lattice polytope which is defined by 
 \begin_inset Formula 
 \[
-P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,v_{i}\right\rangle +a_{i}\ge0,\ \forall1\le i\le I\right\} ,
+P=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,n_{i}\right\rangle +a_{i}\ge0,\ \forall1\le i\le d\right\} ,
 \]
 
 \end_inset
 
 where 
-\begin_inset Formula $v_{i}\in\mathbb{Z}^{n}$
+\begin_inset Formula $n_{i}\in\mathbb{Z}^{n}$
 \end_inset
 
  are primitive vectors and 
@@ -149,7 +149,7 @@ where
  
 \begin_inset Formula 
 \[
-F_{i}=\left\{ x\in P\mid\left\langle x,v_{i}\right\rangle +a_{i}=0\right\} .
+F_{i}=\left\{ x\in P\mid\left\langle x,n_{i}\right\rangle +a_{i}=0\right\} .
 \]
 
 \end_inset
@@ -157,7 +157,7 @@ F_{i}=\left\{ x\in P\mid\left\langle x,v_{i}\right\rangle +a_{i}=0\right\} .
 Define 
 \begin_inset Formula 
 \[
-\mathrm{d}\sigma|_{F_{i}}=\frac{\mathrm{d}s}{\left|v_{i}\right|}
+\mathrm{d}\sigma|_{F_{i}}=\frac{\mathrm{d}s}{\left|n_{i}\right|}
 \]
 
 \end_inset
@@ -172,7 +172,7 @@ where
 
 ,
  and 
-\begin_inset Formula $\left|v_{i}\right|$
+\begin_inset Formula $\left|n_{i}\right|$
 \end_inset
 
  is the Euclidean 
@@ -342,6 +342,238 @@ Goal:
 
 \begin_layout Standard
 3.
+ 前面是给定多面体，
+探测它是否unstable.
+ 现在我想搜索2维的relative K-unstable 格点多面体.
+ 
+\end_layout
+
+\begin_layout Standard
+输入参数：
+顶点个数
+\begin_inset Formula $d$
+\end_inset
+
+,
+ 正整数
+\begin_inset Formula $N$
+\end_inset
+
+约束法向量的复杂度，
+
+\begin_inset Formula $M$
+\end_inset
+
+约束边长。
+
+\end_layout
+
+\begin_layout Standard
+用逐步选取边向量和边长的方法来生成
+\begin_inset Formula $P$
+\end_inset
+
+。
+记 
+\begin_inset Formula 
+\[
+\mathcal{P}_{N}=\left\{ (a,b)\in\mathbb{Z}^{2}\mid\gcd\left(a,b\right)=1,(a,b)\neq(0,0),\left|a\right|\le N,\left|b\right|\le N\right\} 
+\]
+
+\end_inset
+
+为非零primitive integer vectors构成的集合。
+按如下方式依次选取
+\begin_inset Formula $d$
+\end_inset
+
+个顶点。
+
+\end_layout
+
+\begin_layout Standard
+取第一个顶点
+\begin_inset Formula $v_{1}=(0,0)$
+\end_inset
+
+,
+ 第一个方向
+\begin_inset Formula $p_{1}=(1,0)$
+\end_inset
+
+。
+ 选正整数步长
+\begin_inset Formula $k_{1}\le M$
+\end_inset
+
+,
+ 得到第2个顶点
+\begin_inset Formula $v_{2}=v_{1}+k_{1}p_{1}$
+\end_inset
+
+。
+选第二个方向
+\begin_inset Formula $p_{2}\in\mathcal{P}_{N}$
+\end_inset
+
+使得
+\begin_inset Formula $p_{1}$
+\end_inset
+
+到
+\begin_inset Formula $p_{2}$
+\end_inset
+
+的逆时针夹角介于
+\begin_inset Formula $0$
+\end_inset
+
+到
+\begin_inset Formula $\pi$
+\end_inset
+
+之间。
+选正整数步长
+\begin_inset Formula $k_{2}\le M$
+\end_inset
+
+,
+ 得到第3个顶点
+\begin_inset Formula $v_{3}=v_{2}+k_{2}p_{2}$
+\end_inset
+
+。
+ 
+\end_layout
+
+\begin_layout Standard
+一般地，
+ 从顶点
+\begin_inset Formula $v_{i}$
+\end_inset
+
+ (
+\begin_inset Formula $i\le d-1$
+\end_inset
+
+)开始，
+ 选方向
+\begin_inset Formula $p_{i}\in\mathcal{P}_{N}$
+\end_inset
+
+使得
+\begin_inset Formula $p_{i-1}$
+\end_inset
+
+到
+\begin_inset Formula $p_{i}$
+\end_inset
+
+的逆时针夹角介于
+\begin_inset Formula $0$
+\end_inset
+
+到
+\begin_inset Formula $\pi$
+\end_inset
+
+之间。
+选正整数步长
+\begin_inset Formula $k_{i}\le M$
+\end_inset
+
+,
+ 使得下一个顶点
+\begin_inset Formula $v_{i+1}=v_{i}+k_{i}p_{i}$
+\end_inset
+
+的第二分量大于0 (即
+\begin_inset Formula $v_{i+1}$
+\end_inset
+
+在上半平面中)。
+如此下去，
+直到得到
+\begin_inset Formula $v_{d}$
+\end_inset
+
+（位于上半平面）。
+
+\end_layout
+
+\begin_layout Standard
+连接
+\begin_inset Formula $v_{d}$
+\end_inset
+
+和
+\begin_inset Formula $v_{1}$
+\end_inset
+
+得到一个位于上半平面的整点多边形。
+然后用现成的Donaldson程序探测其非稳定性.
+ 注意边
+\begin_inset Formula $\overline{v_{i}v_{i+1}}$
+\end_inset
+
+的
+\begin_inset Formula $d\sigma$
+\end_inset
+
+测度为
+\begin_inset Formula $k_{i}$
+\end_inset
+
+。
+ 边
+\begin_inset Formula $\overline{v_{d}v_{1}}$
+\end_inset
+
+的步长没有被
+\begin_inset Formula $M$
+\end_inset
+
+约束。
+
+\end_layout
+
+\begin_layout Standard
+冗余：
+注意
+\begin_inset Formula $(k_{1},\dots,k_{d-1})$
+\end_inset
+
+与
+\begin_inset Formula $(lk_{1},\dots,lk_{d-1})$
+\end_inset
+
+可视为等价，
+因为它们给出的多边形相似。
+搜索中记录Donaldson检测过的
+\begin_inset Formula $(k_{1},\dots,k_{d-1})$
+\end_inset
+
+。
+一旦发现新的
+\begin_inset Formula $(k_{1},\dots,k_{d-1})$
+\end_inset
+
+向量不是primitive的，
+就查看约去公因子后的向量是否已经检测过，
+避免重复Donaldson检测。
+
+\end_layout
+
+\begin_layout Standard
+注意根据handoff的记录,
+ 5边形没有找到unstable例子,
+ 所以
+\begin_inset Formula $d$
+\end_inset
+
+至少取6.
+ 根据K-stability-toric-literature.md,
+ Wang–Zhou发现有unstable的9边形存在.
  
 \end_layout
 

@@ -47,6 +47,30 @@ WideInt cross(const IntPoint& origin, const IntPoint& p, const IntPoint& q) {
   return px * qy - py * qx;
 }
 
+bool on_segment(const IntPoint& a, const IntPoint& b, const IntPoint& p) {
+  return cross(a, b, p) == 0 &&
+         (static_cast<WideInt>(p.x) - a.x) *
+                 (static_cast<WideInt>(p.x) - b.x) <= 0 &&
+         (static_cast<WideInt>(p.y) - a.y) *
+                 (static_cast<WideInt>(p.y) - b.y) <= 0;
+}
+
+bool segments_intersect(const IntPoint& a, const IntPoint& b,
+                        const IntPoint& c, const IntPoint& d) {
+  const WideInt ab_c = cross(a, b, c);
+  const WideInt ab_d = cross(a, b, d);
+  const WideInt cd_a = cross(c, d, a);
+  const WideInt cd_b = cross(c, d, b);
+  if (((ab_c > 0 && ab_d < 0) || (ab_c < 0 && ab_d > 0)) &&
+      ((cd_a > 0 && cd_b < 0) || (cd_a < 0 && cd_b > 0))) {
+    return true;
+  }
+  return (ab_c == 0 && on_segment(a, b, c)) ||
+         (ab_d == 0 && on_segment(a, b, d)) ||
+         (cd_a == 0 && on_segment(c, d, a)) ||
+         (cd_b == 0 && on_segment(c, d, b));
+}
+
 std::int64_t edge_lattice_length(const IntPoint& p, const IntPoint& q) {
   return std::gcd<std::int64_t>(p.x - q.x, p.y - q.y);
 }
@@ -302,6 +326,57 @@ std::vector<IntPoint> normalize_polygon(std::vector<IntPoint> vertices) {
   }
   if (vertices.size() < 3) {
     throw std::runtime_error("Polygon degenerates to fewer than 3 vertices.");
+  }
+
+  // Local left turns alone do not rule out a self-intersecting spiral. Check
+  // every non-adjacent edge pair and require every vertex to survive the
+  // strict convex hull computation.
+  const std::size_t edge_count = vertices.size();
+  for (std::size_t i = 0; i < edge_count; ++i) {
+    const IntPoint& a = vertices[i];
+    const IntPoint& b = vertices[(i + 1) % edge_count];
+    for (std::size_t j = i + 1; j < edge_count; ++j) {
+      if (j == i || (j == (i + 1) % edge_count) ||
+          (i == 0 && j == edge_count - 1)) {
+        continue;
+      }
+      const IntPoint& c = vertices[j];
+      const IntPoint& d = vertices[(j + 1) % edge_count];
+      if (segments_intersect(a, b, c, d)) {
+        throw std::runtime_error("Polygon boundary self-intersects.");
+      }
+    }
+  }
+  std::vector<IntPoint> sorted = vertices;
+  std::sort(sorted.begin(), sorted.end(), [](const IntPoint& lhs,
+                                             const IntPoint& rhs) {
+    return lhs.x == rhs.x ? lhs.y < rhs.y : lhs.x < rhs.x;
+  });
+  sorted.erase(std::unique(sorted.begin(), sorted.end(),
+                           [](const IntPoint& lhs, const IntPoint& rhs) {
+                             return lhs.x == rhs.x && lhs.y == rhs.y;
+                           }),
+               sorted.end());
+  std::vector<IntPoint> hull;
+  for (const IntPoint& point : sorted) {
+    while (hull.size() >= 2 &&
+           cross(hull[hull.size() - 2], hull.back(), point) <= 0) {
+      hull.pop_back();
+    }
+    hull.push_back(point);
+  }
+  const std::size_t lower_size = hull.size();
+  for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {
+    while (hull.size() > lower_size &&
+           cross(hull[hull.size() - 2], hull.back(), *it) <= 0) {
+      hull.pop_back();
+    }
+    hull.push_back(*it);
+  }
+  if (!hull.empty()) hull.pop_back();
+  if (hull.size() != vertices.size()) {
+    throw std::runtime_error(
+        "Polygon has an interior or collinear vertex and is not strictly convex.");
   }
 
   int sign = 0;
