@@ -25,6 +25,8 @@ struct PolygonCandidate {
   std::int64_t twice_area = 0;
   std::string key;
   double probe_score = 0.0;
+  std::vector<int> vertex_singularity_flags;
+  int singular_vertex_count = -1;
 };
 
 enum class DetectorTier { probe, confirm, final };
@@ -58,6 +60,11 @@ struct AttemptRecord {
   bool has_exact_witness = false;
 };
 
+struct VerifiedCandidateSummary {
+  std::string key;
+  std::int64_t twice_area = 0;
+};
+
 struct AreaSearchOptions {
   int d = 6;
   int initial_N = 4;
@@ -67,6 +74,7 @@ struct AreaSearchOptions {
   double time_limit_seconds = 60.0;
   double shell_seconds = 60.0;
   bool stop_on_first = false;
+  bool smooth_only = false;
   bool verbose = false;
   std::filesystem::path database = "K-stability/k_stability_search.sqlite";
   std::filesystem::path output_directory = ".";
@@ -82,6 +90,12 @@ struct SearchSummary {
   std::uint64_t verified = 0;
   std::uint64_t unverified = 0;
   std::uint64_t skipped = 0;
+  std::uint64_t total_tested = 0;
+  std::uint64_t new_tested = 0;
+  std::uint64_t total_verified_unstable = 0;
+  std::uint64_t new_verified_unstable = 0;
+  bool smaller_volume_found = false;
+  std::vector<VerifiedCandidateSummary> top_verified;
   std::string first_verified_key;
   std::string best_verified_key;
   std::int64_t best_twice_area = 0;
@@ -93,6 +107,9 @@ struct SearchSummary {
 bool build_candidate(int d, const std::vector<Direction>& first_directions,
                      const std::vector<std::int64_t>& first_steps,
                      PolygonCandidate& result, std::string* reason = nullptr);
+
+std::vector<int> compute_vertex_singularity_flags(
+    const PolygonCandidate& candidate);
 
 std::vector<Direction> primitive_directions(int bound);
 std::string candidate_key(const PolygonCandidate& candidate);
@@ -111,6 +128,8 @@ class SearchDatabase {
 
   void save_candidate(const PolygonCandidate& candidate, const std::string& status);
   void update_probe_score(const std::string& key, double score);
+  void ensure_generator_revision(const std::string& revision);
+  void save_vertex_singularity(const PolygonCandidate& candidate);
   bool has_attempt(const std::string& key, const std::string& profile) const;
   void save_attempt(const PolygonCandidate& candidate, const DetectorOutcome& outcome);
   std::optional<AttemptRecord> get_attempt(
@@ -122,14 +141,21 @@ class SearchDatabase {
                        const std::string& profile,
                        const std::string& status,
                        const std::string& last_stage);
-  std::vector<PolygonCandidate> load_candidates() const;
+  // If dimension is nonnegative, load only candidates with that d. The
+  // default keeps the administrative all-dimensions view for database tools.
+  std::vector<PolygonCandidate> load_candidates(int dimension = -1) const;
   bool candidate_is_verified(const std::string& key) const;
   void save_state(const std::string& name, const std::string& value);
   std::string load_state(const std::string& name) const;
-  std::uint64_t count_candidates() const;
-  std::uint64_t count_status(const std::string& status) const;
+  std::uint64_t count_candidates(int dimension = -1) const;
+  std::uint64_t count_status(const std::string& status, int dimension = -1) const;
+  std::uint64_t count_tested(int dimension) const;
+  std::uint64_t count_verified(int dimension) const;
+  std::vector<VerifiedCandidateSummary> top_verified(int dimension,
+                                                      std::size_t limit) const;
+  std::optional<std::int64_t> min_verified_twice_area(int dimension) const;
   void write_report(const std::filesystem::path& path,
-                    const SearchSummary& summary) const;
+                    const SearchSummary& summary, int dimension = -1) const;
 
  private:
   struct Impl;

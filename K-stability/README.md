@@ -133,9 +133,11 @@ k_stability --polygon FILE [options]
 
 ## 面积优先搜索
 
-`k_stability_search` 在固定顶点数 `d` 下随机生成严格凸整点多边形。前
-`d-1` 条边的方向和步长按极角递增生成，闭合边自动计算且不受 `N,M`
-限制；整体步长公因子会被约去。候选按精确 `twice_area` 与 Donaldson
+`k_stability_search` 在固定顶点数 `d` 下逐步生成严格凸整点多边形。每一步只从
+满足相邻转角和当前闭合扇区条件的方向中采样，并即时丢弃没有合法步长的分支；
+闭合边自动计算且不受 `N,M` 限制。整体步长公因子会被约去。使用
+`--smooth-only` 时还要求每次相邻 primitive 方向的行列式绝对值为 `1`，奇异方向
+在采样阶段直接剔除。候选按精确 `twice_area` 与 Donaldson
 probe 分数进入两个 frontier，依次使用 `probe`、`confirm`、`final` profile，
 最终只有 `df_simple_exact(...) < 0` 才计为 `verified_unstable`。
 
@@ -172,6 +174,7 @@ probe→confirm→final profile 保存 `pending`、`unverified` 或
 | `--beam-width K` | `48` | 每批随机/beam 候选生成数量。 |
 | `--seed S` | `1` | 随机搜索种子；相同数据库会优先恢复已保存的随机状态。 |
 | `--stop-on-first` | 关闭 | 第一个精确认证候选出现后立即结束。默认持续搜索到时间预算耗尽。 |
+| `--smooth-only` | 关闭 | 只生成和检测每个顶点都光滑的多边形；奇异方向在采样时直接剔除。 |
 | `--certify-max-denom Q` | `1048576` | 数值 witness 有理化时的最大分母。该值改变会产生新的 detector profile。 |
 | `--verbose` | 关闭 | 输出额外进度信息。 |
 
@@ -187,13 +190,19 @@ detector profile 下的 `unverified` 候选不会重复检测。
 | --- | --- |
 | `database` | 实际使用的 SQLite 路径。 |
 | `report_file` | 实际写出的结果报告路径。 |
+| `total tested` | 当前 `--d` 维数中，`attempts` 表存在任意 probe/confirm/final 记录的不同候选总数。 |
+| `new tested` | 本轮实际调用 Donaldson detector 的不同当前 `d` 候选数；同一候选的多个 stage 只计一次。 |
+| `total verified unstable` | 搜索结束后当前 `--d` 维数中已精确认证 `M_l<0` 的候选总数。 |
+| `new verified unstable` | 本轮新产生精确认证的不同候选数；加载已有 verified 候选不计入。 |
+| `smaller volume found` / `same least volume` | 本轮结束后的当前 `d` 最小 `twice_area` 是否严格小于开始时的最小值；若开始时没有 verified 候选而本轮找到第一个，也输出 `smaller volume found`。 |
+| `The top 5 with least volume` | 当前 `d` 的 verified 候选前五名，按精确 `twice_area`、canonical key 排序；每行输出 `key` 和 `twice_area`。 |
 | `generated` | 本次运行新生成且通过几何校验、尚未在内存中去重的候选数量。 |
 | `rejected` | 本次运行生成但未通过方向、上半平面、严格凸性、自交或面积等几何校验的数量。 |
 | `probes` / `confirms` / `finals` | 本次运行实际调用 probe、confirm、final 检测的次数；从已保存 stage 恢复时不重复计数。 |
-| `verified` / `unverified` | 搜索结束时数据库中 `candidates.status` 的累计数量，不是本次新增数量。verified 只表示存在精确认证的 `M_l<0`；unverified 只表示当前完整 profile 已完成但未找到 witness。 |
+| `verified` / `unverified` | 搜索结束时当前 `--d` 维数的累计数量，不是本次新增数量。verified 只表示存在精确认证的 `M_l<0`；unverified 只表示当前完整 profile 已完成但未找到 witness。 |
 | `skipped` | 本次运行跳过的候选处理次数，包括 verified 候选、当前 profile 已完成的 unverified 候选，以及 frontier 中因状态已改变而失效的重复条目。 |
 | `have_verified` | 是否已经找到精确认证的不稳定候选。 |
-| `best_twice_area` | 当前数据库中已认证候选的最小二倍面积；实际面积为该值的一半。 |
+| `best_twice_area` | 当前 `--d` 维数中已认证候选的最小二倍面积；实际面积为该值的一半。 |
 | `first_verified_key` | 首个认证候选的 canonical key。 |
 | `best_verified_key` | 当前最小面积认证候选的 canonical key。 |
 
@@ -208,11 +217,13 @@ SQLite 持久化输出在 `--database FILE` 指定的文件中，文字结果报
 - 默认数据库路径为项目根目录下的 `K-stability/k_stability_search.sqlite`；显式给出的相对路径相对于启动命令时的当前工作目录解析；
 - 文件不存在时自动创建父目录和数据库；
 - `candidates` 表保存方向序列、步长序列、顶点、facet normals、`ell_P`、面积和状态；
+- verified 候选额外保存 `vertex_singularity_flags`（按顶点排列的 `0/1` 光滑/奇异标记）和 `singular_vertex_count`；
 - `candidate_validations` 表保存候选级完整 profile 状态和最后完成阶段；
 - `attempts` 表保存每个候选/profile/stage 的检测结果，只有认证记录含 witness 字段；
-- `state` 表保存 shell、随机游标等断点状态。
+- `state` 表保存按维数隔离的 shell、随机游标等断点状态，例如 `d3|shell` 和 `d3|rng`；`generator_revision` 是全库共享的几何生成器版本。
+- 单个 SQLite 文件可以保存多个 `d` 的候选，但搜索启动时只加载当前 `--d` 的记录，统计和结果报告也只针对当前维数；数据库通过 `(d,status)` 索引加速筛选。
 - 找到认证候选时，报告文件保存其完整几何信息、面积、边界测度、`ell_P`、
-  profile 和精确 witness；没有找到时报告内容为 `没找到`。
+  奇异点标记、profile 和精确 witness；没有找到时报告内容为 `没找到`。
 
 SQLite 运行期间可能同时出现同名的 `-wal` 和 `-shm` 临时文件；它们与主
 数据库放在同一目录。除上述 SQLite 和结果报告外，程序不会生成多边形文本
@@ -223,6 +234,47 @@ SQLite 运行期间可能同时出现同名的 `-wal` 和 `-shm` 临时文件；
 
 SQLite 数据库的统计、指定 key 查询和 witness 查看命令见
 [search_database_commands.md](search_database_commands.md)。
+
+### 按 key 绘制候选多边形
+
+`plot_candidate.py` 从搜索 SQLite 库读取指定 key，生成一个不依赖
+Matplotlib 的 SVG。图中包含：
+
+- 每个顶点的坐标标注；
+- 蓝色虚线 `ell_P=0`；
+- 红色 witness 折痕线；
+- 奇异顶点的紫色圆点和紫色坐标标注。
+
+默认读取 `K-stability/k_stability_search.sqlite`。使用 `--save` 时，SVG 和顶点
+文件写入项目根目录的 `examples` 文件夹：
+
+```bash
+python3 K-stability/plot_candidate.py \
+  --save \
+  'd5|p=1:0;-6:7;2:-5;5:-6;1:-1|k=1,3,1,1,10'
+```
+
+`--save` 会生成：
+
+```text
+examples/d5_a74.svg
+examples/d5_a74
+```
+
+其中无扩展名文件是可直接供 `k_stability` 读取的顶点文件，所有多边形元信息
+以 `#` 注释保存。若任一同名文件已经存在，程序报错并拒绝覆盖。
+
+关闭 `--save` 时必须指定输出文件，也可以同时指定数据库：
+
+```bash
+python3 K-stability/plot_candidate.py \
+  --database K-stability/k_stability_search.sqlite \
+  --key 'd5|p=1:0;-6:7;2:-5;5:-6;1:-1|k=1,3,1,1,10' \
+  --output K-stability/K-results/candidate.svg
+```
+
+程序优先使用 `attempts` 中保存的精确 witness；若只有数值 witness，则使用
+数值折痕线。运行结束会打印 SVG 路径和奇异顶点总数。
 
 ## 测试
 

@@ -17,6 +17,7 @@ void usage(std::ostream& out) {
       << "  --beam-width N        Candidates per generation batch (default 48)\n"
       << "  --seed N              Deterministic random seed\n"
       << "  --stop-on-first       Stop after the first exact certification\n"
+      << "  --smooth-only         Search only polygons smooth at every vertex\n"
       << "  --certify-max-denom N Rational denominator cap\n"
       << "  --verbose             Print progress\n";
 }
@@ -45,6 +46,7 @@ int main(int argc, char** argv) {
       else if (arg == "--output-dir") options.output_directory = value(argc, argv, i, arg);
       else if (arg == "--certify-max-denom") options.certify_max_denominator = std::stoll(value(argc, argv, i, arg));
       else if (arg == "--stop-on-first") options.stop_on_first = true;
+      else if (arg == "--smooth-only") options.smooth_only = true;
       else if (arg == "--verbose") options.verbose = true;
       else throw std::invalid_argument("unknown option: " + arg);
     }
@@ -57,7 +59,17 @@ int main(int argc, char** argv) {
     std::cout << "database=" << options.database.string() << '\n'
               << "report_file="
               << (options.output_directory / "k_stability_search_result.txt").string() << '\n'
-              << "generated=" << summary.generated << '\n'
+              << "total tested: " << summary.total_tested << '\n'
+              << "new tested: " << summary.new_tested << '\n'
+              << "total verified unstable: " << summary.total_verified_unstable << '\n'
+              << "new verified unstable: " << summary.new_verified_unstable << '\n'
+              << (summary.smaller_volume_found ? "smaller volume found" :
+                                                   "same least volume") << '\n'
+              << "The top 5 with least volume:\n";
+    for (const auto& verified : summary.top_verified) {
+      std::cout << "key=" << verified.key << " twice_area=" << verified.twice_area << '\n';
+    }
+    std::cout << "generated=" << summary.generated << '\n'
               << "rejected=" << summary.rejected << '\n'
               << "probes=" << summary.probes << '\n'
               << "confirms=" << summary.confirms << '\n'

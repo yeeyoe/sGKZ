@@ -7,7 +7,9 @@
 /results
 /K-stability/K-results
 /K-stability_highdim/nK_results
-
+/K-stability/k_stability_search.sqlite
+/K-stability/k_stability_search.sqlite-shm
+/K-stability/k_stability_search.sqlite-wal
 # Python
 __pycache__/
 *.pyc

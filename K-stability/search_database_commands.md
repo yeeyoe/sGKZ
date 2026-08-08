@@ -29,10 +29,21 @@ sqlite3 "$DB" '.schema state'
 # candidates 总数
 sqlite3 "$DB" 'select count(*) from candidates;'
 
+# 指定 d 的候选总数
+sqlite3 "$DB" \
+  'select count(*) from candidates where d=3;'
+
 # 按候选状态统计
 sqlite3 -header -column "$DB" \
   'select status, count(*) as count
    from candidates
+   group by status;'
+
+# 指定 d 按状态统计
+sqlite3 -header -column "$DB" \
+  'select status, count(*) as count
+   from candidates
+   where d=3
    group by status;'
 
 # verified_unstable 总数
@@ -40,12 +51,38 @@ sqlite3 "$DB" \
   'select count(*) from candidates
    where status="verified_unstable";'
 
+# 指定 d 的 verified_unstable 总数
+sqlite3 "$DB" \
+  'select count(*) from candidates
+   where d=3 and status="verified_unstable";'
+
+# 指定 d 中被 Donaldson detector 测试过的不同候选总数
+sqlite3 "$DB" \
+  'select count(distinct a.candidate_key)
+   from attempts as a join candidates as c on c.key=a.candidate_key
+   where c.d=3;'
+
 # 按面积查看 verified 候选
 sqlite3 -header -column "$DB" \
   'select key, twice_area, cast(twice_area as real)/2 as area
    from candidates
    where status="verified_unstable"
    order by cast(twice_area as integer), key;'
+
+# 指定 d 按面积查看 verified 候选
+sqlite3 -header -column "$DB" \
+  'select key, twice_area, cast(twice_area as real)/2 as area
+   from candidates
+   where d=3 and status="verified_unstable"
+   order by cast(twice_area as integer), key;'
+
+# 指定 d 的 verified 候选前五名
+sqlite3 -header -column "$DB" \
+  'select key, twice_area
+   from candidates
+   where d=3 and status="verified_unstable"
+   order by cast(twice_area as integer), key
+   limit 5;'
 ```
 
 ## 指定候选
@@ -74,6 +111,18 @@ sqlite3 -line "$DB" \
 - `normals`：facet normals 序列，格式为 `x:y;...`；
 - `twice_area`：二倍面积，实际面积为 `twice_area/2`；
 - `ell0,ell1,ell2`：`ell_P(x,y)=ell0+ell1*x+ell2*y`。
+- `vertex_singularity_flags`：按顶点排列的 `0/1`，`0` 表示光滑，`1` 表示奇异；
+- `singular_vertex_count`：奇异顶点总数，仅 verified 候选写入。
+
+按奇异点数查看 verified 候选：
+
+```bash
+sqlite3 -header -column "$DB" \
+  "select key, vertex_singularity_flags, singular_vertex_count
+   from candidates
+   where status='verified_unstable'
+   order by singular_vertex_count, cast(twice_area as integer), key;"
+```
 
 ## 检测和精确 witness
 
@@ -129,8 +178,9 @@ sqlite3 -header -column "$DB" \
   'select name, value from state order by name;'
 ```
 
-其中通常包括当前 shell 和随机数生成器状态。重新使用同一个数据库运行搜索
-时，程序会读取这些状态，并复用已有候选和 detector profile 记录。
+其中包括按维数保存的 shell 和随机数生成器状态，例如 `d3|shell`、`d3|rng`。
+重新使用同一个数据库运行搜索时，程序只读取当前 `d` 的断点状态、候选和
+detector profile 记录，不会加载或处理其它维数的候选。
 
 ## 结果报告
 

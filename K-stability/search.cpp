@@ -87,6 +87,52 @@ std::vector<std::int64_t> split_steps(const std::string& text) {
   return result;
 }
 
+std::vector<IntPoint> split_points(const std::string& text) {
+  std::vector<IntPoint> result;
+  std::istringstream input(text);
+  std::string item;
+  while (std::getline(input, item, ';')) {
+    const std::size_t colon = item.find(':');
+    if (colon == std::string::npos) throw std::invalid_argument("invalid point list");
+    result.push_back({std::stoll(item.substr(0, colon)),
+                      std::stoll(item.substr(colon + 1))});
+  }
+  return result;
+}
+
+std::vector<int> split_flags(const std::string& text) {
+  std::vector<int> result;
+  std::istringstream input(text);
+  std::string item;
+  while (std::getline(input, item, ',')) {
+    const int flag = std::stoi(item);
+    if (flag != 0 && flag != 1) throw std::invalid_argument("invalid singularity flag");
+    result.push_back(flag);
+  }
+  return result;
+}
+
+Rational parse_rational(const std::string& text) {
+  const std::size_t slash = text.find('/');
+  if (slash == std::string::npos) return Rational(CGAL::Gmpz(text));
+
+  // ell_P coefficients can have numerators and denominators larger than
+  // int64_t.  Parse both parts directly as arbitrary-precision integers.
+  const CGAL::Gmpz numerator(text.substr(0, slash));
+  const CGAL::Gmpz denominator(text.substr(slash + 1));
+  if (denominator == 0) throw std::invalid_argument("zero rational denominator");
+  return Rational(numerator, denominator);
+}
+
+std::string join_flags(const std::vector<int>& flags) {
+  std::ostringstream out;
+  for (std::size_t i = 0; i < flags.size(); ++i) {
+    if (i) out << ',';
+    out << flags[i];
+  }
+  return out.str();
+}
+
 bool primitive(Direction p) {
   return (p.x != 0 || p.y != 0) &&
          std::gcd(std::llabs(p.x), std::llabs(p.y)) == 1;
@@ -94,6 +140,15 @@ bool primitive(Direction p) {
 
 WideInt cross(Direction a, Direction b) {
   return static_cast<WideInt>(a.x) * b.y - static_cast<WideInt>(a.y) * b.x;
+}
+
+WideInt abs_wide(WideInt value) {
+  return value < 0 ? -value : value;
+}
+
+WideInt cross_to_origin(Direction direction, const IntPoint& vertex) {
+  return -static_cast<WideInt>(direction.x) * vertex.y +
+         static_cast<WideInt>(direction.y) * vertex.x;
 }
 
 std::string profile_name(DetectorTier tier) {
@@ -204,6 +259,10 @@ std::int64_t shell_value(int base, std::uint64_t shell, bool n_value) {
   return static_cast<std::int64_t>(base * multiplier);
 }
 
+std::string dimension_state_name(int dimension, const std::string& name) {
+  return "d" + std::to_string(dimension) + "|" + name;
+}
+
 }  // namespace
 
 std::string DetectorProfile::fingerprint() const {
@@ -244,8 +303,10 @@ bool build_candidate(int d, const std::vector<Direction>& first_directions,
   for (std::size_t i = 0; i < first_directions.size(); ++i) {
     if (!primitive(first_directions[i]) || first_steps[i] <= 0)
       return fail("nonprimitive direction or nonpositive step");
-    if (i && cross(first_directions[i - 1], first_directions[i]) <= 0)
-      return fail("directions are not strictly increasing");
+    if (i) {
+      if (cross(first_directions[i - 1], first_directions[i]) <= 0)
+        return fail("directions are not strictly increasing");
+    }
   }
   std::int64_t common = 0;
   for (const auto k : first_steps) common = std::gcd(common, k);
@@ -254,6 +315,10 @@ bool build_candidate(int d, const std::vector<Direction>& first_directions,
 
   std::vector<IntPoint> vertices{{0, 0}};
   for (std::size_t i = 0; i < first_directions.size(); ++i) {
+    if (i > 0) {
+      if (cross_to_origin(first_directions[i], vertices.back()) <= 0)
+        return fail("direction leaves the current closing wedge");
+    }
     const WideInt x = static_cast<WideInt>(vertices.back().x) +
                       static_cast<WideInt>(steps[i]) * first_directions[i].x;
     const WideInt y = static_cast<WideInt>(vertices.back().y) +
@@ -282,16 +347,6 @@ bool build_candidate(int d, const std::vector<Direction>& first_directions,
     area += static_cast<WideInt>(vertices[i].x) * vertices[(i + 1) % vertices.size()].y -
             static_cast<WideInt>(vertices[i].y) * vertices[(i + 1) % vertices.size()].x;
   if (area <= 0 || area > std::numeric_limits<std::int64_t>::max()) return fail("invalid area");
-  try {
-    const auto normalized = normalize_polygon(vertices);
-    if (normalized.size() != static_cast<std::size_t>(d))
-      return fail("self-intersection or non-strict polygon");
-    for (std::size_t i = 0; i < vertices.size(); ++i)
-      if (normalized[i].x != vertices[i].x || normalized[i].y != vertices[i].y)
-        return fail("polygon normalization changed candidate");
-  } catch (const std::exception& error) {
-    return fail(error.what());
-  }
   result = {};
   result.d = d;
   result.directions = first_directions;
@@ -311,10 +366,28 @@ std::string candidate_key(const PolygonCandidate& candidate) {
          "|k=" + join_steps(candidate.steps);
 }
 
+std::vector<int> compute_vertex_singularity_flags(
+    const PolygonCandidate& candidate) {
+  if (candidate.d < 3 || candidate.directions.size() != static_cast<std::size_t>(candidate.d))
+    throw std::invalid_argument("candidate has invalid direction count");
+  std::vector<int> flags(candidate.d, 0);
+  for (int i = 0; i < candidate.d; ++i) {
+    const Direction& incoming = candidate.directions[(i + candidate.d - 1) % candidate.d];
+    const Direction& outgoing = candidate.directions[i];
+    flags[i] = abs_wide(cross(incoming, outgoing)) == 1 ? 0 : 1;
+  }
+  return flags;
+}
+
+bool candidate_is_smooth(const PolygonCandidate& candidate) {
+  const auto flags = compute_vertex_singularity_flags(candidate);
+  return std::all_of(flags.begin(), flags.end(), [](int flag) { return flag == 0; });
+}
+
 std::string current_validation_profile(const AreaSearchOptions& options) {
   // This is the cache key for the complete probe -> confirm -> final pipeline.
   // Bump both revisions when geometry validation or detector mathematics changes.
-  return "validation-v2|geometry=strict-convex-hull-v2|detector=area-search-detector-v2|"
+  return "validation-v2|geometry=incremental-convex-v1|detector=area-search-detector-v2|"
          "probe=32x16:norefine|confirm=128x64:refine|final=720x512:refine|"
          "integer-normals=4,8,16|certify-cap=" +
          std::to_string(options.certify_max_denominator);
@@ -352,10 +425,11 @@ SearchDatabase::SearchDatabase(const std::filesystem::path& path) : impl_(new Im
     throw std::runtime_error("cannot open SQLite database: " + path.string());
   const char* schema =
       "PRAGMA journal_mode=WAL;"
-      "CREATE TABLE IF NOT EXISTS candidates(key TEXT PRIMARY KEY,d INTEGER,directions TEXT,steps TEXT,twice_area TEXT,probe_score REAL,status TEXT,ell0 TEXT,ell1 TEXT,ell2 TEXT,vertices TEXT,normals TEXT);"
+      "CREATE TABLE IF NOT EXISTS candidates(key TEXT PRIMARY KEY,d INTEGER,directions TEXT,steps TEXT,twice_area TEXT,probe_score REAL,status TEXT,ell0 TEXT,ell1 TEXT,ell2 TEXT,vertices TEXT,normals TEXT,vertex_singularity_flags TEXT,singular_vertex_count INTEGER);"
       "CREATE TABLE IF NOT EXISTS attempts(candidate_key TEXT,profile TEXT,status TEXT,value REAL,witness_ux REAL,witness_uy REAL,witness_t REAL,exact_a TEXT,exact_b TEXT,exact_c TEXT,exact_value TEXT,numerical_negative INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(candidate_key,profile));"
       "CREATE TABLE IF NOT EXISTS candidate_validations(candidate_key TEXT,validation_profile TEXT,status TEXT,last_stage TEXT,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(candidate_key,validation_profile));"
-      "CREATE TABLE IF NOT EXISTS state(name TEXT PRIMARY KEY,value TEXT);";
+      "CREATE TABLE IF NOT EXISTS state(name TEXT PRIMARY KEY,value TEXT);"
+      "CREATE INDEX IF NOT EXISTS idx_candidates_d_status ON candidates(d,status);";
   char* error = nullptr;
   if (sqlite3_exec(impl_->db, schema, nullptr, nullptr, &error) != SQLITE_OK) {
     const std::string message = error ? error : "schema error";
@@ -366,6 +440,8 @@ SearchDatabase::SearchDatabase(const std::filesystem::path& path) : impl_(new Im
   sqlite3_exec(impl_->db, "ALTER TABLE attempts ADD COLUMN numerical_negative INTEGER NOT NULL DEFAULT 0;", nullptr, nullptr, nullptr);
   sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN vertices TEXT;", nullptr, nullptr, nullptr);
   sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN normals TEXT;", nullptr, nullptr, nullptr);
+  sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN vertex_singularity_flags TEXT;", nullptr, nullptr, nullptr);
+  sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN singular_vertex_count INTEGER;", nullptr, nullptr, nullptr);
 }
 
 SearchDatabase::~SearchDatabase() {
@@ -376,15 +452,49 @@ SearchDatabase::~SearchDatabase() {
 }
 
 void SearchDatabase::save_candidate(const PolygonCandidate& c, const std::string& status) {
-  const std::string sql = "INSERT OR IGNORE INTO candidates(key,d,directions,steps,twice_area,probe_score,status,ell0,ell1,ell2,vertices,normals) VALUES(" +
+  std::string singularity_sql = "NULL,NULL";
+  if (c.singular_vertex_count >= 0 &&
+      c.vertex_singularity_flags.size() == static_cast<std::size_t>(c.d)) {
+    singularity_sql = sql_quote(join_flags(c.vertex_singularity_flags)) + "," +
+                      std::to_string(c.singular_vertex_count);
+  }
+  const std::string sql = "INSERT OR IGNORE INTO candidates(key,d,directions,steps,twice_area,probe_score,status,ell0,ell1,ell2,vertices,normals,vertex_singularity_flags,singular_vertex_count) VALUES(" +
       sql_quote(c.key) + "," + std::to_string(c.d) + "," + sql_quote(join_dirs(c.directions)) + "," +
       sql_quote(join_steps(c.steps)) + "," + std::to_string(c.twice_area) + "," +
       std::to_string(c.probe_score) + "," + sql_quote(status) + "," + sql_quote(rat_string(c.ell[0])) + "," +
       sql_quote(rat_string(c.ell[1])) + "," + sql_quote(rat_string(c.ell[2]) ) + "," +
-      sql_quote(join_points(c.vertices)) + "," + sql_quote(join_dirs(c.facet_normals)) + ");";
+      sql_quote(join_points(c.vertices)) + "," + sql_quote(join_dirs(c.facet_normals)) + "," +
+      singularity_sql + ");";
   char* error = nullptr;
   if (sqlite3_exec(impl_->db, sql.c_str(), nullptr, nullptr, &error) != SQLITE_OK) {
     const std::string message = error ? error : "candidate insert failed";
+    sqlite3_free(error);
+    throw std::runtime_error(message);
+  }
+}
+
+void SearchDatabase::ensure_generator_revision(const std::string& revision) {
+  const std::string existing = load_state("generator_revision");
+  if (!existing.empty()) {
+    if (existing != revision)
+      throw std::runtime_error("database generator revision mismatch: " + existing +
+                               " (expected " + revision + ")");
+    return;
+  }
+  if (count_candidates() != 0)
+    throw std::runtime_error("database has candidates but no generator revision; refusing legacy database");
+  save_state("generator_revision", revision);
+}
+
+void SearchDatabase::save_vertex_singularity(const PolygonCandidate& candidate) {
+  const std::vector<int> flags = compute_vertex_singularity_flags(candidate);
+  const int count = std::accumulate(flags.begin(), flags.end(), 0);
+  const std::string sql = "UPDATE candidates SET vertex_singularity_flags=" +
+                          sql_quote(join_flags(flags)) + ", singular_vertex_count=" +
+                          std::to_string(count) + " WHERE key=" + sql_quote(candidate.key) + ";";
+  char* error = nullptr;
+  if (sqlite3_exec(impl_->db, sql.c_str(), nullptr, nullptr, &error) != SQLITE_OK) {
+    const std::string message = error ? error : "singularity update failed";
     sqlite3_free(error);
     throw std::runtime_error(message);
   }
@@ -521,6 +631,7 @@ void SearchDatabase::save_validation(const PolygonCandidate& c,
     const std::string update = "UPDATE candidates SET status='verified_unstable' WHERE key=" +
                                sql_quote(c.key) + ";";
     sqlite3_exec(impl_->db, update.c_str(), nullptr, nullptr, nullptr);
+    save_vertex_singularity(c);
   } else if (!has_verified_candidate(c.key)) {
     const std::string update = "UPDATE candidates SET status=" + sql_quote(status) +
                                " WHERE key=" + sql_quote(c.key) + ";";
@@ -528,21 +639,88 @@ void SearchDatabase::save_validation(const PolygonCandidate& c,
   }
 }
 
-std::vector<PolygonCandidate> SearchDatabase::load_candidates() const {
+std::vector<PolygonCandidate> SearchDatabase::load_candidates(int dimension) const {
+  if (dimension < -1 || dimension == 0)
+    throw std::invalid_argument("candidate dimension must be positive or -1");
   std::vector<PolygonCandidate> result;
   sqlite3_stmt* statement = nullptr;
-  sqlite3_prepare_v2(impl_->db, "SELECT d,directions,steps,probe_score FROM candidates;", -1,
-                     &statement, nullptr);
+  std::string query =
+      "SELECT key,d,directions,steps,twice_area,probe_score,status,ell0,ell1,ell2,"
+      "vertices,normals,vertex_singularity_flags,singular_vertex_count FROM candidates";
+  if (dimension >= 1) query += " WHERE d=" + std::to_string(dimension);
+  query += ";";
+  if (sqlite3_prepare_v2(impl_->db, query.c_str(), -1, &statement, nullptr) != SQLITE_OK)
+    throw std::runtime_error("cannot prepare candidate load query");
   while (sqlite3_step(statement) == SQLITE_ROW) {
-    const int d = sqlite3_column_int(statement, 0);
-    const auto dirs = split_dirs(reinterpret_cast<const char*>(sqlite3_column_text(statement, 1)));
-    const auto steps = split_steps(reinterpret_cast<const char*>(sqlite3_column_text(statement, 2)));
+    const auto text_column = [&](int column) {
+      const auto* text = sqlite3_column_text(statement, column);
+      if (!text) throw std::runtime_error("NULL candidate field");
+      return std::string(reinterpret_cast<const char*>(text));
+    };
+    const auto optional_text_column = [&](int column) -> std::optional<std::string> {
+      if (sqlite3_column_type(statement, column) == SQLITE_NULL) return std::nullopt;
+      return text_column(column);
+    };
+    const std::string stored_key = text_column(0);
+    const int d = sqlite3_column_int(statement, 1);
+    const auto dirs = split_dirs(text_column(2));
+    const auto steps = split_steps(text_column(3));
+    const auto twice_area = std::stoll(text_column(4));
     PolygonCandidate candidate;
-    if (build_candidate(d, std::vector<Direction>(dirs.begin(), dirs.begin() + std::min<int>(d - 1, dirs.size())),
-                        std::vector<std::int64_t>(steps.begin(), steps.begin() + std::min<int>(d - 1, steps.size())), candidate)) {
-      candidate.probe_score = sqlite3_column_double(statement, 3);
-      result.push_back(std::move(candidate));
+    candidate.d = d;
+    candidate.directions = dirs;
+    candidate.steps = steps;
+    candidate.twice_area = twice_area;
+    candidate.probe_score = sqlite3_column_type(statement, 5) == SQLITE_NULL
+                                ? 0.0
+                                : sqlite3_column_double(statement, 5);
+    const std::string status = text_column(6);
+    candidate.ell = {parse_rational(text_column(7)), parse_rational(text_column(8)),
+                     parse_rational(text_column(9))};
+    candidate.vertices = split_points(text_column(10));
+    candidate.facet_normals = split_dirs(text_column(11));
+    candidate.key = stored_key;
+    if (d < 3 || dirs.size() != static_cast<std::size_t>(d) ||
+        steps.size() != static_cast<std::size_t>(d) ||
+        candidate.vertices.size() != static_cast<std::size_t>(d) ||
+        candidate.facet_normals.size() != static_cast<std::size_t>(d) ||
+        candidate.key != candidate_key(candidate))
+      throw std::runtime_error("inconsistent candidate geometry for key " + stored_key);
+    for (int i = 0; i < d; ++i) {
+      const IntPoint& p = candidate.vertices[i];
+      const IntPoint& q = candidate.vertices[(i + 1) % d];
+      const WideInt dx = static_cast<WideInt>(q.x) - p.x;
+      const WideInt dy = static_cast<WideInt>(q.y) - p.y;
+      if (dx != static_cast<WideInt>(candidate.steps[i]) * candidate.directions[i].x ||
+          dy != static_cast<WideInt>(candidate.steps[i]) * candidate.directions[i].y ||
+          candidate.facet_normals[i].x != -candidate.directions[i].y ||
+          candidate.facet_normals[i].y != candidate.directions[i].x)
+        throw std::runtime_error("inconsistent candidate geometry for key " + stored_key);
     }
+    WideInt area = 0;
+    for (int i = 0; i < d; ++i) {
+      const auto& p = candidate.vertices[i];
+      const auto& q = candidate.vertices[(i + 1) % d];
+      area += static_cast<WideInt>(p.x) * q.y - static_cast<WideInt>(p.y) * q.x;
+    }
+    if (area != static_cast<WideInt>(candidate.twice_area))
+      throw std::runtime_error("inconsistent candidate area for key " + stored_key);
+    const auto stored_flags = optional_text_column(12);
+    const bool has_count = sqlite3_column_type(statement, 13) != SQLITE_NULL;
+    if (stored_flags.has_value() != has_count)
+      throw std::runtime_error("incomplete candidate singularity metadata for key " + stored_key);
+    if (stored_flags) {
+      candidate.vertex_singularity_flags = split_flags(*stored_flags);
+      candidate.singular_vertex_count = sqlite3_column_int(statement, 13);
+      if (candidate.vertex_singularity_flags.size() != static_cast<std::size_t>(d) ||
+          candidate.singular_vertex_count !=
+              std::accumulate(candidate.vertex_singularity_flags.begin(),
+                              candidate.vertex_singularity_flags.end(), 0))
+        throw std::runtime_error("inconsistent candidate singularity metadata for key " + stored_key);
+    } else if (status == "verified_unstable") {
+      throw std::runtime_error("verified candidate lacks singularity metadata for key " + stored_key);
+    }
+    result.push_back(std::move(candidate));
   }
   sqlite3_finalize(statement);
   return result;
@@ -568,18 +746,13 @@ std::string SearchDatabase::load_state(const std::string& name) const {
   return result;
 }
 
-std::uint64_t SearchDatabase::count_candidates() const {
+std::uint64_t SearchDatabase::count_candidates(int dimension) const {
+  if (dimension < -1 || dimension == 0)
+    throw std::invalid_argument("candidate dimension must be positive or -1");
   sqlite3_stmt* statement = nullptr;
-  sqlite3_prepare_v2(impl_->db, "SELECT count(*) FROM candidates;", -1, &statement, nullptr);
-  sqlite3_step(statement);
-  const auto result = static_cast<std::uint64_t>(sqlite3_column_int64(statement, 0));
-  sqlite3_finalize(statement);
-  return result;
-}
-
-std::uint64_t SearchDatabase::count_status(const std::string& status) const {
-  sqlite3_stmt* statement = nullptr;
-  const std::string sql = "SELECT count(*) FROM candidates WHERE status=" + sql_quote(status) + ";";
+  std::string sql = "SELECT count(*) FROM candidates";
+  if (dimension >= 1) sql += " WHERE d=" + std::to_string(dimension);
+  sql += ";";
   sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr);
   sqlite3_step(statement);
   const auto result = static_cast<std::uint64_t>(sqlite3_column_int64(statement, 0));
@@ -587,8 +760,97 @@ std::uint64_t SearchDatabase::count_status(const std::string& status) const {
   return result;
 }
 
+std::uint64_t SearchDatabase::count_status(const std::string& status, int dimension) const {
+  if (dimension < -1 || dimension == 0)
+    throw std::invalid_argument("candidate dimension must be positive or -1");
+  sqlite3_stmt* statement = nullptr;
+  std::string sql = "SELECT count(*) FROM candidates WHERE status=" + sql_quote(status);
+  if (dimension >= 1) sql += " AND d=" + std::to_string(dimension);
+  sql += ";";
+  sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr);
+  sqlite3_step(statement);
+  const auto result = static_cast<std::uint64_t>(sqlite3_column_int64(statement, 0));
+  sqlite3_finalize(statement);
+  return result;
+}
+
+std::uint64_t SearchDatabase::count_tested(int dimension) const {
+  if (dimension < 1) throw std::invalid_argument("tested count requires a dimension");
+  sqlite3_stmt* statement = nullptr;
+  const std::string sql =
+      "SELECT count(DISTINCT a.candidate_key) FROM attempts AS a "
+      "JOIN candidates AS c ON c.key=a.candidate_key WHERE c.d=" +
+      std::to_string(dimension) + ";";
+  if (sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr) != SQLITE_OK)
+    throw std::runtime_error("cannot prepare tested count query");
+  sqlite3_step(statement);
+  const auto result = static_cast<std::uint64_t>(sqlite3_column_int64(statement, 0));
+  sqlite3_finalize(statement);
+  return result;
+}
+
+std::uint64_t SearchDatabase::count_verified(int dimension) const {
+  if (dimension < 1) throw std::invalid_argument("verified count requires a dimension");
+  sqlite3_stmt* statement = nullptr;
+  const std::string sql =
+      "SELECT count(*) FROM candidates AS c WHERE c.d=" + std::to_string(dimension) +
+      " AND (EXISTS (SELECT 1 FROM candidate_validations AS v "
+      "WHERE v.candidate_key=c.key AND v.status='verified_unstable') "
+      "OR (c.status='verified_unstable' AND EXISTS (SELECT 1 FROM attempts AS a "
+      "WHERE a.candidate_key=c.key AND a.status='verified_unstable' "
+      "AND a.exact_a IS NOT NULL AND a.exact_b IS NOT NULL "
+      "AND a.exact_c IS NOT NULL AND a.exact_value IS NOT NULL "
+      "AND length(trim(a.exact_a)) > 0 AND length(trim(a.exact_b)) > 0 "
+      "AND length(trim(a.exact_c)) > 0 AND length(trim(a.exact_value)) > 0)));";
+  if (sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr) != SQLITE_OK)
+    throw std::runtime_error("cannot prepare verified count query");
+  sqlite3_step(statement);
+  const auto result = static_cast<std::uint64_t>(sqlite3_column_int64(statement, 0));
+  sqlite3_finalize(statement);
+  return result;
+}
+
+std::vector<VerifiedCandidateSummary> SearchDatabase::top_verified(
+    int dimension, std::size_t limit) const {
+  if (dimension < 1) throw std::invalid_argument("verified ranking requires a dimension");
+  std::vector<VerifiedCandidateSummary> result;
+  if (limit == 0) return result;
+  sqlite3_stmt* statement = nullptr;
+  const std::string sql =
+      "SELECT c.key,c.twice_area FROM candidates AS c WHERE c.d=" +
+      std::to_string(dimension) +
+      " AND (EXISTS (SELECT 1 FROM candidate_validations AS v "
+      "WHERE v.candidate_key=c.key AND v.status='verified_unstable') "
+      "OR (c.status='verified_unstable' AND EXISTS (SELECT 1 FROM attempts AS a "
+      "WHERE a.candidate_key=c.key AND a.status='verified_unstable' "
+      "AND a.exact_a IS NOT NULL AND a.exact_b IS NOT NULL "
+      "AND a.exact_c IS NOT NULL AND a.exact_value IS NOT NULL "
+      "AND length(trim(a.exact_a)) > 0 AND length(trim(a.exact_b)) > 0 "
+      "AND length(trim(a.exact_c)) > 0 AND length(trim(a.exact_value)) > 0))) "
+      "ORDER BY CAST(c.twice_area AS INTEGER), c.key LIMIT " +
+      std::to_string(limit) + ";";
+  if (sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr) != SQLITE_OK)
+    throw std::runtime_error("cannot prepare verified ranking query");
+  while (sqlite3_step(statement) == SQLITE_ROW) {
+    const auto* key_text = sqlite3_column_text(statement, 0);
+    if (!key_text) throw std::runtime_error("NULL verified candidate key");
+    const auto* area_text = sqlite3_column_text(statement, 1);
+    if (!area_text) throw std::runtime_error("NULL verified candidate area");
+    result.push_back({std::string(reinterpret_cast<const char*>(key_text)),
+                      std::stoll(reinterpret_cast<const char*>(area_text))});
+  }
+  sqlite3_finalize(statement);
+  return result;
+}
+
+std::optional<std::int64_t> SearchDatabase::min_verified_twice_area(int dimension) const {
+  const auto top = top_verified(dimension, 1);
+  if (top.empty()) return std::nullopt;
+  return top.front().twice_area;
+}
+
 void SearchDatabase::write_report(const std::filesystem::path& path,
-                                  const SearchSummary& summary) const {
+                                  const SearchSummary& summary, int dimension) const {
   if (!path.parent_path().empty()) std::filesystem::create_directories(path.parent_path());
   std::ofstream output(path);
   if (!output) throw std::runtime_error("cannot write search report: " + path.string());
@@ -599,7 +861,7 @@ void SearchDatabase::write_report(const std::filesystem::path& path,
 
   PolygonCandidate selected;
   bool found = false;
-  for (const auto& candidate : load_candidates()) {
+  for (const auto& candidate : load_candidates(dimension)) {
     if (candidate.key == summary.best_verified_key) {
       selected = candidate;
       found = true;
@@ -618,6 +880,8 @@ void SearchDatabase::write_report(const std::filesystem::path& path,
          << "steps=" << join_steps(selected.steps) << '\n'
          << "vertices=" << join_points(selected.vertices) << '\n'
          << "facet_normals=" << join_dirs(selected.facet_normals) << '\n'
+         << "vertex_singularity_flags=" << join_flags(selected.vertex_singularity_flags) << '\n'
+         << "singular_vertex_count=" << selected.singular_vertex_count << '\n'
          << "twice_area=" << selected.twice_area << '\n'
          << "area=" << selected.twice_area << "/2\n"
          << "boundary_length_dsigma=" << rat_string(boundary.length) << '\n'
@@ -628,9 +892,9 @@ void SearchDatabase::write_report(const std::filesystem::path& path,
          << rat_string(selected.ell[2]) << ")y\n"
          << "first_verified_key=" << summary.first_verified_key << '\n'
          << "best_twice_area=" << summary.best_twice_area << '\n'
-         << "database_candidates=" << count_candidates() << '\n'
-         << "database_verified=" << count_status("verified_unstable") << '\n'
-         << "database_unverified=" << count_status("unverified") << '\n';
+         << "database_candidates=" << count_candidates(dimension) << '\n'
+         << "database_verified=" << count_status("verified_unstable", dimension) << '\n'
+         << "database_unverified=" << count_status("unverified", dimension) << '\n';
 
   const std::string sql =
       "SELECT profile,status,value,witness_ux,witness_uy,witness_t,"
@@ -666,17 +930,38 @@ SearchSummary run_search(const AreaSearchOptions& options) {
       options.time_limit_seconds <= 0 || options.shell_seconds <= 0)
     throw std::invalid_argument("invalid search options");
   SearchDatabase database(options.database);
+  database.ensure_generator_revision("incremental-convex-v1");
   const std::string validation_profile = current_validation_profile(options);
+  const std::string rng_state_name = dimension_state_name(options.d, "rng");
+  const std::string shell_state_name = dimension_state_name(options.d, "shell");
+  // An old database may have one unscoped rng/shell pair. It is safe to
+  // migrate that pair only when all existing candidates have the requested d;
+  // mixed-dimension databases must never reuse another dimension's cursor.
+  const bool legacy_state_is_unambiguous =
+      database.count_candidates() == database.count_candidates(options.d);
+  const auto load_dimension_state = [&](const std::string& name,
+                                        const std::string& scoped_name) {
+    std::string state = database.load_state(scoped_name);
+    if (state.empty() && legacy_state_is_unambiguous) {
+      state = database.load_state(name);
+      if (!state.empty()) database.save_state(scoped_name, state);
+    }
+    return state;
+  };
   std::mt19937_64 rng(options.seed);
-  restore_rng(rng, database.load_state("rng"));
+  restore_rng(rng, load_dimension_state("rng", rng_state_name));
   std::unordered_set<std::string> queued;
   std::vector<PolygonCandidate> area_frontier;
   std::vector<PolygonCandidate> score_frontier;
+  const auto previous_minimum = database.min_verified_twice_area(options.d);
+  std::unordered_set<std::string> new_tested_keys;
+  std::unordered_set<std::string> new_verified_keys;
   SearchSummary summary;
   const auto started = std::chrono::steady_clock::now();
   const auto deadline = started + std::chrono::duration<double>(options.time_limit_seconds);
   std::uint64_t shell = 0;
-  if (!database.load_state("shell").empty()) shell = std::stoull(database.load_state("shell"));
+  const std::string saved_shell = load_dimension_state("shell", shell_state_name);
+  if (!saved_shell.empty()) shell = std::stoull(saved_shell);
   std::unordered_set<std::string> generated;
   bool stop_requested = false;
 
@@ -690,6 +975,12 @@ SearchSummary run_search(const AreaSearchOptions& options) {
   };
   const auto stage_profile = [&](DetectorTier tier) {
     return validation_profile + "|stage=" + stage_name(tier);
+  };
+  const auto note_tested = [&](const PolygonCandidate& candidate) {
+    new_tested_keys.insert(candidate.key);
+  };
+  const auto note_verified = [&](const PolygonCandidate& candidate) {
+    new_verified_keys.insert(candidate.key);
   };
   const auto mark_verified = [&](const PolygonCandidate& candidate) {
     if (summary.first_verified_key.empty()) summary.first_verified_key = candidate.key;
@@ -706,10 +997,24 @@ SearchSummary run_search(const AreaSearchOptions& options) {
     }
   };
   const auto finish = [&]() {
-    summary.unverified = database.count_status("unverified");
-    summary.verified = database.count_status("verified_unstable");
+    summary.unverified = database.count_status("unverified", options.d);
+    summary.total_tested = database.count_tested(options.d);
+    summary.new_tested = new_tested_keys.size();
+    summary.total_verified_unstable = database.count_verified(options.d);
+    summary.new_verified_unstable = new_verified_keys.size();
+    summary.verified = summary.total_verified_unstable;
+    summary.top_verified = database.top_verified(options.d, 5);
+    const auto current_minimum = database.min_verified_twice_area(options.d);
+    summary.smaller_volume_found =
+        current_minimum.has_value() &&
+        (!previous_minimum.has_value() || current_minimum.value() < previous_minimum.value());
+    if (!summary.top_verified.empty()) {
+      summary.have_verified = true;
+      summary.best_twice_area = summary.top_verified.front().twice_area;
+      summary.best_verified_key = summary.top_verified.front().key;
+    }
     database.write_report(options.output_directory / "k_stability_search_result.txt",
-                          summary);
+                          summary, options.d);
     return summary;
   };
 
@@ -736,6 +1041,7 @@ SearchSummary run_search(const AreaSearchOptions& options) {
     }
     database.save_validation(candidate, validation_profile, "pending", "probe");
     DetectorProfile profile{DetectorTier::probe, 4, options.certify_max_denominator};
+    note_tested(candidate);
     DetectorOutcome outcome = detect_candidate(candidate, profile,
                                                 options.certify_max_denominator);
     outcome.profile = stage_profile(DetectorTier::probe);
@@ -744,6 +1050,7 @@ SearchSummary run_search(const AreaSearchOptions& options) {
     candidate.probe_score = outcome.numerical.witness.value;
     database.update_probe_score(candidate.key, candidate.probe_score);
     if (outcome.verified_unstable) {
+      note_verified(candidate);
       database.save_validation(candidate, validation_profile,
                                "verified_unstable", "probe");
       mark_verified(candidate);
@@ -772,12 +1079,14 @@ SearchSummary run_search(const AreaSearchOptions& options) {
     }
     database.save_validation(candidate, validation_profile, "pending", "final");
     DetectorProfile profile{DetectorTier::final, 16, options.certify_max_denominator};
+    note_tested(candidate);
     DetectorOutcome outcome = detect_candidate(candidate, profile,
                                                 options.certify_max_denominator);
     outcome.profile = profile_key;
     database.save_attempt(candidate, outcome);
     ++summary.finals;
     if (outcome.verified_unstable) {
+      note_verified(candidate);
       database.save_validation(candidate, validation_profile,
                                "verified_unstable", "final");
       mark_verified(candidate);
@@ -792,6 +1101,10 @@ SearchSummary run_search(const AreaSearchOptions& options) {
                                              bool count_as_generated) {
     generated.insert(candidate.key);
     if (count_as_generated) ++summary.generated;
+    if (options.smooth_only && !candidate_is_smooth(candidate)) {
+      ++summary.skipped;
+      return;
+    }
     if (database.has_verified_candidate(candidate.key)) {
       mark_verified(candidate);
       if (!database.get_validation(candidate.key, validation_profile)) {
@@ -834,7 +1147,7 @@ SearchSummary run_search(const AreaSearchOptions& options) {
     ++summary.skipped;
   };
 
-  for (auto candidate : database.load_candidates()) {
+  for (auto candidate : database.load_candidates(options.d)) {
     prepare_loaded_candidate(std::move(candidate), false);
   }
   if (options.stop_on_first && summary.have_verified) stop_requested = true;
@@ -848,30 +1161,58 @@ SearchSummary run_search(const AreaSearchOptions& options) {
     const auto shell_deadline = std::min(deadline, std::chrono::steady_clock::now() +
         std::chrono::duration<double>(options.shell_seconds));
     const auto directions = primitive_directions(n_bound);
-    std::uniform_int_distribution<std::size_t> direction_pick(0, directions.size() - 1);
-    auto sample_step = [&]() {
-      const int small = std::min(m_bound, 4);
+    auto sample_step = [&](std::int64_t upper_bound) {
+      const std::int64_t small = std::min<std::int64_t>(upper_bound, 4);
       if (std::uniform_int_distribution<int>(0, 99)(rng) < 75)
-        return static_cast<std::int64_t>(std::uniform_int_distribution<int>(1, small)(rng));
-      return static_cast<std::int64_t>(std::uniform_int_distribution<int>(1, m_bound)(rng));
+        return std::uniform_int_distribution<std::int64_t>(1, small)(rng);
+      return std::uniform_int_distribution<std::int64_t>(1, upper_bound)(rng);
     };
     while (!stop_requested && std::chrono::steady_clock::now() < shell_deadline &&
            std::chrono::steady_clock::now() < deadline) {
       for (int batch = 0; batch < options.beam_width && !stop_requested &&
            std::chrono::steady_clock::now() < shell_deadline; ++batch) {
         std::vector<Direction> dirs{{1, 0}};
-        std::vector<std::int64_t> steps{sample_step()};
+        std::vector<std::int64_t> steps{sample_step(m_bound)};
+        std::vector<IntPoint> vertices{{0, 0}, {steps.front(), 0}};
         for (int i = 1; i < options.d - 1; ++i) {
-          bool found = false;
-          for (int attempt = 0; attempt < 24 && !found; ++attempt) {
-            const Direction p = directions[direction_pick(rng)];
-            if (cross(dirs.back(), p) > 0) {
-              dirs.push_back(p);
-              steps.push_back(sample_step());
-              found = true;
+          struct FeasibleDirection {
+            Direction direction;
+            std::int64_t max_step;
+          };
+          std::vector<FeasibleDirection> feasible;
+          const Direction previous = dirs.back();
+          for (const Direction p : directions) {
+            if (cross(previous, p) <= 0 || cross_to_origin(p, vertices.back()) <= 0)
+              continue;
+            if (options.smooth_only && abs_wide(cross(previous, p)) != 1)
+              continue;
+            std::int64_t max_step = m_bound;
+            if (p.y < 0) {
+              const WideInt numerator = static_cast<WideInt>(vertices.back().y) - 1;
+              const WideInt denominator = -static_cast<WideInt>(p.y);
+              max_step = static_cast<std::int64_t>(numerator / denominator);
+              max_step = std::min(max_step, static_cast<std::int64_t>(m_bound));
             }
+            if (max_step >= 1) feasible.push_back({p, max_step});
           }
-          if (!found) break;
+          if (feasible.empty()) break;
+          const auto pick = std::uniform_int_distribution<std::size_t>(
+              0, feasible.size() - 1)(rng);
+          const auto selected = feasible[pick];
+          const std::int64_t step = sample_step(selected.max_step);
+          const WideInt x = static_cast<WideInt>(vertices.back().x) +
+                            static_cast<WideInt>(step) * selected.direction.x;
+          const WideInt y = static_cast<WideInt>(vertices.back().y) +
+                            static_cast<WideInt>(step) * selected.direction.y;
+          if (x < std::numeric_limits<std::int64_t>::min() ||
+              x > std::numeric_limits<std::int64_t>::max() ||
+              y < std::numeric_limits<std::int64_t>::min() ||
+              y > std::numeric_limits<std::int64_t>::max() || y <= 0)
+            break;
+          dirs.push_back(selected.direction);
+          steps.push_back(step);
+          vertices.push_back({static_cast<std::int64_t>(x),
+                              static_cast<std::int64_t>(y)});
         }
         if (dirs.size() != static_cast<std::size_t>(options.d - 1) ||
             steps.size() != static_cast<std::size_t>(options.d - 1)) {
@@ -880,6 +1221,10 @@ SearchSummary run_search(const AreaSearchOptions& options) {
         }
         PolygonCandidate candidate;
         if (build_candidate(options.d, dirs, steps, candidate)) {
+          if (options.smooth_only && !candidate_is_smooth(candidate)) {
+            ++summary.rejected;
+            continue;
+          }
           if (generated.insert(candidate.key).second) {
             prepare_loaded_candidate(std::move(candidate), true);
           }
@@ -949,12 +1294,14 @@ SearchSummary run_search(const AreaSearchOptions& options) {
         } else {
           DetectorProfile profile{DetectorTier::confirm, 8,
                                   options.certify_max_denominator};
+          note_tested(*candidate);
           DetectorOutcome outcome = detect_candidate(*candidate, profile,
                                                      options.certify_max_denominator);
           outcome.profile = confirm_key;
           database.save_attempt(*candidate, outcome);
           ++summary.confirms;
           if (outcome.verified_unstable) {
+            note_verified(*candidate);
             database.save_validation(*candidate, validation_profile,
                                      "verified_unstable", "confirm");
             mark_verified(*candidate);
@@ -971,11 +1318,11 @@ SearchSummary run_search(const AreaSearchOptions& options) {
                                    "unverified", "complete");
         }
       }
-      database.save_state("rng", serialize_rng(rng));
-      database.save_state("shell", std::to_string(shell));
+      database.save_state(rng_state_name, serialize_rng(rng));
+      database.save_state(shell_state_name, std::to_string(shell));
     }
     ++shell;
-    database.save_state("shell", std::to_string(shell));
+    database.save_state(shell_state_name, std::to_string(shell));
     if (shell > 30) break;
   }
   return finish();
