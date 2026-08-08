@@ -353,6 +353,30 @@ void test_unstable_machinery() {
   std::filesystem::remove(svg_path);
 }
 
+void test_real_unstable_sweep() {
+  // Regression for the top-5 heap ordering: this real lattice pentagon has
+  // the exact witness (-3, 1, 5), with M_l < 0. The numerical sweep must keep
+  // its negative dip instead of discarding it before refinement.
+  const std::vector<IntPoint> vertices = {
+      {0, 0}, {8, 0}, {9, 3}, {3, 4}, {-4, 1}};
+  const auto ell = kstab::compute_ell_p(vertices);
+  kstab::SearchOptions options;
+  options.theta_steps = 720;
+  options.t_steps = 512;
+  const kstab::SearchResult result =
+      kstab::search_witness(vertices, ell, options);
+  require(result.unstable,
+          "real unstable pentagon sweep should find a negative witness");
+  require(result.witness.value < -1e-3,
+          "real unstable pentagon numerical witness should be clearly negative");
+  const kstab::CertifyResult certification =
+      kstab::certify_witness(vertices, ell, result.witness, 1000000);
+  require(certification.certified,
+          "real unstable pentagon witness should certify");
+  require(certification.value < 0,
+          "real unstable pentagon exact witness must be negative");
+}
+
 }  // namespace
 
 int main() {
@@ -370,6 +394,7 @@ int main() {
       {"semistable_square_sweep", test_semistable_square_sweep},
       {"semistable_integration", test_semistable_integration},
       {"unstable_machinery", test_unstable_machinery},
+      {"real_unstable_sweep", test_real_unstable_sweep},
   };
   int failed = 0;
   for (const auto& [name, test] : tests) {

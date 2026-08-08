@@ -33,7 +33,7 @@ struct DetectorProfile {
   DetectorTier tier = DetectorTier::probe;
   int integer_normal_bound = 4;
   std::int64_t certification_cap = 1048576;
-  std::string revision = "area-search-detector-v1";
+  std::string revision = "area-search-detector-v2";
   std::string fingerprint() const;
 };
 

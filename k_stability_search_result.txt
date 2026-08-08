@@ -13,9 +13,9 @@ boundary_iy=8/1
 ell_P=137988876/156684485 + (4898736/156684485)x + (-59520168/156684485)y
 first_verified_key=d5|p=1:0;8:7;-1:2;-7:-6;-1:-1|k=1,3,1,1,17
 best_twice_area=70
-database_candidates=14450
-database_verified=228
-database_unverified=2376
+database_candidates=37292
+database_verified=1180
+database_unverified=4607
 attempt_profile=validation-v2|geometry=strict-convex-hull-v2|detector=area-search-detector-v1|probe=32x16:norefine|confirm=128x64:refine|final=720x512:refine|integer-normals=4,8,16|certify-cap=1048576|stage=probe
 attempt_status=verified_unstable
 attempt_numeric_value=-0.112268

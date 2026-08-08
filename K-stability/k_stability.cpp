@@ -698,14 +698,16 @@ SearchResult search_witness(const std::vector<IntPoint>& vertices_ccw,
   std::vector<Candidate> best_candidates;
   const auto consider = [&](double value, double theta, double t) {
     best_candidates.push_back({value, theta, t});
+    // Keep a max-heap so pop_heap removes the largest value and leaves the
+    // five smallest per-direction minima for the final refinement.
     std::push_heap(best_candidates.begin(), best_candidates.end(),
                    [](const Candidate& lhs, const Candidate& rhs) {
-                     return lhs.value > rhs.value;
+                     return lhs.value < rhs.value;
                    });
     if (best_candidates.size() > 5) {
       std::pop_heap(best_candidates.begin(), best_candidates.end(),
                     [](const Candidate& lhs, const Candidate& rhs) {
-                      return lhs.value > rhs.value;
+                      return lhs.value < rhs.value;
                     });
       best_candidates.pop_back();
     }

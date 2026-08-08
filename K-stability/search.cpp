@@ -314,7 +314,7 @@ std::string candidate_key(const PolygonCandidate& candidate) {
 std::string current_validation_profile(const AreaSearchOptions& options) {
   // This is the cache key for the complete probe -> confirm -> final pipeline.
   // Bump both revisions when geometry validation or detector mathematics changes.
-  return "validation-v2|geometry=strict-convex-hull-v2|detector=area-search-detector-v1|"
+  return "validation-v2|geometry=strict-convex-hull-v2|detector=area-search-detector-v2|"
          "probe=32x16:norefine|confirm=128x64:refine|final=720x512:refine|"
          "integer-normals=4,8,16|certify-cap=" +
          std::to_string(options.certify_max_denominator);
