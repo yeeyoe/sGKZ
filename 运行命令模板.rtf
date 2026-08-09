@@ -1,0 +1,148 @@
+{\rtf1\ansi\ansicpg936\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red37\green40\blue44;\red37\green40\blue44;
+\red144\green1\blue18;\red15\green112\blue1;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c19216\c20784\c22745;\cssrgb\c19216\c20784\c22745;
+\cssrgb\c63922\c8235\c8235;\cssrgb\c0\c50196\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh15400\viewkind0
+\deftab560
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+
+\f0\fs26 \cf0 \uc0\u36816 \u34892 \u21629 \u20196 \u27169 \u26495 \
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0 \
+\'97\'97\'97\'97 \AppleHighlight-1 \AppleHilightClrSch-5 sGKZ point mode\AppleHighlight0 \AppleHilightClrSch0  \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0 ./build/shortest_gkz \\\
+  --points examples/hexgon \\\
+  --tolerance 1e-12 \\\
+\pard\pardeftab560\sl192\slmult1\partightenfactor0
+\cf0   --absolute-tolerance 1e-14 \\\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0   --max-iterations 400 \\\
+  --exact-max-active 200 \\\
+\pard\pardeftab560\sl192\slmult1\partightenfactor0
+\cf0   --verbose \\\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0   --output results/hexgon.csv \\\
+  > results/hexgon.out \\\
+  2> results/hexgon.log \\\
+  --plot-prefix results/hexgon\
+\pard\pardeftab560\sl192\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0 python3 plot_iterations.py results/hexgon.log\
+python3 plot_results.py results/hexgon\
+\
+\'97\'97\'97\'97 \AppleHighlight-1 \AppleHilightClrSch-5 sGKZ polygon mode\AppleHighlight0 \AppleHilightClrSch0  \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+./build/shortest_gkz \\\
+  --polygon examples/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0  \\\
+  --k 4 \\\
+  --tolerance 1e-12 \\\
+\pard\pardeftab560\sl192\slmult1\partightenfactor0
+\cf0   --absolute-tolerance 1e-14 \\\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0   --max-iterations 2000 \\\
+  --exact-max-active 200 \\\
+\pard\pardeftab560\sl192\slmult1\partightenfactor0
+\cf0   --verbose \\\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0   --output results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0 .csv \\\
+  --plot-prefix results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70 \\\AppleHighlight0 \AppleHilightClrSch0 \
+  > results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0 .out \\\
+  2> results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0 .log \
+\pard\pardeftab560\sl192\slmult1\partightenfactor0
+\cf0 \
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0 python3 plot_iterations.py results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0 .log\
+python3 plot_results.py results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0 \
+\
+\'97\'97\'97\'97\AppleHighlight-1 \AppleHilightClrSch-5  test K-stability\AppleHighlight0 \AppleHilightClrSch0  \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+./build/K-stability/k_stability  \\\
+  --polygon examples/\expnd0\expndtw0\kerning0
+\AppleHighlight-1 \AppleHilightClrSch-2 \outl0\strokewidth0 \strokec2 d4_a129\AppleHighlight0 \AppleHilightClrSch0   \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \\\
+  > K-stability/K-results/\expnd0\expndtw0\kerning0
+\AppleHighlight-1 \AppleHilightClrSch-2 \outl0\strokewidth0 \strokec2 d4_a129\kerning1\expnd0\expndtw0 \AppleHighlight0 \AppleHilightClrSch0 \outl0\strokewidth0 .out \
+\
+./build/K-stability/k_stability \\\
+  --polygon examples/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0  \\\
+  --check-line "\AppleHighlight-1 \AppleHilightClrSch-1 -10 -19 0\AppleHighlight0 \AppleHilightClrSch0 " \\\
+  > K-stability/K-results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0 .out\
+\
+\'97\'97\'97\'97 \AppleHighlight-1 \AppleHilightClrSch-5 Highdim K-stability\AppleHighlight0 \AppleHilightClrSch0  \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+\pard\pardeftab720\sl192\slmult1\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec3 ./build/K-stability_highdim/k_stability_highdim \\\
+  --polytope examples/Fano3/\AppleHighlight-1 \AppleHilightClrSch-2 E1\AppleHighlight0 \AppleHilightClrSch0  --pieces 1 \\\
+  \kerning1\expnd0\expndtw0 \outl0\strokewidth0 > \expnd0\expndtw0\kerning0
+K-stability_highdim/nK_results\kerning1\expnd0\expndtw0 /\AppleHighlight-1 \AppleHilightClrSch-2 E1\AppleHighlight0 \AppleHilightClrSch0 .out\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0 \
+\'97\'97\'97\'97 \AppleHighlight-1 \AppleHilightClrSch-5 sGKZ polygon mode \uc0\u31616 \u30053 \AppleHighlight0 \AppleHilightClrSch0  \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0 ./build/shortest_gkz \\\
+  --polygon examples/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0  \\\
+  --k 2 \\\
+  --tolerance 1e-12 \\\
+\pard\pardeftab560\sl192\slmult1\partightenfactor0
+\cf0   --absolute-tolerance 1e-14 \\\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0   --max-iterations 2000 \\\
+  --exact-max-active 200 \\\
+  --output results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0 .csv \\\
+  --plot-prefix results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0   \\\AppleHighlight-1 \AppleHilightClrSch-2 \
+\AppleHighlight0 \AppleHilightClrSch0   > results/\AppleHighlight-1 \AppleHilightClrSch-2 d5_a70\AppleHighlight0 \AppleHilightClrSch0 .out\
+\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0 \'97\'97\'97\'97 \AppleHighlight-1 \AppleHilightClrSch-5 \uc0\u25628 \u32034 unstable \u21644 \u26597 \u30475 \u25968 \u25454 \u24211 \AppleHighlight0 \AppleHilightClrSch0  \'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\pard\pardeftab720\sl192\slmult1\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec3 \
+\uc0\u25628 \u32034 \u65306 \
+\
+./build/K-stability/k_stability_search --d 6 --N 4 --M 4 \\\
+  --time-limit \AppleHighlight-1 \AppleHilightClrSch-2 300\AppleHighlight0 \AppleHilightClrSch0 \
+\
+\uc0\u26597 \u25214 \u65306 \
+\
+DB=./K-stability/k_stability_search.sqlite\
+\pard\pardeftab560\sl192\slmult1\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 \
+\pard\pardeftab720\sl192\slmult1\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec3 KEY=\strokec5 '\AppleHighlight-1 \AppleHilightClrSch-2 \strokec2 d4|p=1:0;1:8;-5:-6;0:-1|k=1,4,1,26\AppleHighlight0 \AppleHilightClrSch0 \strokec5 '         \
+\
+\pard\pardeftab720\sl192\slmult1\partightenfactor0
+\cf0 \strokec3 sqlite3 -line \strokec5 "\strokec6 $DB\strokec5 "\strokec3  \\\
+  \strokec5 "select key, d, directions, steps, vertices, normals,\
+          twice_area, status, ell0, ell1, ell2\
+   from candidates\
+   where key='\strokec6 $KEY\strokec5 ';"\
+\
+\uc0\u25351 \u23450 key\u20316 \u22270 \u24182 \u25918 \u20837 examples\
+\
+\strokec3 python3 K-stability/plot_candidate.py \\\
+  --database K-stability/k_stability_search.sqlite \\\
+  --key \strokec5 '\AppleHighlight-1 \AppleHilightClrSch-2 \strokec2 d5|p=1:0;5:1;-8:5;-7:-5;8:-1|k=2,1,1,1,1\AppleHighlight0 \AppleHilightClrSch0 '\strokec3  \\\
+  --output K-stability/K-results/candidate.svg\
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 \strokec2 python3 K-stability/plot_candidate.py \\\
+  --save '\AppleHighlight-1 \AppleHilightClrSch-2 d6|p=1:0;1:3;0:1;-1:7;-7:-6;3:-5|k=1,1,6,1,1,2\AppleHighlight0 \AppleHilightClrSch0 '\
+                                                           \
+\
+\
+\pard\pardeftab720\sl192\slmult1\partightenfactor0
+\cf0 \strokec3 \
+\pard\pardeftab720\sl192\slmult1\partightenfactor0
+\cf0 \strokec2 \
+\pard\pardeftab720\sl192\slmult1\partightenfactor0
+\cf0 \strokec3 \
+\pard\pardeftab720\sl192\slmult1\partightenfactor0
+\cf0 \strokec3 \
+}
