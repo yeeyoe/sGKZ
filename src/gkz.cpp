@@ -15,11 +15,13 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <deque>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <numeric>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -629,6 +631,68 @@ long double dot_long_double(const Eigen::VectorXd& a,
   }
   return value;
 }
+
+class AffineHullState {
+ public:
+  explicit AffineHullState(double rank_tolerance)
+      : rank_tolerance_(rank_tolerance) {}
+
+  bool add(const Eigen::VectorXd& point) {
+    if (!has_anchor_) {
+      anchor_ = point;
+      basis_.resize(point.size(), 0);
+      has_anchor_ = true;
+      ++observations_;
+      return false;
+    }
+    if (point.size() != anchor_.size()) {
+      throw std::invalid_argument("Affine-hull point dimension mismatch.");
+    }
+
+    Eigen::VectorXd residual = point - anchor_;
+    // Reorthogonalization makes rank decisions more reliable after a long
+    // sequence of nearly dependent oracle vertices.
+    for (int pass = 0; pass < 2; ++pass) {
+      if (basis_.cols() != 0) {
+        residual.noalias() -= basis_ * (basis_.transpose() * residual);
+      }
+    }
+    ++observations_;
+    const double scale = std::max(
+        {1.0, anchor_.norm(), point.norm(), (point - anchor_).norm()});
+    const double residual_norm = residual.norm();
+    if (residual_norm <= rank_tolerance_ * scale) {
+      return false;
+    }
+
+    const Eigen::Index old_rank = basis_.cols();
+    basis_.conservativeResize(Eigen::NoChange, old_rank + 1);
+    basis_.col(old_rank) = residual / residual_norm;
+    return true;
+  }
+
+  bool has_projection() const { return has_anchor_ && rank() > 0; }
+
+  Eigen::VectorXd projection() const {
+    if (!has_projection()) {
+      throw std::logic_error("Affine hull has no nonconstant direction.");
+    }
+    return anchor_ - basis_ * (basis_.transpose() * anchor_);
+  }
+
+  std::size_t rank() const {
+    return static_cast<std::size_t>(basis_.cols());
+  }
+
+  std::size_t observations() const { return observations_; }
+
+ private:
+  double rank_tolerance_;
+  bool has_anchor_ = false;
+  Eigen::VectorXd anchor_;
+  Eigen::MatrixXd basis_;
+  std::size_t observations_ = 0;
+};
 
 Eigen::MatrixXd make_gram(const std::vector<GkzVector>& active) {
   const Eigen::Index size = static_cast<Eigen::Index>(active.size());
@@ -1344,6 +1408,15 @@ GkzVector RegularTriangulationOracle::minimize_exact_integer(
 
 SolverResult ShortestGkzSolver::solve(
     const PointConfiguration& configuration) const {
+  if (options_.projection_window <= 0 ||
+      options_.projection_probe_period <= 0 ||
+      options_.projection_stall_ratio <= 0.0 ||
+      options_.projection_stall_ratio > 1.0 ||
+      options_.projection_relative_gap <= 0.0 ||
+      options_.projection_relative_gap > 1.0 ||
+      options_.projection_rank_tolerance <= 0.0) {
+    throw std::invalid_argument("Invalid projection solver options.");
+  }
   RegularTriangulationOracle oracle(configuration);
   const Eigen::VectorXd zero = Eigen::VectorXd::Zero(
       static_cast<Eigen::Index>(configuration.size()));
@@ -1354,6 +1427,7 @@ SolverResult ShortestGkzSolver::solve(
   Eigen::MatrixXd gram = make_gram(active);
 
   SolverResult result;
+  result.projection_enabled = options_.projection;
   // The numerical EPICK oracle is fast but may return a non-minimizing
   // triangulation near a secondary-fan wall, which can understate the gap.
   // Once the numerical gap first meets the stopping threshold, the loop
@@ -1369,34 +1443,66 @@ SolverResult ShortestGkzSolver::solve(
     }
     return exact_heights;
   };
-  const auto expand_active = [&](GkzVector vertex, bool prune) {
+  const auto active_contains = [&](const GkzVector& vertex) {
     for (const auto& vector : active) {
       if (vector.has_same_area_numerators(vertex)) {
-        throw std::runtime_error(
-            "Oracle returned an exact duplicate active GKZ vector while the "
-            "gap exceeds the stopping threshold.");
+        return true;
       }
     }
+    return false;
+  };
+  const auto expand_active = [&](GkzVector required_vertex,
+                                 std::optional<GkzVector> optional_vertex,
+                                 bool prune) {
+    if (active_contains(required_vertex)) {
+      throw std::runtime_error(
+          "Oracle returned an exact duplicate active GKZ vector while the "
+          "gap exceeds the stopping threshold.");
+    }
+    std::vector<GkzVector> appended;
+    appended.push_back(std::move(required_vertex));
+    bool optional_added = false;
+    if (optional_vertex.has_value() && !active_contains(*optional_vertex) &&
+        !appended.front().has_same_area_numerators(*optional_vertex)) {
+      appended.push_back(std::move(*optional_vertex));
+      optional_added = true;
+    }
+
     const Eigen::Index old_size = static_cast<Eigen::Index>(active.size());
-    active.push_back(std::move(vertex));
+    const Eigen::Index new_size =
+        old_size + static_cast<Eigen::Index>(appended.size());
+    active.reserve(static_cast<std::size_t>(new_size));
+    for (auto& vertex : appended) {
+      active.push_back(std::move(vertex));
+    }
     Eigen::MatrixXd expanded =
-        Eigen::MatrixXd::Zero(old_size + 1, old_size + 1);
+        Eigen::MatrixXd::Zero(new_size, new_size);
     expanded.topLeftCorner(old_size, old_size) = gram;
-    for (Eigen::Index i = 0; i <= old_size; ++i) {
-      const double value = active[static_cast<std::size_t>(i)].values.dot(
-          active.back().values);
-      expanded(i, old_size) = value;
-      expanded(old_size, i) = value;
+    for (Eigen::Index i = old_size; i < new_size; ++i) {
+      for (Eigen::Index j = 0; j <= i; ++j) {
+        const double value = active[static_cast<std::size_t>(i)].values.dot(
+            active[static_cast<std::size_t>(j)].values);
+        expanded(i, j) = value;
+        expanded(j, i) = value;
+      }
     }
     gram = std::move(expanded);
-    Eigen::VectorXd expanded_coefficients =
-        Eigen::VectorXd::Zero(old_size + 1);
+    Eigen::VectorXd expanded_coefficients = Eigen::VectorXd::Zero(new_size);
     expanded_coefficients.head(old_size) = coefficients;
     coefficients = solve_active_qp(gram, expanded_coefficients, options_);
     if (prune) {
       prune_active(active, coefficients, gram, options_.prune_tolerance);
     }
+    return optional_added;
   };
+
+  double initial_gap = -1.0;
+  std::deque<double> recent_gaps;
+  bool projection_mode = false;
+  int normal_expansions_since_probe = 0;
+  std::optional<AffineHullState> affine_hull;
+  Eigen::VectorXd last_probe_point;
+  bool has_last_probe_point = false;
 
   for (int iteration = 0; iteration <= options_.max_iterations; ++iteration) {
     const Eigen::VectorXd candidate = combine(active, coefficients);
@@ -1424,6 +1530,9 @@ SolverResult ShortestGkzSolver::solve(
     result.norm_squared = static_cast<double>(norm_squared);
     result.gap = static_cast<double>(gap);
     result.l2_error_bound = std::sqrt(2.0 * result.gap);
+    if (initial_gap < 0.0) {
+      initial_gap = result.gap;
+    }
 
     const double stopping_threshold =
         options_.absolute_tolerance +
@@ -1435,6 +1544,28 @@ SolverResult ShortestGkzSolver::solve(
       exact_endgame = true;
       --iteration;
       continue;
+    }
+
+    if (options_.projection && !projection_mode) {
+      recent_gaps.push_back(result.gap);
+      const std::size_t history_size =
+          static_cast<std::size_t>(options_.projection_window) + 1;
+      if (recent_gaps.size() > history_size) {
+        recent_gaps.pop_front();
+      }
+      if (recent_gaps.size() == history_size &&
+          result.gap <= initial_gap * options_.projection_relative_gap &&
+          result.gap >= recent_gaps.front() *
+                            options_.projection_stall_ratio) {
+        projection_mode = true;
+        affine_hull.emplace(options_.projection_rank_tolerance);
+        result.projection_start_iteration = iteration;
+        if (options_.verbose) {
+          std::cerr << "projection event=enabled iteration=" << iteration
+                    << " gap=" << std::setprecision(17) << result.gap
+                    << " window_gap=" << recent_gaps.front() << '\n';
+        }
+      }
     }
     if (options_.verbose) {
       std::cerr << "iteration=" << iteration << " active=" << active.size()
@@ -1463,7 +1594,8 @@ SolverResult ShortestGkzSolver::solve(
             // a near-zero coefficient because the current candidate is
             // already numerically optimal, but the exact QP in the next
             // certification needs it to represent the true minimizer.
-            expand_active(std::move(result.exact.witness), /*prune=*/false);
+            expand_active(std::move(result.exact.witness), std::nullopt,
+                          /*prune=*/false);
             result.exact = ExactCertificate();
             result.converged = false;
             continue;
@@ -1479,7 +1611,48 @@ SolverResult ShortestGkzSolver::solve(
       break;
     }
 
-    expand_active(std::move(minimizing_vertex), /*prune=*/true);
+    std::optional<GkzVector> projection_vertex;
+    if (projection_mode) {
+      affine_hull->add(minimizing_vertex.values);
+      result.projection_affine_rank = affine_hull->rank();
+      ++normal_expansions_since_probe;
+      if (normal_expansions_since_probe >= options_.projection_probe_period &&
+          affine_hull->has_projection()) {
+        const Eigen::VectorXd projection = affine_hull->projection();
+        const double projection_scale = std::max(
+            {1.0, projection.norm(),
+             has_last_probe_point ? last_probe_point.norm() : 0.0});
+        const bool projection_changed =
+            !has_last_probe_point ||
+            (projection - last_probe_point).norm() >
+                options_.projection_rank_tolerance * projection_scale;
+        normal_expansions_since_probe = 0;
+        if (projection_changed) {
+          projection_vertex = oracle.minimize_exact(
+              rational_heights(projection), /*keep_faces=*/false);
+          ++result.projection_probes;
+          const bool vertex_new =
+              !active_contains(*projection_vertex) &&
+              !minimizing_vertex.has_same_area_numerators(*projection_vertex);
+          if (options_.verbose) {
+            std::cerr << "projection event=probe iteration=" << iteration
+                      << " rank=" << affine_hull->rank()
+                      << " observations=" << affine_hull->observations()
+                      << " p_norm2=" << std::setprecision(17)
+                      << dot_long_double(projection, projection)
+                      << " vertex_new=" << std::boolalpha << vertex_new
+                      << '\n';
+          }
+          last_probe_point = projection;
+          has_last_probe_point = true;
+        }
+      }
+    }
+
+    if (expand_active(std::move(minimizing_vertex),
+                      std::move(projection_vertex), /*prune=*/true)) {
+      ++result.projection_new_vertices;
+    }
   }
   return result;
 }

@@ -17,6 +17,8 @@ def main() -> int:
         log.write_text(
             "iteration=0 active=1 norm2=0.5 gap=0.25\n"
             "iteration=1 active=2 norm2=0.4 gap=1e-2\n"
+            "projection event=probe iteration=1 rank=2 observations=3 "
+            "p_norm2=0.3 vertex_new=true\n"
             "iteration=2 active=2 norm2=0.39 gap=1e-5\n",
             encoding="utf-8",
         )
@@ -32,6 +34,8 @@ def main() -> int:
         assert '"active":[1,2,2]' in document
         assert '"gap":[0.25,0.01,1e-05]' in document
         assert '"threshold":[' in document
+        assert '"projection_probe":[1]' in document
+        assert "projectionShapes" in document
         assert 'title: "active set size"' in document
         assert 'title: "gap"' in document
         assert 'title: "norm2"' not in document

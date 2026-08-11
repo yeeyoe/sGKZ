@@ -34,6 +34,12 @@ void print_usage(std::ostream& stream) {
       << "  --max-iterations N       Maximum active-set expansion steps.\n"
       << "  --exact-max-active N     Exact QP variable limit; 0 means no limit.\n"
       << "  --no-exact               Skip exact rational certification.\n"
+      << "  --projection             Enable experimental projected-face probes.\n"
+      << "  --projection-window N    Gap history window (default: 32).\n"
+      << "  --projection-stall-ratio R  Minimum window gap ratio (default: 0.90).\n"
+      << "  --projection-relative-gap R  Activation gap / initial gap (default: 1e-2).\n"
+      << "  --projection-probe-period N  Normal expansions per probe (default: 16).\n"
+      << "  --projection-rank-tolerance R  Relative affine-rank tolerance (default: 1e-11).\n"
       << "  --verbose                Print one line per iteration.\n"
       << "  --help                   Show this message.\n";
 }
@@ -77,6 +83,23 @@ Arguments parse_arguments(int argc, char** argv) {
           std::stoi(require_value(argc, argv, i, option));
     } else if (option == "--no-exact") {
       arguments.options.exact_certification = false;
+    } else if (option == "--projection") {
+      arguments.options.projection = true;
+    } else if (option == "--projection-window") {
+      arguments.options.projection_window =
+          std::stoi(require_value(argc, argv, i, option));
+    } else if (option == "--projection-stall-ratio") {
+      arguments.options.projection_stall_ratio =
+          std::stod(require_value(argc, argv, i, option));
+    } else if (option == "--projection-relative-gap") {
+      arguments.options.projection_relative_gap =
+          std::stod(require_value(argc, argv, i, option));
+    } else if (option == "--projection-probe-period") {
+      arguments.options.projection_probe_period =
+          std::stoi(require_value(argc, argv, i, option));
+    } else if (option == "--projection-rank-tolerance") {
+      arguments.options.projection_rank_tolerance =
+          std::stod(require_value(argc, argv, i, option));
     } else if (option == "--verbose") {
       arguments.options.verbose = true;
     } else {
@@ -94,9 +117,16 @@ Arguments parse_arguments(int argc, char** argv) {
   if (arguments.options.tolerance < 0.0 ||
       arguments.options.absolute_tolerance < 0.0 ||
       arguments.options.max_iterations < 0 ||
-      arguments.options.exact_max_active < 0) {
+      arguments.options.exact_max_active < 0 ||
+      arguments.options.projection_window <= 0 ||
+      arguments.options.projection_probe_period <= 0 ||
+      arguments.options.projection_stall_ratio <= 0.0 ||
+      arguments.options.projection_stall_ratio > 1.0 ||
+      arguments.options.projection_relative_gap <= 0.0 ||
+      arguments.options.projection_relative_gap > 1.0 ||
+      arguments.options.projection_rank_tolerance <= 0.0) {
     throw std::invalid_argument(
-        "Tolerances and iteration count must be nonnegative.");
+        "Invalid tolerance, iteration count, or projection parameter.");
   }
   return arguments;
 }
@@ -184,6 +214,14 @@ int main(int argc, char** argv) {
     std::cout << "gap=" << result.gap << '\n';
     std::cout << "l2_error_bound=" << result.l2_error_bound << '\n';
     std::cout << "exact_certified=" << result.exact.certified << '\n';
+    std::cout << "projection_enabled=" << result.projection_enabled << '\n';
+    std::cout << "projection_start_iteration="
+              << result.projection_start_iteration << '\n';
+    std::cout << "projection_probes=" << result.projection_probes << '\n';
+    std::cout << "projection_new_vertices="
+              << result.projection_new_vertices << '\n';
+    std::cout << "projection_affine_rank="
+              << result.projection_affine_rank << '\n';
     if (arguments.options.exact_certification) {
       std::cout << "exact_message=" << result.exact.message << '\n';
       if (result.exact.certified) {

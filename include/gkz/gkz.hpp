@@ -116,6 +116,14 @@ struct SolverOptions {
   int exact_max_active = 128;
   bool exact_certification = true;
   bool verbose = false;
+  // Experimental projected-face probes. Disabled by default so the standard
+  // fully-corrective Frank--Wolfe trajectory is unchanged.
+  bool projection = false;
+  int projection_window = 32;
+  double projection_stall_ratio = 0.90;
+  double projection_relative_gap = 1e-2;
+  int projection_probe_period = 16;
+  double projection_rank_tolerance = 1e-11;
 };
 
 struct ExactCertificate {
@@ -148,6 +156,11 @@ struct SolverResult {
   std::vector<GkzVector> active_vectors;
   Eigen::VectorXd coefficients;
   ExactCertificate exact;
+  bool projection_enabled = false;
+  int projection_start_iteration = -1;
+  int projection_probes = 0;
+  int projection_new_vertices = 0;
+  std::size_t projection_affine_rank = 0;
 };
 
 class ShortestGkzSolver {

@@ -400,6 +400,62 @@ void test_six_point_regression() {
           "Six-point exact sigma disagrees with main.tex.");
 }
 
+void test_projection_mode_preserves_six_point_solution() {
+  const auto configuration = gkz::PointConfiguration::from_points(
+      {{0, 0}, {0, 2}, {2, 0}, {2, 2}, {1, 1}, {6, 5}});
+  gkz::SolverOptions options;
+  options.tolerance = 1e-12;
+  options.absolute_tolerance = 1e-14;
+  options.max_iterations = 200;
+  options.projection = true;
+  // Force the experimental path on this small configuration. The default
+  // plateau detector is intentionally much more conservative.
+  options.projection_window = 1;
+  options.projection_stall_ratio = 1e-4;
+  options.projection_relative_gap = 1.0;
+  options.projection_probe_period = 1;
+  const auto result = gkz::ShortestGkzSolver(options).solve(configuration);
+  require(result.converged, "Projected six-point solver did not converge.");
+  require(result.exact.certified,
+          "Projected six-point exact certificate failed: " +
+              result.exact.message);
+  require(result.projection_start_iteration >= 0,
+          "Projection mode did not activate.");
+  require(result.projection_probes > 0,
+          "Projection mode did not issue an exact probe.");
+  require(result.projection_affine_rank > 0,
+          "Projection mode did not build an affine direction.");
+
+  const std::vector<CGAL::Gmpq> expected = {
+      CGAL::Gmpq(15, 121),   CGAL::Gmpq(5, 33),
+      CGAL::Gmpq(493, 3025), CGAL::Gmpq(1511, 9075),
+      CGAL::Gmpq(1318, 9075), CGAL::Gmpq(2267, 9075)};
+  require(result.exact.sigma == expected,
+          "Projection mode changed the exact six-point shortest GKZ.");
+}
+
+void test_projection_mode_batches_a_new_vertex() {
+  const auto configuration = gkz::PointConfiguration::from_points(
+      {{-5, 6}, {2, 1}, {4, -1}, {1, -3}, {-3, -2}, {-4, -1}});
+  gkz::SolverOptions options;
+  options.tolerance = 1e-13;
+  options.absolute_tolerance = 1e-15;
+  options.projection = true;
+  options.projection_window = 1;
+  options.projection_stall_ratio = 1e-4;
+  options.projection_relative_gap = 1.0;
+  options.projection_probe_period = 1;
+  const auto result = gkz::ShortestGkzSolver(options).solve(configuration);
+  require(result.converged, "Projected hexagon solver did not converge.");
+  require(result.exact.certified,
+          "Projected hexagon exact certificate failed: " +
+              result.exact.message);
+  require(result.projection_probes > 0,
+          "Projected hexagon did not issue a probe.");
+  require(result.projection_new_vertices > 0,
+          "Projected hexagon probe did not add a new active vertex.");
+}
+
 void test_exact_qp_with_affinely_redundant_hexagon_gkz_vectors() {
   const auto configuration = gkz::PointConfiguration::from_points(
       {{0, 0}, {2, 0}, {3, 1}, {2, 3}, {0, 3}, {-1, 1}});
@@ -444,6 +500,8 @@ int main() {
     test_triangle_shortest_vector();
     test_square_shortest_vector();
     test_six_point_regression();
+    test_projection_mode_preserves_six_point_solution();
+    test_projection_mode_batches_a_new_vertex();
     test_exact_qp_with_affinely_redundant_hexagon_gkz_vectors();
     std::cout << "All shortest-GKZ tests passed.\n";
     return 0;

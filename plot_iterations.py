@@ -20,6 +20,9 @@ ITERATION_PATTERN = re.compile(
     rf"norm2=(?P<norm2>{FLOAT_PATTERN})\s+"
     rf"gap=(?P<gap>{FLOAT_PATTERN})$"
 )
+PROJECTION_PROBE_PATTERN = re.compile(
+    r"^projection\s+event=probe\s+iteration=(?P<iteration>\d+)\b"
+)
 
 
 def read_history(path: Path):
@@ -27,9 +30,14 @@ def read_history(path: Path):
     active_sizes = []
     norm2_values = []
     gaps = []
+    projection_probes = []
     with path.open(encoding="utf-8") as stream:
         for line_number, raw_line in enumerate(stream, start=1):
             line = raw_line.strip()
+            probe_match = PROJECTION_PROBE_PATTERN.match(line)
+            if probe_match is not None:
+                projection_probes.append(int(probe_match.group("iteration")))
+                continue
             if not line or not line.startswith("iteration="):
                 continue
             match = ITERATION_PATTERN.fullmatch(line)
@@ -58,7 +66,7 @@ def read_history(path: Path):
             gaps.append(gap)
     if not iterations:
         raise ValueError(f"No iteration records found in {path}")
-    return iterations, active_sizes, norm2_values, gaps
+    return iterations, active_sizes, norm2_values, gaps, projection_probes
 
 
 def default_prefix(log_path: Path) -> Path:
@@ -69,13 +77,14 @@ def default_prefix(log_path: Path) -> Path:
 
 
 def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
-                     gaps, thresholds) -> Path:
+                     gaps, thresholds, projection_probes) -> Path:
     payload = json.dumps(
         {
             "iteration": iterations,
             "active": active_sizes,
             "gap": gaps,
             "threshold": thresholds,
+            "projection_probe": projection_probes,
         },
         separators=(",", ":"),
     )
@@ -109,6 +118,11 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
         line: {{color: "#2563eb", width: 2}},
         hovertemplate: "threshold=%{{y:.3e}}<extra></extra>"}}
     ];
+    const projectionShapes = history.projection_probe.map((iteration) => ({{
+      type: "line", xref: "x2", yref: "paper", x0: iteration,
+      x1: iteration, y0: 0, y1: 1, line: {{color: "#059669", width: 1,
+      dash: "dot"}}
+    }}));
     const axisStyle = {{showgrid: true, gridcolor: "#e5e7eb",
                        zeroline: false, automargin: true}};
     const layout = {{
@@ -125,6 +139,7 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
                 title: "iteration"}},
       yaxis2: {{...axisStyle, domain: [0.00, 0.45], title: "gap",
                 type: "log", tickformat: ".0e"}},
+      shapes: projectionShapes,
       margin: {{l: 92, r: 34, b: 70, t: 64}}
     }};
     Plotly.newPlot("plot", traces, layout,
@@ -140,7 +155,7 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
 
 
 def draw_static(prefix: Path, title: str, iterations, active_sizes,
-                gaps, thresholds, show: bool) -> Path:
+                gaps, thresholds, projection_probes, show: bool) -> Path:
     import matplotlib.pyplot as plt
     from matplotlib.ticker import FuncFormatter, MaxNLocator
 
@@ -154,6 +169,9 @@ def draw_static(prefix: Path, title: str, iterations, active_sizes,
         axes_item.set_ylabel(label)
         axes_item.grid(True, color="#e5e7eb", linewidth=0.8)
         axes_item.margins(x=0)
+        for iteration in projection_probes:
+            axes_item.axvline(iteration, color="#059669", linestyle=":",
+                              linewidth=1.0)
     axes[0].yaxis.set_major_locator(MaxNLocator(integer=True))
     if any(value <= 0 for value in gaps):
         raise ValueError("log scale requires every recorded gap to be positive")
@@ -202,7 +220,7 @@ def main() -> int:
     except (OSError, ValueError) as error:
         parser.error(str(error))
 
-    iterations, active_sizes, norm2_values, gaps = history
+    iterations, active_sizes, norm2_values, gaps, projection_probes = history
     if any(value <= 0 for value in gaps):
         parser.error("log scale requires every recorded gap to be positive")
 
@@ -216,7 +234,7 @@ def main() -> int:
     prefix = args.output_prefix or default_prefix(args.log)
     title = f"Iteration history: {args.log.stem}"
     outputs = [draw_interactive(prefix, title, iterations, active_sizes,
-                                gaps, thresholds)]
+                                gaps, thresholds, projection_probes)]
 
     if args.png or args.show:
         try:
@@ -232,7 +250,8 @@ def main() -> int:
             parser.error("matplotlib is required for --png")
             raise error
         outputs.append(draw_static(prefix, title, iterations, active_sizes,
-                                   gaps, thresholds, args.show))
+                                   gaps, thresholds, projection_probes,
+                                   args.show))
     else:
         plt = None
 

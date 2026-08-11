@@ -1,0 +1,28 @@
+% 预览源文件
+
+%% LyX 2.5.0 created this file.  For more info, see https://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{babel}
+\begin{document}
+一些约定: 对$f:A\rightarrow\mathbb{R}$，$S(f)$是$f^{\vee}$给出的剖分，定义详见main.tex.
+$\left\langle f,\cdot\right\rangle $在$\Sigma(A)$上取最小值的集合为
+\[
+\underset{g\in\Sigma(A)}{\mathrm{argmin}}\left\langle f,g\right\rangle =F\left(S(f)\right)=\mathrm{Conv}\left\{ g_{T}\mid T\prec S(f)\right\} .
+\]
+我们简记$F(f)=F\left(S(f)\right)$. 
+
+shortest GKZ vector $\sigma\in\Sigma(A)$ 恰好在$F(\sigma)=F\left(S(\sigma)\right)$上取得最小值。我们有$\sigma\in F(\sigma)$，
+但注意可能$\sigma$不属于$F(\sigma)$的相对内部。在main.tex中，我们设剖分$S_{A}$使得$\sigma\in\mathrm{relint}F(S_{A})$,
+$S_{A}\prec S(\sigma)$可能不相等。 我们称$F(\sigma)=F\left(S(\sigma)\right)$为暴露面，称$F(S_{A})$为$\sigma$的位置面。我们主要关心暴露面。
+
+捋一下主算法。在迭代过程中，对当前active set求解数值QP得到解$x_{t}$, 然后得到剖分$S(x_{t})$。任取三角剖分$T\prec S(x_{t})$,
+求$T$的GKZ向量$w_{t}=g_{T}$, 那么$\left\langle x_{t},\cdot\right\rangle $在$w_{t}$处取到最小值。检验gap不达标的话，把$w_{t}$加入active
+set， 求解新一轮的数值QP。
+
+\end{document}
+
