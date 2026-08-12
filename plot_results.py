@@ -328,17 +328,21 @@ def main() -> int:
     outputs = []
     z_suffix = ("" if args.z_scale == 1.0
                 else f" (visual z x{args.z_scale:g})")
+    stable_projection_plot = args.prefix.name.endswith("_stable")
+    psi_label = ("stable projection" if stable_projection_plot
+                 else "last QP solution")
     if show_sigma_vee:
         sigma_title = ("sigma_k^vee" if psi is not None else "sigma_A^vee") + z_suffix
         outputs.append(draw_interactive(args.prefix, x, y, sigma_vee, triangles,
                                         sigma_edges, "sigma_vee", sigma_title,
                                         args.z_scale, args.color))
     if psi is not None and not args.no_psi:
-        outputs.append(draw_interactive(args.prefix, x, y, psi, triangles,
-                                        psi_edges, "psi_k", r"psi_k" + z_suffix,
-                                        args.z_scale, args.color))
+        outputs.append(draw_interactive(
+            args.prefix, x, y, psi, triangles, psi_edges, "psi_k",
+            f"psi_k ({psi_label})" + z_suffix, args.z_scale, args.color))
     if not args.no_subdivision:
         subdivision_title = "S(sigma_k)" if psi is not None else "S(sigma_A)"
+        subdivision_title += f" ({psi_label})"
         outputs.append(draw_subdivision_svg(args.prefix, cells, subdivision_title))
 
     if args.png or args.show:
@@ -361,12 +365,14 @@ def main() -> int:
                                        sigma_edges, "sigma_vee", sigma_title,
                                        args.z_scale, args.show, args.color))
         if psi is not None and not args.no_psi:
-            outputs.append(draw_static(args.prefix, x, y, psi, triangles,
-                                       psi_edges, "psi_k", r"$\psi_k$" + z_suffix,
-                                       args.z_scale, args.show, args.color))
+            outputs.append(draw_static(
+                args.prefix, x, y, psi, triangles, psi_edges, "psi_k",
+                rf"$\psi_k$ ({psi_label})" + z_suffix,
+                args.z_scale, args.show, args.color))
         if not args.no_subdivision:
             subdivision_title = (r"$S(\sigma_k)$" if psi is not None
                                  else r"$S(\sigma_A)$")
+            subdivision_title += f" ({psi_label})"
             outputs.append(draw_subdivision_static(args.prefix, cells,
                                                    subdivision_title, args.show))
     else:

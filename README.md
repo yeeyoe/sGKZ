@@ -426,14 +426,15 @@ oracle，计算 lower convex envelope $\sigma_A^\vee$。有精确证书时，插
 | --- | ---: | --- |
 | `--tolerance VALUE` | `1e-11` | Frank--Wolfe gap 的相对容差，必须非负。 |
 | `--absolute-tolerance VALUE` | `1e-14` | Frank--Wolfe gap 的绝对容差，必须非负。 |
+| `--prune-tolerance V` | `1e-15` | QP 后删除系数不超过 $V$ 的 active 顶点，必须非负。 |
 | `--max-iterations N` | `500` | 最多进行 $N$ 次 active-set 扩张，必须为非负整数。 |
 | `--exact-max-active N` | `128` | 最终 active set 超过 $N$ 时跳过精确 QP；`0` 表示不设上限。 |
 | `--no-exact` | 关闭 | 完全跳过最终精确 QP 和精确 oracle 认证。 |
-| `--projection` | 关闭 | 启用实验性的暴露面投影探测；默认路径不受影响。 |
+| `--projection` | 关闭 | 启用实验性的稳定暴露面投影；默认路径不受影响。 |
 | `--projection-window N` | `32` | 自动进入投影模式时比较的 gap 历史窗口。 |
 | `--projection-stall-ratio R` | `0.90` | 当前 gap 与窗口前 gap 的最小比值；越接近 `1` 越要求平台化。 |
 | `--projection-relative-gap R` | `1e-2` | 只有当前 gap 不超过初始 gap 的该比例时才允许进入投影模式。 |
-| `--projection-probe-period N` | `16` | 投影模式下每隔至多 $N$ 次普通扩张进行一次 probe。 |
+| `--projection-rank-stall-window N` | `64` | 后期普通顶点连续不增加 affine rank 的观测次数。 |
 | `--projection-rank-tolerance R` | `1e-11` | 增量 affine QR 判断新方向的相对容差。 |
 | `--verbose` | 关闭 | 每次 gap 检查向标准错误输出 `iteration`、`active`、`norm2` 和 `gap`。 |
 
@@ -450,44 +451,47 @@ regular triangulation 调用次数的上限。
 
 ### 实验性暴露面投影
 
-`--projection` 保持正常 fully-corrective Frank--Wolfe 主循环不变。程序仍以
+`--projection` 在前期保持原 fully-corrective Frank--Wolfe 主循环。程序仍以
 当前 QP 解 $x_t$ 调用普通 oracle 得到 $w_t$ 并计算唯一用于终止的 FW gap。
 当 gap 已相对初始值足够小，且在 `--projection-window` 步内下降不明显时，
-程序只用此后普通 oracle 返回的 $w_t$ 建立 affine hull $L_t$。每次 probe 前，
-当前 $w_t$ 会先更新 $L_t$，再计算
+才新建稳定顶点集；它只接收此后普通 oracle 返回的 $w_t$，建立 affine hull
+$L_t$，不包含触发前历史顶点，也不进行周期投影或额外 oracle 调用。
 
 $$
-p_t=\operatorname{Proj}_{L_t}(0).
+p=\operatorname{Proj}_{L_t}(0).
 $$
 
-随后把 $p_t$ 作为高度向量输入精确 oracle，得到合法 GKZ 顶点 $v_p$。同一轮
-把 $w_t$ 和去重后的 $v_p$ 一起加入 active set，并只做一次 QP 校正。$p_t$
-从不作为 QP 顶点；程序不计算 `gap(p_t)`，也不检查 $p_t\in\Sigma(A)$。
-因此可行性始终由 active-set 凸组合保证，原来的 FW gap、exact endgame 和
-终止证书也保持不变。
+收集在 rank 达到二维 facet 上限 $|A|-4$，或连续
+`--projection-rank-stall-window` 个后期顶点不增加 rank 时停止。仅此时计算
+$p$，并以 $p$ 做一次精确 oracle 得到 $v_p$。同一轮的 $w_t$ 和去重后的
+$v_p$ 一起加入 active set，只做一次 QP 校正，得到 final QP solution；随后用
+普通 oracle 计算 final gap，算法停止。$p$ 从不作为 QP 顶点；程序不计算
+`gap(p)`，也不检查 $p\in\Sigma(A)$。
 
-用于投影的 affine hull **只**接收后期普通 $w_t$；$v_p$ 不会反哺这个几何池。
-这样可以避免一个尚未可靠的投影方向把面外顶点带回下一次投影。重复 probe
-会被跳过，除非 affine hull 的变化使 $p_t$ 发生足够大的数值变化。
+因此 stable projection 仅是探索性高度向量，不是 shortest GKZ 或
+$p\in\Sigma(A)$ 的证书。它的 lower envelope 给出
 
-建议把它作为性能实验，与基线使用相同的最大迭代数、容差和 `--no-exact`：
+$$
+\widehat\psi_k=\operatorname{area2}(P)k^3p^\vee-2k,
+$$
+
+用于观察 $-\Theta_P$ 的近似形状。若正常 FW 在收集完成前满足终止条件，或到达
+最大迭代数仍未稳定，则不产生 stable projection，原终止/输出语义不变。
+
+建议在探索 $\widehat\psi_k$ 时保留 `--no-exact`，让 stable rank 判据而非 exact
+认证决定停止时刻：
 
 ```bash
-./build/shortest_gkz --polygon examples/hexgon --k 8 \
-  --max-iterations 3300 --no-exact --verbose \
-  2> results/hexgon_baseline.log
-
-./build/shortest_gkz --polygon examples/hexgon --k 8 \
-  --max-iterations 3300 --no-exact --projection --verbose \
-  2> results/hexgon_projection.log
-
 ./build/shortest_gkz --polygon examples/d5_a70 --k 8 \
-  --max-iterations 3300 --no-exact --projection --verbose \
+  --max-iterations 10000 --no-exact --projection \
+  --plot-prefix results/d5_a70 --verbose \
   2> results/d5_a70_projection.log
+
+python3 plot_results.py results/d5_a70_stable
 ```
 
 历史 `hexgon` 记录和当前 `d5_a70 --k 8` 基线都在约第 270 步首次满足默认的
-32 步平台判据；这只用于给出默认值，不是对其他实例的性能承诺。
+32 步平台判据；这只用于给出默认值，不是对其他实例的收敛或几何保证。
 
 ### 文件输出参数
 
@@ -521,11 +525,13 @@ $$
 | `exact_certified` | 是否完成精确 QP 并通过 exact oracle 全局等式。 |
 | `exact_message` | 精确认证成功、失败或因 active set 过大而跳过的原因。使用 `--no-exact` 时不输出。 |
 | `exact_norm_squared` | 精确的 $\|\sigma_A\|^2\in\mathbb Q$；仅在认证成功时输出。 |
-| `projection_enabled` | 是否通过 `--projection` 请求实验性投影模式。 |
-| `projection_start_iteration` | 自动触发投影模式的迭代号；`-1` 表示未触发。 |
-| `projection_probes` | 精确投影 oracle 的调用次数。 |
-| `projection_new_vertices` | probe 顶点实际加入 active set 的次数。 |
-| `projection_affine_rank` | 最终普通后期顶点 affine hull 的数值 rank。 |
+| `projection_enabled` | 是否通过 `--projection` 请求 stable-projection 模式。 |
+| `projection_start_iteration` | 开始收集稳定普通顶点的迭代号；`-1` 表示未触发。 |
+| `stable_projection_available` | 是否完成 rank 判据并生成 stable projection。 |
+| `stable_projection_norm_squared` | 可用时的 $\|p\|^2$。 |
+| `stable_projection_rank` / `observations` | stable 顶点 affine hull 的数值 rank 与观测顶点数。 |
+| `stable_projection_stop_reason` | `rank_limit`、`rank_stall` 或未完成原因。 |
+| `final_qp_gap` / `final_qp_norm_squared` | stable 投影模式末轮 QP 解的普通 FW gap 与范数。 |
 | `ell_A(x,y)` | $\ell_A$ 的精确有理数 affine 表达式。 |
 | `ell_A_constant` | affine 斜率是否为零。 |
 | `ell_A_sigma_comparison` | `exact` 表示在 $\mathbb Q$ 中比较，`numerical` 表示用数值容差比较。 |
@@ -565,10 +571,15 @@ exact_message=Exact convex QP and equality H(x) = ||x||^2 verified.
 
 | 文件 | 内容 |
 | --- | --- |
-| `PREFIX_surface.csv` | 列 `x,y,sigma,sigma_vee,psi`。坐标使用绘图坐标；polygon 模式下已经除以 $k$。 |
+| `PREFIX_surface.csv` | final QP solution 的列 `x,y,sigma,sigma_vee,psi`。坐标使用绘图坐标；polygon 模式下已经除以 $k$。 |
 | `PREFIX_triangles.csv` | 列 `i,j,l`，是 lower regular triangulation 的三角形顶点行号。 |
 | `PREFIX_subdivision.csv` | 列 `cell,vertex,x,y`，按子多面体及其边界顶点顺序保存 $S(\sigma_A)$。 |
 | `PREFIX_ell.csv` | 列 `x,y,ell_A,ell_A_exact`，坐标与 surface CSV 一致。 |
+
+stable projection 可用时，额外生成 `PREFIX_stable_surface.csv`、
+`PREFIX_stable_triangles.csv` 与 `PREFIX_stable_subdivision.csv`。它们以 $p$ 为
+height，`psi` 列为探索性的 $\widehat\psi_k$；可运行
+`python3 plot_results.py PREFIX_stable` 绘图。
 
 `surface.csv` 中：
 
@@ -733,8 +744,8 @@ python3 plot_iterations.py results/Wang_Zhou_a5.log
 CDN，不要求 Python 安装 Plotly。
 
 启用 `--projection --verbose` 后，日志还会包含独立的 `projection event=...`
-行；常规 `iteration=...` 行的格式不变。`plot_iterations.py` 会把 probe 迭代
-标为绿色虚线，旧日志无需迁移。
+行；常规 `iteration=...` 行的格式不变。`plot_iterations.py` 会把 stable
+projection 迭代标为绿色虚线，旧的无投影日志无需迁移。
 
 迭代绘图参数：
 

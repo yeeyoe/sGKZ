@@ -58,7 +58,7 @@ def main() -> int:
             text=True,
         )
         assert result.returncode in (0, 2), result.stderr
-        assert "points=" in result.stdout
+        assert result.stdout.startswith("points=")
         assert "base_twice_area=" in result.stdout
 
         invalid = subprocess.run(

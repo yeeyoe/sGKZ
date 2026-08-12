@@ -116,13 +116,13 @@ struct SolverOptions {
   int exact_max_active = 128;
   bool exact_certification = true;
   bool verbose = false;
-  // Experimental projected-face probes. Disabled by default so the standard
+  // Experimental stable-face projection. Disabled by default so the standard
   // fully-corrective Frank--Wolfe trajectory is unchanged.
   bool projection = false;
   int projection_window = 32;
   double projection_stall_ratio = 0.90;
   double projection_relative_gap = 1e-2;
-  int projection_probe_period = 16;
+  int projection_rank_stall_window = 64;
   double projection_rank_tolerance = 1e-11;
 };
 
@@ -158,9 +158,16 @@ struct SolverResult {
   ExactCertificate exact;
   bool projection_enabled = false;
   int projection_start_iteration = -1;
-  int projection_probes = 0;
-  int projection_new_vertices = 0;
-  std::size_t projection_affine_rank = 0;
+  bool stable_projection_available = false;
+  Eigen::VectorXd stable_projection;
+  double stable_projection_norm_squared = 0.0;
+  int stable_projection_stop_iteration = -1;
+  std::size_t stable_projection_rank = 0;
+  std::size_t stable_projection_observations = 0;
+  std::string stable_projection_stop_reason;
+  bool final_qp_performed = false;
+  double final_qp_norm_squared = 0.0;
+  double final_qp_gap = 0.0;
 };
 
 class ShortestGkzSolver {
@@ -182,5 +189,11 @@ void write_plot_data(const std::filesystem::path& prefix,
                      const PointConfiguration& configuration,
                      const SolverResult& result,
                      const AffineFunction& ell);
+
+// Write the exploratory lower-envelope and psi data of a stable affine-face
+// projection. This does not assert that the height vector lies in Sigma(A).
+void write_stable_projection_plot_data(const std::filesystem::path& prefix,
+                                       const PointConfiguration& configuration,
+                                       const SolverResult& result);
 
 }  // namespace gkz

@@ -20,8 +20,12 @@ ITERATION_PATTERN = re.compile(
     rf"norm2=(?P<norm2>{FLOAT_PATTERN})\s+"
     rf"gap=(?P<gap>{FLOAT_PATTERN})$"
 )
-PROJECTION_PROBE_PATTERN = re.compile(
-    r"^projection\s+event=probe\s+iteration=(?P<iteration>\d+)\b"
+PROJECTION_STABLE_PATTERN = re.compile(
+    r"^projection\s+event=stable\s+iteration=(?P<iteration>\d+)\b"
+)
+PROJECTION_RANK_PATTERN = re.compile(
+    r"^projection\s+event=rank\s+iteration=(?P<iteration>\d+)\s+"
+    r"rank=(?P<rank>\d+)\b"
 )
 
 
@@ -30,13 +34,20 @@ def read_history(path: Path):
     active_sizes = []
     norm2_values = []
     gaps = []
-    projection_probes = []
+    stable_projections = []
+    rank_iterations = []
+    ranks = []
     with path.open(encoding="utf-8") as stream:
         for line_number, raw_line in enumerate(stream, start=1):
             line = raw_line.strip()
-            probe_match = PROJECTION_PROBE_PATTERN.match(line)
-            if probe_match is not None:
-                projection_probes.append(int(probe_match.group("iteration")))
+            stable_match = PROJECTION_STABLE_PATTERN.match(line)
+            if stable_match is not None:
+                stable_projections.append(int(stable_match.group("iteration")))
+                continue
+            rank_match = PROJECTION_RANK_PATTERN.match(line)
+            if rank_match is not None:
+                rank_iterations.append(int(rank_match.group("iteration")))
+                ranks.append(int(rank_match.group("rank")))
                 continue
             if not line or not line.startswith("iteration="):
                 continue
@@ -66,7 +77,8 @@ def read_history(path: Path):
             gaps.append(gap)
     if not iterations:
         raise ValueError(f"No iteration records found in {path}")
-    return iterations, active_sizes, norm2_values, gaps, projection_probes
+    return (iterations, active_sizes, norm2_values, gaps, stable_projections,
+            rank_iterations, ranks)
 
 
 def default_prefix(log_path: Path) -> Path:
@@ -77,14 +89,17 @@ def default_prefix(log_path: Path) -> Path:
 
 
 def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
-                     gaps, thresholds, projection_probes) -> Path:
+                     gaps, thresholds, stable_projections, rank_iterations,
+                     ranks) -> Path:
     payload = json.dumps(
         {
             "iteration": iterations,
             "active": active_sizes,
             "gap": gaps,
             "threshold": thresholds,
-            "projection_probe": projection_probes,
+            "stable_projection": stable_projections,
+            "rank_iteration": rank_iterations,
+            "rank": ranks,
         },
         separators=(",", ":"),
     )
@@ -110,6 +125,9 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
       {{...common, name: "active set size", x: history.iteration,
         y: history.active, xaxis: "x", yaxis: "y",
         line: {{color: "#2563eb", width: 2}}}},
+      {{...common, name: "affine rank", x: history.rank_iteration,
+        y: history.rank, xaxis: "x", yaxis: "y",
+        line: {{color: "#dc2626", width: 2}}}},
       {{...common, name: "gap", x: history.iteration,
         y: history.gap, xaxis: "x2", yaxis: "y2",
         line: {{color: "#b91c1c", width: 2}}}},
@@ -118,7 +136,7 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
         line: {{color: "#2563eb", width: 2}},
         hovertemplate: "threshold=%{{y:.3e}}<extra></extra>"}}
     ];
-    const projectionShapes = history.projection_probe.map((iteration) => ({{
+    const projectionShapes = history.stable_projection.map((iteration) => ({{
       type: "line", xref: "x2", yref: "paper", x0: iteration,
       x1: iteration, y0: 0, y1: 1, line: {{color: "#059669", width: 1,
       dash: "dot"}}
@@ -155,7 +173,8 @@ def draw_interactive(prefix: Path, title: str, iterations, active_sizes,
 
 
 def draw_static(prefix: Path, title: str, iterations, active_sizes,
-                gaps, thresholds, projection_probes, show: bool) -> Path:
+                gaps, thresholds, stable_projections, rank_iterations, ranks,
+                show: bool) -> Path:
     import matplotlib.pyplot as plt
     from matplotlib.ticker import FuncFormatter, MaxNLocator
 
@@ -169,9 +188,13 @@ def draw_static(prefix: Path, title: str, iterations, active_sizes,
         axes_item.set_ylabel(label)
         axes_item.grid(True, color="#e5e7eb", linewidth=0.8)
         axes_item.margins(x=0)
-        for iteration in projection_probes:
+        for iteration in stable_projections:
             axes_item.axvline(iteration, color="#059669", linestyle=":",
                               linewidth=1.0)
+    if rank_iterations:
+        axes[0].plot(rank_iterations, ranks, color="#dc2626", linewidth=1.8,
+                     label="affine rank")
+        axes[0].legend(loc="upper left", framealpha=0.9)
     axes[0].yaxis.set_major_locator(MaxNLocator(integer=True))
     if any(value <= 0 for value in gaps):
         raise ValueError("log scale requires every recorded gap to be positive")
@@ -220,7 +243,8 @@ def main() -> int:
     except (OSError, ValueError) as error:
         parser.error(str(error))
 
-    iterations, active_sizes, norm2_values, gaps, projection_probes = history
+    (iterations, active_sizes, norm2_values, gaps, stable_projections,
+     rank_iterations, ranks) = history
     if any(value <= 0 for value in gaps):
         parser.error("log scale requires every recorded gap to be positive")
 
@@ -234,7 +258,8 @@ def main() -> int:
     prefix = args.output_prefix or default_prefix(args.log)
     title = f"Iteration history: {args.log.stem}"
     outputs = [draw_interactive(prefix, title, iterations, active_sizes,
-                                gaps, thresholds, projection_probes)]
+                                gaps, thresholds, stable_projections,
+                                rank_iterations, ranks)]
 
     if args.png or args.show:
         try:
@@ -250,7 +275,8 @@ def main() -> int:
             parser.error("matplotlib is required for --png")
             raise error
         outputs.append(draw_static(prefix, title, iterations, active_sizes,
-                                   gaps, thresholds, projection_probes,
+                                   gaps, thresholds, stable_projections,
+                                   rank_iterations, ranks,
                                    args.show))
     else:
         plt = None

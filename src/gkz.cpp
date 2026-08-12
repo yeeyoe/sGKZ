@@ -1409,7 +1409,7 @@ GkzVector RegularTriangulationOracle::minimize_exact_integer(
 SolverResult ShortestGkzSolver::solve(
     const PointConfiguration& configuration) const {
   if (options_.projection_window <= 0 ||
-      options_.projection_probe_period <= 0 ||
+      options_.projection_rank_stall_window <= 0 ||
       options_.projection_stall_ratio <= 0.0 ||
       options_.projection_stall_ratio > 1.0 ||
       options_.projection_relative_gap <= 0.0 ||
@@ -1498,11 +1498,11 @@ SolverResult ShortestGkzSolver::solve(
 
   double initial_gap = -1.0;
   std::deque<double> recent_gaps;
-  bool projection_mode = false;
-  int normal_expansions_since_probe = 0;
+  bool stable_collection_mode = false;
+  int rank_stall_observations = 0;
   std::optional<AffineHullState> affine_hull;
-  Eigen::VectorXd last_probe_point;
-  bool has_last_probe_point = false;
+  const std::size_t stable_rank_limit =
+      configuration.size() >= 4 ? configuration.size() - 4 : 0;
 
   for (int iteration = 0; iteration <= options_.max_iterations; ++iteration) {
     const Eigen::VectorXd candidate = combine(active, coefficients);
@@ -1546,7 +1546,7 @@ SolverResult ShortestGkzSolver::solve(
       continue;
     }
 
-    if (options_.projection && !projection_mode) {
+    if (options_.projection && !stable_collection_mode) {
       recent_gaps.push_back(result.gap);
       const std::size_t history_size =
           static_cast<std::size_t>(options_.projection_window) + 1;
@@ -1557,7 +1557,7 @@ SolverResult ShortestGkzSolver::solve(
           result.gap <= initial_gap * options_.projection_relative_gap &&
           result.gap >= recent_gaps.front() *
                             options_.projection_stall_ratio) {
-        projection_mode = true;
+        stable_collection_mode = true;
         affine_hull.emplace(options_.projection_rank_tolerance);
         result.projection_start_iteration = iteration;
         if (options_.verbose) {
@@ -1608,51 +1608,97 @@ SolverResult ShortestGkzSolver::solve(
       result.sigma = candidate;
       result.active_vectors = active;
       result.coefficients = coefficients;
+      if (options_.projection && !result.stable_projection_available) {
+        result.stable_projection_stop_reason =
+            stable_collection_mode ? "max_iterations_before_stable_rank"
+                                   : "max_iterations_before_trigger";
+      }
       break;
     }
 
-    std::optional<GkzVector> projection_vertex;
-    if (projection_mode) {
-      affine_hull->add(minimizing_vertex.values);
-      result.projection_affine_rank = affine_hull->rank();
-      ++normal_expansions_since_probe;
-      if (normal_expansions_since_probe >= options_.projection_probe_period &&
-          affine_hull->has_projection()) {
+    if (stable_collection_mode) {
+      const bool rank_increased = affine_hull->add(minimizing_vertex.values);
+      if (rank_increased) {
+        rank_stall_observations = 0;
+      } else {
+        ++rank_stall_observations;
+      }
+      if (options_.verbose) {
+        std::cerr << "projection event=rank iteration=" << iteration
+                  << " rank=" << affine_hull->rank()
+                  << " observations=" << affine_hull->observations()
+                  << " stall=" << rank_stall_observations << '\n';
+      }
+
+      const bool reached_rank_limit =
+          stable_rank_limit > 0 && affine_hull->rank() >= stable_rank_limit;
+      const bool rank_stalled =
+          affine_hull->rank() > 0 &&
+          rank_stall_observations >= options_.projection_rank_stall_window;
+      if (reached_rank_limit || rank_stalled) {
         const Eigen::VectorXd projection = affine_hull->projection();
-        const double projection_scale = std::max(
-            {1.0, projection.norm(),
-             has_last_probe_point ? last_probe_point.norm() : 0.0});
-        const bool projection_changed =
-            !has_last_probe_point ||
-            (projection - last_probe_point).norm() >
-                options_.projection_rank_tolerance * projection_scale;
-        normal_expansions_since_probe = 0;
-        if (projection_changed) {
-          projection_vertex = oracle.minimize_exact(
-              rational_heights(projection), /*keep_faces=*/false);
-          ++result.projection_probes;
-          const bool vertex_new =
-              !active_contains(*projection_vertex) &&
-              !minimizing_vertex.has_same_area_numerators(*projection_vertex);
-          if (options_.verbose) {
-            std::cerr << "projection event=probe iteration=" << iteration
-                      << " rank=" << affine_hull->rank()
-                      << " observations=" << affine_hull->observations()
-                      << " p_norm2=" << std::setprecision(17)
-                      << dot_long_double(projection, projection)
-                      << " vertex_new=" << std::boolalpha << vertex_new
-                      << '\n';
-          }
-          last_probe_point = projection;
-          has_last_probe_point = true;
+        result.stable_projection_available = true;
+        result.stable_projection = projection;
+        result.stable_projection_norm_squared =
+            static_cast<double>(dot_long_double(projection, projection));
+        result.stable_projection_stop_iteration = iteration;
+        result.stable_projection_rank = affine_hull->rank();
+        result.stable_projection_observations = affine_hull->observations();
+        result.stable_projection_stop_reason =
+            reached_rank_limit ? "rank_limit" : "rank_stall";
+
+        GkzVector projection_vertex = oracle.minimize_exact(
+            rational_heights(projection), /*keep_faces=*/false);
+        const bool projection_vertex_new =
+            !active_contains(projection_vertex) &&
+            !minimizing_vertex.has_same_area_numerators(projection_vertex);
+        if (options_.verbose) {
+          std::cerr << "projection event=stable iteration=" << iteration
+                    << " rank=" << affine_hull->rank()
+                    << " observations=" << affine_hull->observations()
+                    << " reason=" << result.stable_projection_stop_reason
+                    << " p_norm2=" << std::setprecision(17)
+                    << result.stable_projection_norm_squared
+                    << " vertex_new=" << std::boolalpha
+                    << projection_vertex_new << '\n';
         }
+
+        expand_active(std::move(minimizing_vertex),
+                      std::move(projection_vertex), /*prune=*/true);
+        const Eigen::VectorXd final_candidate = combine(active, coefficients);
+        const GkzVector final_vertex =
+            oracle.minimize(final_candidate, /*keep_faces=*/false);
+        const long double final_norm_squared =
+            dot_long_double(final_candidate, final_candidate);
+        long double final_gap =
+            final_norm_squared - dot_long_double(final_candidate,
+                                                  final_vertex.values);
+        const long double final_roundoff =
+            64.0L * std::numeric_limits<double>::epsilon() *
+            std::max(1.0L, std::abs(final_norm_squared));
+        if (final_gap < 0.0L && final_gap >= -final_roundoff) {
+          final_gap = 0.0L;
+        }
+        if (final_gap < 0.0L) {
+          throw std::runtime_error(
+              "Final QP oracle gap is negative beyond the floating-point "
+              "error budget.");
+        }
+        result.sigma = final_candidate;
+        result.norm_squared = static_cast<double>(final_norm_squared);
+        result.gap = static_cast<double>(final_gap);
+        result.l2_error_bound = std::sqrt(2.0 * result.gap);
+        result.active_vectors = active;
+        result.coefficients = coefficients;
+        result.final_qp_performed = true;
+        result.final_qp_norm_squared = result.norm_squared;
+        result.final_qp_gap = result.gap;
+        return result;
       }
     }
 
-    if (expand_active(std::move(minimizing_vertex),
-                      std::move(projection_vertex), /*prune=*/true)) {
-      ++result.projection_new_vertices;
-    }
+    expand_active(std::move(minimizing_vertex), std::nullopt,
+                  /*prune=*/true);
   }
   return result;
 }
@@ -1665,12 +1711,16 @@ void write_result_csv(const std::filesystem::path& path,
     throw std::runtime_error("Cannot open output file: " + path.string());
   }
   const AffineFunction ell = compute_ell(configuration);
-  stream << "x,y,sigma,sigma_exact,ell_A,ell_A_exact\n";
+  stream << "x,y,sigma,stable_projection,sigma_exact,ell_A,ell_A_exact\n";
   stream << std::setprecision(17);
   for (std::size_t i = 0; i < configuration.size(); ++i) {
     stream << configuration.points()[i].x << ','
            << configuration.points()[i].y << ','
            << result.sigma[static_cast<Eigen::Index>(i)] << ',';
+    if (result.stable_projection_available) {
+      stream << result.stable_projection[static_cast<Eigen::Index>(i)];
+    }
+    stream << ',';
     if (result.exact.certified) {
       stream << rational_to_string(result.exact.sigma[i]);
     }
@@ -1795,6 +1845,90 @@ void write_plot_data(const std::filesystem::path& prefix,
                          : subdivision_cells(
                                configuration, surface_values,
                                *surface_triangulation.triangulation);
+  subdivision << "cell,vertex,x,y\n" << std::setprecision(17);
+  for (std::size_t cell_index = 0; cell_index < cells.size(); ++cell_index) {
+    for (std::size_t vertex_index = 0;
+         vertex_index < cells[cell_index].vertices.size(); ++vertex_index) {
+      const auto point_index = cells[cell_index].vertices[vertex_index];
+      const auto& point = configuration.points()[point_index];
+      const double x = static_cast<double>(point.x / coordinate_scale);
+      const double y = static_cast<double>(point.y / coordinate_scale);
+      subdivision << cell_index << ',' << vertex_index << ',' << x << ',' << y
+                  << '\n';
+    }
+  }
+}
+
+void write_stable_projection_plot_data(
+    const std::filesystem::path& prefix,
+    const PointConfiguration& configuration,
+    const SolverResult& result) {
+  if (!result.stable_projection_available ||
+      result.stable_projection.size() !=
+          static_cast<Eigen::Index>(configuration.size())) {
+    throw std::invalid_argument(
+        "Stable projection plot data requested without a stable projection.");
+  }
+
+  const RegularTriangulationOracle oracle(configuration);
+  const Eigen::VectorXd& surface_values = result.stable_projection;
+  const GkzVector surface_triangulation =
+      oracle.minimize(surface_values, /*keep_faces=*/true);
+  if (!surface_triangulation.triangulation) {
+    throw std::runtime_error("The oracle did not return triangulation faces.");
+  }
+  const Eigen::VectorXd sigma_vee = lower_envelope_values(
+      configuration, surface_values, *surface_triangulation.triangulation);
+
+  const std::filesystem::path surface_path = prefix.string() + "_surface.csv";
+  const std::filesystem::path triangles_path =
+      prefix.string() + "_triangles.csv";
+  const std::filesystem::path subdivision_path =
+      prefix.string() + "_subdivision.csv";
+  std::ofstream surface(surface_path);
+  std::ofstream triangles(triangles_path);
+  std::ofstream subdivision(subdivision_path);
+  if (!surface || !triangles || !subdivision) {
+    throw std::runtime_error(
+        "Cannot open one of the stable projection plot files for prefix: " +
+        prefix.string());
+  }
+
+  const long double coordinate_scale =
+      configuration.is_polygon_level()
+          ? static_cast<long double>(configuration.level())
+          : 1.0L;
+  const bool has_psi = configuration.is_polygon_level();
+  const long double psi_factor =
+      has_psi
+          ? as_long_double(configuration.base_twice_area()) *
+                static_cast<long double>(configuration.level()) *
+                static_cast<long double>(configuration.level()) *
+                static_cast<long double>(configuration.level())
+          : 0.0L;
+
+  surface << "x,y,sigma,sigma_vee,psi\n" << std::setprecision(17);
+  for (std::size_t i = 0; i < configuration.size(); ++i) {
+    const auto& point = configuration.points()[i];
+    const double x = static_cast<double>(point.x / coordinate_scale);
+    const double y = static_cast<double>(point.y / coordinate_scale);
+    const double height = surface_values[static_cast<Eigen::Index>(i)];
+    const double envelope = sigma_vee[static_cast<Eigen::Index>(i)];
+    surface << x << ',' << y << ',' << height << ',' << envelope << ',';
+    if (has_psi) {
+      surface << static_cast<double>(psi_factor * envelope -
+                                     2.0L * configuration.level());
+    }
+    surface << '\n';
+  }
+
+  triangles << "i,j,l\n";
+  for (const auto& face : *surface_triangulation.triangulation) {
+    triangles << face[0] << ',' << face[1] << ',' << face[2] << '\n';
+  }
+
+  const auto cells = subdivision_cells(configuration, surface_values,
+                                       *surface_triangulation.triangulation);
   subdivision << "cell,vertex,x,y\n" << std::setprecision(17);
   for (std::size_t cell_index = 0; cell_index < cells.size(); ++cell_index) {
     for (std::size_t vertex_index = 0;

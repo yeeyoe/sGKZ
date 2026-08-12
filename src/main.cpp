@@ -31,14 +31,15 @@ void print_usage(std::ostream& stream) {
       << "  --plot-prefix PREFIX     Write plot CSVs for plot_results.py.\n"
       << "  --tolerance VALUE        Relative Frank--Wolfe gap tolerance.\n"
       << "  --absolute-tolerance V   Absolute gap tolerance.\n"
+      << "  --prune-tolerance V      Drop QP coefficients at or below V (default: 1e-15).\n"
       << "  --max-iterations N       Maximum active-set expansion steps.\n"
       << "  --exact-max-active N     Exact QP variable limit; 0 means no limit.\n"
       << "  --no-exact               Skip exact rational certification.\n"
-      << "  --projection             Enable experimental projected-face probes.\n"
+      << "  --projection             Enable experimental stable-face projection.\n"
       << "  --projection-window N    Gap history window (default: 32).\n"
       << "  --projection-stall-ratio R  Minimum window gap ratio (default: 0.90).\n"
       << "  --projection-relative-gap R  Activation gap / initial gap (default: 1e-2).\n"
-      << "  --projection-probe-period N  Normal expansions per probe (default: 16).\n"
+      << "  --projection-rank-stall-window N  Rank-stable observations (default: 64).\n"
       << "  --projection-rank-tolerance R  Relative affine-rank tolerance (default: 1e-11).\n"
       << "  --verbose                Print one line per iteration.\n"
       << "  --help                   Show this message.\n";
@@ -75,6 +76,9 @@ Arguments parse_arguments(int argc, char** argv) {
     } else if (option == "--absolute-tolerance") {
       arguments.options.absolute_tolerance =
           std::stod(require_value(argc, argv, i, option));
+    } else if (option == "--prune-tolerance") {
+      arguments.options.prune_tolerance =
+          std::stod(require_value(argc, argv, i, option));
     } else if (option == "--max-iterations") {
       arguments.options.max_iterations =
           std::stoi(require_value(argc, argv, i, option));
@@ -94,8 +98,8 @@ Arguments parse_arguments(int argc, char** argv) {
     } else if (option == "--projection-relative-gap") {
       arguments.options.projection_relative_gap =
           std::stod(require_value(argc, argv, i, option));
-    } else if (option == "--projection-probe-period") {
-      arguments.options.projection_probe_period =
+    } else if (option == "--projection-rank-stall-window") {
+      arguments.options.projection_rank_stall_window =
           std::stoi(require_value(argc, argv, i, option));
     } else if (option == "--projection-rank-tolerance") {
       arguments.options.projection_rank_tolerance =
@@ -116,10 +120,11 @@ Arguments parse_arguments(int argc, char** argv) {
   }
   if (arguments.options.tolerance < 0.0 ||
       arguments.options.absolute_tolerance < 0.0 ||
+      arguments.options.prune_tolerance < 0.0 ||
       arguments.options.max_iterations < 0 ||
       arguments.options.exact_max_active < 0 ||
       arguments.options.projection_window <= 0 ||
-      arguments.options.projection_probe_period <= 0 ||
+      arguments.options.projection_rank_stall_window <= 0 ||
       arguments.options.projection_stall_ratio <= 0.0 ||
       arguments.options.projection_stall_ratio > 1.0 ||
       arguments.options.projection_relative_gap <= 0.0 ||
@@ -176,6 +181,7 @@ int main(int argc, char** argv) {
         : gkz::PointConfiguration::from_polygon_file(*arguments.polygon,
                                                        arguments.k);
 
+    std::cout << "points=" << configuration.size() << '\n' << std::flush;
     const gkz::ShortestGkzSolver solver(arguments.options);
     const gkz::SolverResult result = solver.solve(configuration);
     const gkz::AffineFunction ell = gkz::compute_ell(configuration);
@@ -199,7 +205,6 @@ int main(int argc, char** argv) {
                                   ell.exact_coefficients[2] == 0;
 
     std::cout << std::setprecision(17);
-    std::cout << "points=" << configuration.size() << '\n';
     std::cout << "twice_area="
               << gkz::to_string(configuration.twice_area()) << '\n';
     if (configuration.is_polygon_level()) {
@@ -217,11 +222,29 @@ int main(int argc, char** argv) {
     std::cout << "projection_enabled=" << result.projection_enabled << '\n';
     std::cout << "projection_start_iteration="
               << result.projection_start_iteration << '\n';
-    std::cout << "projection_probes=" << result.projection_probes << '\n';
-    std::cout << "projection_new_vertices="
-              << result.projection_new_vertices << '\n';
-    std::cout << "projection_affine_rank="
-              << result.projection_affine_rank << '\n';
+    std::cout << "stable_projection_available="
+              << result.stable_projection_available << '\n';
+    std::cout << "stable_projection_stop_iteration="
+              << result.stable_projection_stop_iteration << '\n';
+    std::cout << "stable_projection_rank="
+              << result.stable_projection_rank << '\n';
+    std::cout << "stable_projection_observations="
+              << result.stable_projection_observations << '\n';
+    std::cout << "stable_projection_stop_reason="
+              << (result.stable_projection_stop_reason.empty()
+                      ? "none"
+                      : result.stable_projection_stop_reason)
+              << '\n';
+    if (result.stable_projection_available) {
+      std::cout << "stable_projection_norm_squared="
+                << result.stable_projection_norm_squared << '\n';
+    }
+    std::cout << "final_qp_performed=" << result.final_qp_performed << '\n';
+    if (result.final_qp_performed) {
+      std::cout << "final_qp_norm_squared=" << result.final_qp_norm_squared
+                << '\n';
+      std::cout << "final_qp_gap=" << result.final_qp_gap << '\n';
+    }
     if (arguments.options.exact_certification) {
       std::cout << "exact_message=" << result.exact.message << '\n';
       if (result.exact.certified) {
@@ -280,6 +303,18 @@ int main(int argc, char** argv) {
                 << '\n';
       std::cout << "plot_ell=" << arguments.plot_prefix->string() + "_ell.csv"
                 << '\n';
+      if (result.stable_projection_available) {
+        const std::filesystem::path stable_prefix =
+            arguments.plot_prefix->string() + "_stable";
+        gkz::write_stable_projection_plot_data(stable_prefix, configuration,
+                                               result);
+        std::cout << "stable_plot_surface="
+                  << stable_prefix.string() + "_surface.csv" << '\n';
+        std::cout << "stable_plot_triangles="
+                  << stable_prefix.string() + "_triangles.csv" << '\n';
+        std::cout << "stable_plot_subdivision="
+                  << stable_prefix.string() + "_subdivision.csv" << '\n';
+      }
     }
     return result.converged ? 0 : 2;
   } catch (const std::exception& error) {

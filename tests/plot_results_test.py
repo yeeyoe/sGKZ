@@ -68,8 +68,24 @@ def main() -> int:
         run(script, polygon, "--z-scale", "10")
         assert not output(polygon, "_sigma_vee.html").exists()
         assert output(polygon, "_psi_k.html").exists()
+        psi_html = output(polygon, "_psi_k.html").read_text(
+            encoding="utf-8")
+        assert "psi_k (last QP solution)" in psi_html
+        subdivision = output(polygon, "_subdivision.svg").read_text(
+            encoding="utf-8")
+        assert "S(sigma_k) (last QP solution)" in subdivision
         run(script, polygon, "--z-scale", "10", "--sigma-vee")
         assert output(polygon, "_sigma_vee.html").exists()
+
+        stable = root / "polygon_stable"
+        write_fixture(stable, include_psi=True)
+        run(script, stable)
+        stable_psi = output(stable, "_psi_k.html").read_text(
+            encoding="utf-8")
+        assert "psi_k (stable projection)" in stable_psi
+        stable_subdivision = output(stable, "_subdivision.svg").read_text(
+            encoding="utf-8")
+        assert "S(sigma_k) (stable projection)" in stable_subdivision
 
         colored = root / "colored"
         write_fixture(colored)

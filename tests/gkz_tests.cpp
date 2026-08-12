@@ -400,60 +400,183 @@ void test_six_point_regression() {
           "Six-point exact sigma disagrees with main.tex.");
 }
 
-void test_projection_mode_preserves_six_point_solution() {
-  const auto configuration = gkz::PointConfiguration::from_points(
-      {{0, 0}, {0, 2}, {2, 0}, {2, 2}, {1, 1}, {6, 5}});
+void test_projection_mode_allows_normal_early_convergence() {
+  const auto configuration = square_configuration();
   gkz::SolverOptions options;
-  options.tolerance = 1e-12;
-  options.absolute_tolerance = 1e-14;
-  options.max_iterations = 200;
+  options.tolerance = 1e-13;
+  options.absolute_tolerance = 1e-15;
   options.projection = true;
   // Force the experimental path on this small configuration. The default
   // plateau detector is intentionally much more conservative.
   options.projection_window = 1;
   options.projection_stall_ratio = 1e-4;
   options.projection_relative_gap = 1.0;
-  options.projection_probe_period = 1;
   const auto result = gkz::ShortestGkzSolver(options).solve(configuration);
-  require(result.converged, "Projected six-point solver did not converge.");
+  require(result.converged, "Projected square solver did not converge.");
   require(result.exact.certified,
-          "Projected six-point exact certificate failed: " +
+          "Projected square exact certificate failed: " +
               result.exact.message);
-  require(result.projection_start_iteration >= 0,
-          "Projection mode did not activate.");
-  require(result.projection_probes > 0,
-          "Projection mode did not issue an exact probe.");
-  require(result.projection_affine_rank > 0,
-          "Projection mode did not build an affine direction.");
+  require(result.projection_start_iteration == -1,
+          "Early-converged run unexpectedly activated stable collection.");
+  require(!result.stable_projection_available,
+          "Early-converged run unexpectedly produced a stable projection.");
+  require(!result.final_qp_performed,
+          "Early-converged run unexpectedly performed a final QP.");
 
-  const std::vector<CGAL::Gmpq> expected = {
-      CGAL::Gmpq(15, 121),   CGAL::Gmpq(5, 33),
-      CGAL::Gmpq(493, 3025), CGAL::Gmpq(1511, 9075),
-      CGAL::Gmpq(1318, 9075), CGAL::Gmpq(2267, 9075)};
-  require(result.exact.sigma == expected,
-          "Projection mode changed the exact six-point shortest GKZ.");
+  for (const auto& value : result.exact.sigma) {
+    require(value == CGAL::Gmpq(1, 4),
+            "Projection mode changed the exact square shortest GKZ.");
+  }
 }
 
-void test_projection_mode_batches_a_new_vertex() {
+void test_projection_mode_stops_at_stable_rank_and_runs_final_qp() {
   const auto configuration = gkz::PointConfiguration::from_points(
       {{-5, 6}, {2, 1}, {4, -1}, {1, -3}, {-3, -2}, {-4, -1}});
   gkz::SolverOptions options;
-  options.tolerance = 1e-13;
-  options.absolute_tolerance = 1e-15;
+  options.tolerance = 0.0;
+  options.absolute_tolerance = 0.0;
   options.projection = true;
   options.projection_window = 1;
   options.projection_stall_ratio = 1e-4;
   options.projection_relative_gap = 1.0;
-  options.projection_probe_period = 1;
+  options.projection_rank_stall_window = 1;
+  options.max_iterations = 200;
+  options.exact_certification = false;
   const auto result = gkz::ShortestGkzSolver(options).solve(configuration);
-  require(result.converged, "Projected hexagon solver did not converge.");
-  require(result.exact.certified,
-          "Projected hexagon exact certificate failed: " +
-              result.exact.message);
-  require(result.projection_probes > 0,
-          "Projected hexagon did not issue a probe.");
-  require(result.projection_new_vertices > 0,
-          "Projected hexagon probe did not add a new active vertex.");
+  require(result.projection_start_iteration >= 0,
+          "Stable projection mode did not activate.");
+  require(result.stable_projection_available,
+          "Stable projection mode did not produce a projection.");
+  require(result.stable_projection_rank > 0,
+          "Stable projection mode did not build an affine direction.");
+  require(result.stable_projection_stop_reason == "rank_stall" ||
+              result.stable_projection_stop_reason == "rank_limit",
+          "Stable projection mode stopped for an unknown reason.");
+  require(result.final_qp_performed,
+          "Stable projection mode did not perform its final QP.");
+  require(result.final_qp_norm_squared == result.norm_squared &&
+              result.final_qp_gap == result.gap,
+          "Top-level result does not contain the final QP summary.");
+  require(result.coefficients.minCoeff() >= -1e-12,
+          "Final QP returned a negative active coefficient.");
+  require_close(result.coefficients.sum(), 1.0, 1e-12,
+                "Final QP coefficients do not sum to one");
+}
+
+void test_projection_mode_stops_after_rank_stall() {
+  const auto configuration = gkz::PointConfiguration::from_points(
+      {{-5, 6}, {2, 1}, {4, -1}, {1, -3}, {-3, -2}, {-4, -1}});
+  gkz::SolverOptions options;
+  options.tolerance = 0.0;
+  options.absolute_tolerance = 0.0;
+  options.projection = true;
+  options.projection_window = 1;
+  options.projection_stall_ratio = 1e-4;
+  options.projection_relative_gap = 1.0;
+  options.projection_rank_stall_window = 1;
+  options.projection_rank_tolerance = 0.2;
+  options.exact_certification = false;
+  const auto result = gkz::ShortestGkzSolver(options).solve(configuration);
+  require(result.stable_projection_available,
+          "Rank-stall run did not produce a stable projection.");
+  require(result.stable_projection_stop_reason == "rank_stall",
+          "Rank-stall run stopped for the wrong reason.");
+  require(result.stable_projection_rank < configuration.size() - 4,
+          "Rank-stall run unexpectedly reached the rank limit.");
+}
+
+void test_projection_mode_reports_unstable_max_iterations() {
+  const auto configuration = gkz::PointConfiguration::from_points(
+      {{-5, 6}, {2, 1}, {4, -1}, {1, -3}, {-3, -2}, {-4, -1}});
+  gkz::SolverOptions options;
+  options.tolerance = 0.0;
+  options.absolute_tolerance = 0.0;
+  options.max_iterations = 1;
+  options.projection = true;
+  options.projection_window = 1;
+  options.projection_stall_ratio = 1e-4;
+  options.projection_relative_gap = 1.0;
+  options.exact_certification = false;
+  const auto result = gkz::ShortestGkzSolver(options).solve(configuration);
+  require(!result.stable_projection_available,
+          "Incomplete run unexpectedly produced a stable projection.");
+  require(result.stable_projection_stop_reason ==
+              "max_iterations_before_stable_rank",
+          "Incomplete run did not report the expected stable-projection state.");
+}
+
+void test_projection_rank_stall_window_must_be_positive() {
+  gkz::SolverOptions options;
+  options.projection_rank_stall_window = 0;
+  bool rejected = false;
+  try {
+    static_cast<void>(gkz::ShortestGkzSolver(options).solve(
+        square_configuration()));
+  } catch (const std::invalid_argument&) {
+    rejected = true;
+  }
+  require(rejected,
+          "A nonpositive stable rank-stall window was not rejected.");
+}
+
+void test_stable_projection_plot_data_uses_lower_envelope() {
+  const auto configuration =
+      gkz::PointConfiguration::from_lattice_polygon(
+          {{0, 0}, {1, 0}, {1, 1}, {0, 1}}, 2);
+  gkz::SolverResult result;
+  result.stable_projection_available = true;
+  result.stable_projection = Eigen::VectorXd::Zero(
+      static_cast<Eigen::Index>(configuration.size()));
+  std::size_t center = configuration.size();
+  for (std::size_t i = 0; i < configuration.size(); ++i) {
+    if (configuration.points()[i] == gkz::IntPoint{1, 1}) {
+      center = i;
+      break;
+    }
+  }
+  require(center < configuration.size(), "Level-2 square has no center.");
+  result.stable_projection[static_cast<Eigen::Index>(center)] = 1.0;
+
+  const auto prefix = std::filesystem::temp_directory_path() /
+                      "gkz_stable_projection_surface_test";
+  gkz::write_stable_projection_plot_data(prefix, configuration, result);
+  std::ifstream stream(prefix.string() + "_surface.csv");
+  require(static_cast<bool>(stream),
+          "Cannot read stable projection surface CSV.");
+  std::string line;
+  std::getline(stream, line);
+  for (std::size_t i = 0; i <= center; ++i) {
+    require(static_cast<bool>(std::getline(stream, line)),
+            "Stable surface CSV ended before the center point.");
+  }
+  std::replace(line.begin(), line.end(), ',', ' ');
+  std::istringstream parser(line);
+  double x = 0.0;
+  double y = 0.0;
+  double height = 0.0;
+  double envelope = 0.0;
+  double psi = 0.0;
+  require(static_cast<bool>(parser >> x >> y >> height >> envelope >> psi),
+          "Cannot parse stable projection surface row.");
+  require_close(height, 1.0, 1e-15, "Stable projection height is wrong");
+  require_close(envelope, 0.0, 1e-15,
+                "Stable projection did not use the lower envelope");
+  require_close(psi, -4.0, 1e-15,
+                "Stable projection psi did not use the lower envelope");
+  const auto result_path = prefix.string() + "_result.csv";
+  result.sigma = Eigen::VectorXd::Zero(
+      static_cast<Eigen::Index>(configuration.size()));
+  gkz::write_result_csv(result_path, configuration, result);
+  std::ifstream result_stream(result_path);
+  require(static_cast<bool>(result_stream), "Cannot read result CSV.");
+  require(static_cast<bool>(std::getline(result_stream, line)),
+          "Result CSV has no header.");
+  require(line == "x,y,sigma,stable_projection,sigma_exact,ell_A,ell_A_exact",
+          "Result CSV does not label the stable projection column.");
+  std::filesystem::remove(prefix.string() + "_surface.csv");
+  std::filesystem::remove(prefix.string() + "_triangles.csv");
+  std::filesystem::remove(prefix.string() + "_subdivision.csv");
+  std::filesystem::remove(result_path);
 }
 
 void test_exact_qp_with_affinely_redundant_hexagon_gkz_vectors() {
@@ -500,8 +623,12 @@ int main() {
     test_triangle_shortest_vector();
     test_square_shortest_vector();
     test_six_point_regression();
-    test_projection_mode_preserves_six_point_solution();
-    test_projection_mode_batches_a_new_vertex();
+    test_projection_mode_allows_normal_early_convergence();
+    test_projection_mode_stops_at_stable_rank_and_runs_final_qp();
+    test_projection_mode_stops_after_rank_stall();
+    test_projection_mode_reports_unstable_max_iterations();
+    test_projection_rank_stall_window_must_be_positive();
+    test_stable_projection_plot_data_uses_lower_envelope();
     test_exact_qp_with_affinely_redundant_hexagon_gkz_vectors();
     std::cout << "All shortest-GKZ tests passed.\n";
     return 0;
