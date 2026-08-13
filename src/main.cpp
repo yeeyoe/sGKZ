@@ -182,6 +182,13 @@ int main(int argc, char** argv) {
                                                        arguments.k);
 
     std::cout << "points=" << configuration.size() << '\n' << std::flush;
+    if (arguments.options.verbose) {
+      std::cerr << "points=" << configuration.size() << '\n'
+                << std::setprecision(17)
+                << "parameters tolerance=" << arguments.options.tolerance
+                << " absolute_tolerance="
+                << arguments.options.absolute_tolerance << '\n';
+    }
     const gkz::ShortestGkzSolver solver(arguments.options);
     const gkz::SolverResult result = solver.solve(configuration);
     const gkz::AffineFunction ell = gkz::compute_ell(configuration);

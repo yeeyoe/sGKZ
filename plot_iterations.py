@@ -27,6 +27,27 @@ PROJECTION_RANK_PATTERN = re.compile(
     r"^projection\s+event=rank\s+iteration=(?P<iteration>\d+)\s+"
     r"rank=(?P<rank>\d+)\b"
 )
+PARAMETERS_PATTERN = re.compile(
+    rf"^parameters\s+tolerance=(?P<tolerance>{FLOAT_PATTERN})\s+"
+    rf"absolute_tolerance=(?P<absolute_tolerance>{FLOAT_PATTERN})$"
+)
+
+
+def read_solver_tolerances(path: Path):
+    """Read tolerances recorded by a verbose shortest_gkz run, if present."""
+    with path.open(encoding="utf-8") as stream:
+        for raw_line in stream:
+            match = PARAMETERS_PATTERN.fullmatch(raw_line.strip())
+            if match is None:
+                continue
+            tolerance = float(match.group("tolerance"))
+            absolute_tolerance = float(match.group("absolute_tolerance"))
+            if (not math.isfinite(tolerance) or tolerance < 0 or
+                    not math.isfinite(absolute_tolerance) or
+                    absolute_tolerance < 0):
+                raise ValueError(f"Invalid tolerances recorded in {path}")
+            return tolerance, absolute_tolerance
+    return None
 
 
 def read_history(path: Path):
@@ -225,23 +246,29 @@ def main() -> int:
                         help="output path without .html/.png")
     parser.add_argument("--log-gap", action="store_true",
                         help=argparse.SUPPRESS)
-    parser.add_argument("--tolerance", type=float, default=1e-11,
-                        help="relative Frank--Wolfe gap tolerance (default: 1e-11)")
-    parser.add_argument("--absolute-tolerance", type=float, default=1e-14,
-                        help="absolute gap tolerance (default: 1e-14)")
+    parser.add_argument("--tolerance", type=float, default=None,
+                        help="relative gap tolerance (default: read from log, otherwise 1e-11)")
+    parser.add_argument("--absolute-tolerance", type=float, default=None,
+                        help="absolute gap tolerance (default: read from log, otherwise 1e-14)")
     parser.add_argument("--png", action="store_true",
                         help="also export a static PNG")
     parser.add_argument("--show", action="store_true",
                         help="display the optional PNG after saving it")
     args = parser.parse_args()
 
-    if args.tolerance < 0 or args.absolute_tolerance < 0:
-        parser.error("tolerances must be nonnegative")
-
     try:
+        recorded_tolerances = read_solver_tolerances(args.log)
         history = read_history(args.log)
     except (OSError, ValueError) as error:
         parser.error(str(error))
+
+    recorded_tolerance, recorded_absolute = recorded_tolerances or (1e-11, 1e-14)
+    tolerance = recorded_tolerance if args.tolerance is None else args.tolerance
+    absolute_tolerance = (recorded_absolute if args.absolute_tolerance is None
+                          else args.absolute_tolerance)
+    if (not math.isfinite(tolerance) or tolerance < 0 or
+            not math.isfinite(absolute_tolerance) or absolute_tolerance < 0):
+        parser.error("tolerances must be finite and nonnegative")
 
     (iterations, active_sizes, norm2_values, gaps, stable_projections,
      rank_iterations, ranks) = history
@@ -251,7 +278,7 @@ def main() -> int:
     # Per-iteration stopping threshold used by shortest_gkz:
     # absolute_tolerance + tolerance * norm2.
     thresholds = [
-        args.absolute_tolerance + args.tolerance * max(1e-300, norm2)
+        absolute_tolerance + tolerance * max(1e-300, norm2)
         for norm2 in norm2_values
     ]
 

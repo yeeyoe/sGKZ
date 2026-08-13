@@ -737,6 +737,11 @@ python3 plot_results.py build/square_k8 --z-scale 10000 --color
 python3 plot_iterations.py results/Wang_Zhou_a5.log
 ```
 
+启用 `--verbose` 时，主程序会把实际使用的 `tolerance` 和
+`absolute_tolerance` 写入日志；绘图脚本会自动读取这两个值，因此无需再次
+手工传参。若日志来自旧版本，或需要覆盖日志中的参数，可显式指定
+`--tolerance` 和 `--absolute-tolerance`。
+
 默认生成 `results/Wang_Zhou_a5_iterations.html`。图中包含两个共享 iteration
 横轴的面板：上方显示 active set 大小，下方显示 Frank--Wolfe `gap` 的对数
 坐标，并叠画实际的停机阈值曲线
