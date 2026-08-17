@@ -21,6 +21,14 @@ struct IntPoint {
   std::int64_t y = 0;
 };
 
+// 规范化后的多边形及其边界测度。null_measure_edges[i] 对应
+// vertices_ccw[i] -> vertices_ccw[(i + 1) % n]；true 表示该边 dσ = 0。
+// 空掩码表示所有边都使用标准格点测度。
+struct PolygonInput {
+  std::vector<IntPoint> vertices_ccw;
+  std::vector<bool> null_measure_edges;
+};
+
 // 有理坐标点（裁剪后的多边形顶点）。
 struct QPoint {
   Rational x;
@@ -59,9 +67,13 @@ struct BoundaryMoments {
   Rational iy = 0;
 };
 
-// 解析多边形文件：每行 "x y"，'#' 之后为注释，逗号视为空白。
-// 校验至少 3 个顶点、无回溯、弱凸且面积非零；合并共线连续顶点；
-// 顺时针输入会被反转为逆时针。非法输入抛 std::runtime_error。
+// 解析多边形文件。顶点部分每行 "x y"；可选的单独一行
+// "null measure edges" 之后，每行 "x1 y1 x2 y2" 指定一条 dσ = 0
+// 的无向边。'#' 之后为注释，逗号视为空白。零测度边必须匹配规范化后的
+// 真实边；重复或不存在的边报错。
+PolygonInput parse_polygon_input_file(const std::filesystem::path& path);
+
+// 只返回规范化顶点的兼容接口；忽略文件中的零测度边信息。
 std::vector<IntPoint> parse_polygon_file(const std::filesystem::path& path);
 
 // 对内存中的顶点做同样的校验与 CCW 归一化。
@@ -73,23 +85,28 @@ DMoments polygon_moments_double(const std::vector<DPoint>& vertices_ccw);
 
 // 边界格点测度矩。边 p->q 的格点长度 g = gcd(|dx|,|dy|)，
 // 仿射 h 在该边上 ∫ h dσ = g (h(p)+h(q))/2。
-BoundaryMoments boundary_moments(const std::vector<IntPoint>& vertices_ccw);
+BoundaryMoments boundary_moments(
+    const std::vector<IntPoint>& vertices_ccw,
+    const std::vector<bool>& null_measure_edges = {});
 
 // ell_P(x,y) = coefficients[0] + coefficients[1] x + coefficients[2] y，
 // 精确满足：对所有仿射 h，∫_{∂P} h dσ = ∫_P h ell_P dx。
 std::array<Rational, 3> compute_ell_p(
-    const std::vector<IntPoint>& vertices_ccw);
+    const std::vector<IntPoint>& vertices_ccw,
+    const std::vector<bool>& null_measure_edges = {});
 
 // M_ℓ(max{a x + b y + c, 0}) 的精确值。
 Rational df_simple_exact(const std::vector<IntPoint>& vertices_ccw,
                          const std::array<Rational, 3>& ell,
                          const Rational& a, const Rational& b,
-                         const Rational& c);
+                         const Rational& c,
+                         const std::vector<bool>& null_measure_edges = {});
 
 // M_ℓ(max{a x + b y + c, 0}) 的 double 值（搜索用）。
 double df_simple_double(const std::vector<IntPoint>& vertices_ccw,
                         const std::array<double, 3>& ell, double a, double b,
-                        double c);
+                        double c,
+                        const std::vector<bool>& null_measure_edges = {});
 
 struct SearchOptions {
   int theta_steps = 720;   // [0, 2π) 上均匀方向数
@@ -116,7 +133,8 @@ struct SearchResult {
 
 SearchResult search_witness(const std::vector<IntPoint>& vertices_ccw,
                             const std::array<Rational, 3>& ell,
-                            const SearchOptions& options);
+                            const SearchOptions& options,
+                            const std::vector<bool>& null_measure_edges = {});
 
 struct CertifyResult {
   bool certified = false;
@@ -129,7 +147,8 @@ struct CertifyResult {
 CertifyResult certify_witness(const std::vector<IntPoint>& vertices_ccw,
                               const std::array<Rational, 3>& ell,
                               const Witness& witness,
-                              std::int64_t max_denominator);
+                              std::int64_t max_denominator,
+                              const std::vector<bool>& null_measure_edges = {});
 
 // 连分数有理逼近：返回分母不超过 cap 的最佳逼近。
 Rational approximate_rational(double value, std::int64_t cap);

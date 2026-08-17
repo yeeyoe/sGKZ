@@ -62,6 +62,11 @@ if(BUILD_TESTING)
     PASS_REGULAR_EXPRESSION "M_l=1/4")
 
   add_test(
+    NAME k_stability_cli_square_bottom_null_measure
+    COMMAND /bin/sh -c "$<TARGET_FILE:k_stability> --polygon ${CMAKE_SOURCE_DIR}/examples/unit_square_bottom_null_measure.polygon --check-line '1 0 -1/2' > ${CMAKE_CURRENT_BINARY_DIR}/square_bottom_null.out 2>&1 && grep -q 'boundary_length_dsigma=3' ${CMAKE_CURRENT_BINARY_DIR}/square_bottom_null.out && grep -q 'null_measure_edge_count=1' ${CMAKE_CURRENT_BINARY_DIR}/square_bottom_null.out && grep -q 'ell_P(x,y) = 0 + (0) x + (6) y' ${CMAKE_CURRENT_BINARY_DIR}/square_bottom_null.out && grep -q 'M_l=1/4' ${CMAKE_CURRENT_BINARY_DIR}/square_bottom_null.out"
+  )
+
+  add_test(
     NAME k_stability_cli_square_svg
     COMMAND /bin/sh -c "$<TARGET_FILE:k_stability> --polygon ${CMAKE_SOURCE_DIR}/examples/unit_square.polygon --svg ${CMAKE_CURRENT_BINARY_DIR}/unit_square.svg > /dev/null 2>&1; rc=$?; test $rc -eq 2 && grep -q '</svg>' ${CMAKE_CURRENT_BINARY_DIR}/unit_square.svg"
   )

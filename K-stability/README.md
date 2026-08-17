@@ -39,6 +39,26 @@ $$
 $\int_{p q}h\,\mathrm{d}\sigma=\gcd(|\Delta x|,|\Delta y|)\,\frac{h(p)+h(q)}2$。
 程序用 `CGAL::Gmpq` 以 Cramer 法则精确求解，输出分数形式的 $\ell_P$。
 
+### 零边界测度边
+
+多边形文件可在顶点列表后加入单独一行精确文本 `null measure edges`；其后
+每个非空、非注释行有四个整数 `x1 y1 x2 y2`，表示端点为该两点的边取
+$\mathrm{d}\sigma=0$：
+
+```text
+0 0
+1 0
+1 1
+0 1
+null measure edges
+0 0 1 0
+```
+
+端点顺序不限，但每一项必须无歧义地匹配规范化后的真实多边形边；重复边、
+不存在的边以及共线顶点合并后不再存在的子边都会报错。零测度边会同时影响
+moment 条件、$\ell_P$、$M_\ell$ 求值、数值搜索、精确认证和归一化。省略该
+区段或令其为空时，行为与原先完全相同。
+
 手算基准（回归测试冻结）：
 
 | 多边形 | $\ell_P$ |
@@ -93,7 +113,7 @@ k_stability --polygon FILE [options]
 
 | 参数 | 默认值 | 含义 |
 | --- | ---: | --- |
-| `--polygon FILE` | 必选 | 格点多边形顶点文件（每行 `x y`，`#` 注释，逗号视为空白；顺时针输入自动反转）。 |
+| `--polygon FILE` | 必选 | 格点多边形顶点文件（每行 `x y`，`#` 注释，逗号视为空白；顺时针输入自动反转；可追加 `null measure edges` 区段）。 |
 | `--theta-steps N` | `720` | 折痕方向数。 |
 | `--t-steps N` | `512` | 每方向偏移采样数。 |
 | `--no-refine` | 关 | 跳过局部细化。 |
@@ -120,6 +140,7 @@ k_stability --polygon FILE [options]
 | --- | --- |
 | `vertices` / `twice_area` | 顶点数 / 二倍面积。 |
 | `boundary_length_dsigma` | $|\partial P|_{\mathrm{d}\sigma}$，精确有理数。 |
+| `null_measure_edge_count` | 取 $\mathrm{d}\sigma=0$ 的规范化多边形边数。 |
 | `ell_P(x,y)` | $\ell_P$ 的精确分数系数。 |
 | `ell_P_constant` | $\ell_P$ 是否为常数。 |
 | `search_evaluations` | $M_\ell$ 求值次数。 |

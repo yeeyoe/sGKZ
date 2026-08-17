@@ -51,6 +51,10 @@ std::vector<IntPoint> trapezoid() {
   return {{0, 0}, {2, 0}, {1, 1}, {0, 1}};
 }
 
+std::vector<bool> square_bottom_null_measure() {
+  return {true, false, false, false};
+}
+
 void test_ell_p_exact() {
   // 单位正方形：ell_P ≡ 4
   {
@@ -123,6 +127,79 @@ void test_boundary_moments() {
   // 正方形 ∫_{∂P} x dσ = 2（右边贡献 1，上下边各 1/2）
   require(kstab::boundary_moments(unit_square()).ix == 2,
           "unit square boundary ∫x");
+
+  const auto bottom_null =
+      kstab::boundary_moments(unit_square(), square_bottom_null_measure());
+  require(bottom_null.length == 3, "bottom-null square boundary length");
+  require(bottom_null.ix == make_rational(3, 2),
+          "bottom-null square boundary ∫x");
+  require(bottom_null.iy == 2, "bottom-null square boundary ∫y");
+}
+
+void test_null_measure_ell_and_df() {
+  const auto vertices = unit_square();
+  const auto null_edges = square_bottom_null_measure();
+  const auto ell = kstab::compute_ell_p(vertices, null_edges);
+  require(ell[0] == 0 && ell[1] == 0 && ell[2] == 6,
+          "bottom-null unit square ell_P should be 6y");
+
+  // h = 1, x, y 在单位正方形上非负，故 max(h, 0) = h；这些精确
+  // M_ell 值同时检验了修改后的 moment 条件及精确边界积分路径。
+  const Rational affine_h[][3] = {
+      {Rational(0), Rational(0), Rational(1)},
+      {Rational(1), Rational(0), Rational(0)},
+      {Rational(0), Rational(1), Rational(0)},
+  };
+  for (const auto& h : affine_h) {
+    require(kstab::df_simple_exact(vertices, ell, h[0], h[1], h[2],
+                                   null_edges) == 0,
+            "null-measure ell_P must satisfy affine moments");
+  }
+
+  const Rational exact = kstab::df_simple_exact(
+      vertices, ell, Rational(1), Rational(0), make_rational(-1, 2),
+      null_edges);
+  require(exact == make_rational(1, 4),
+          "bottom-null unit square M_l(max{x-1/2,0})");
+  const double numeric = kstab::df_simple_double(
+      vertices, kstab::ell_to_double(ell), 1.0, 0.0, -0.5, null_edges);
+  require_close(numeric, kstab::rational_to_double(exact), 1e-12,
+                "null-measure exact/double M_l consistency");
+
+  kstab::SearchOptions options;
+  options.theta_steps = 32;
+  options.t_steps = 32;
+  const kstab::SearchResult result =
+      kstab::search_witness(vertices, ell, options, null_edges);
+  require_close(result.normalization, 18.0 * std::sqrt(2.0), 1e-12,
+                "search normalization must use effective boundary length");
+
+  const std::array<Rational, 3> fake_ell = {Rational(12), Rational(0),
+                                             Rational(0)};
+  const kstab::SearchResult fake_result =
+      kstab::search_witness(vertices, fake_ell, options, null_edges);
+  require(fake_result.unstable,
+          "null-measure search must retain negative fake-ell witness");
+  const kstab::CertifyResult certification = kstab::certify_witness(
+      vertices, fake_ell, fake_result.witness, 1000000, null_edges);
+  require(certification.certified && certification.value < 0,
+          "null-measure certification must use the modified boundary measure");
+}
+
+void test_all_null_measure() {
+  const auto vertices = unit_square();
+  const std::vector<bool> null_edges(vertices.size(), true);
+  const auto ell = kstab::compute_ell_p(vertices, null_edges);
+  require(ell[0] == 0 && ell[1] == 0 && ell[2] == 0,
+          "all-null boundary should give ell_P = 0");
+  kstab::SearchOptions options;
+  options.theta_steps = 16;
+  options.t_steps = 16;
+  const kstab::SearchResult result =
+      kstab::search_witness(vertices, ell, options, null_edges);
+  require(std::isfinite(result.witness.value) &&
+              std::isfinite(result.witness.normalized),
+          "all-null boundary search must remain finite");
 }
 
 void test_defining_property() {
@@ -225,6 +302,63 @@ void test_parser() {
   require(merged.size() == 4, "collinear vertex should be merged");
   require(kstab::boundary_moments(merged).length == 5,
           "merged polygon boundary length preserved");
+
+  const std::filesystem::path valid_path =
+      std::filesystem::temp_directory_path() / "kstab_null_measure_valid.txt";
+  {
+    std::ofstream file(valid_path);
+    file << "0 0\n0 1\n1 1\n1 0\n"
+         << "null measure edges\n1 0 0 0\n";
+  }
+  const kstab::PolygonInput parsed = kstab::parse_polygon_input_file(valid_path);
+  require(parsed.vertices_ccw.size() == unit_square().size(),
+          "clockwise file should preserve vertex count");
+  std::size_t bottom_edge = parsed.vertices_ccw.size();
+  for (std::size_t i = 0; i < parsed.vertices_ccw.size(); ++i) {
+    const auto& p = parsed.vertices_ccw[i];
+    const auto& q = parsed.vertices_ccw[(i + 1) % parsed.vertices_ccw.size()];
+    if (p.y == 0 && q.y == 0) {
+      bottom_edge = i;
+      break;
+    }
+  }
+  require(bottom_edge != parsed.vertices_ccw.size() &&
+              parsed.null_measure_edges[bottom_edge],
+          "reversed null-measure endpoints should match bottom edge");
+  std::filesystem::remove(valid_path);
+
+  const auto expect_parse_error = [](const std::string& name,
+                                     const std::string& content) {
+    const std::filesystem::path path =
+        std::filesystem::temp_directory_path() / name;
+    {
+      std::ofstream file(path);
+      file << content;
+    }
+    bool threw = false;
+    try {
+      (void)kstab::parse_polygon_input_file(path);
+    } catch (const std::runtime_error&) {
+      threw = true;
+    }
+    std::filesystem::remove(path);
+    require(threw, "invalid null-measure input must fail");
+  };
+  expect_parse_error("kstab_null_measure_duplicate.txt",
+                     "0 0\n1 0\n1 1\n0 1\nnull measure edges\n"
+                     "0 0 1 0\n1 0 0 0\n");
+  expect_parse_error("kstab_null_measure_unknown.txt",
+                     "0 0\n1 0\n1 1\n0 1\nnull measure edges\n"
+                     "0 0 1 1\n");
+  expect_parse_error("kstab_null_measure_fields.txt",
+                     "0 0\n1 0\n1 1\n0 1\nnull measure edges\n"
+                     "0 0 1\n");
+  expect_parse_error("kstab_null_measure_marker.txt",
+                     "0 0\n1 0\n1 1\n0 1\nnull measure edges\n"
+                     "null measure edges\n");
+  expect_parse_error("kstab_null_measure_collinear.txt",
+                     "0 0\n1 0\n2 0\n2 1\n0 1\nnull measure edges\n"
+                     "0 0 1 0\n");
 
   // 非凸输入报错
   bool thrown = false;
@@ -384,6 +518,8 @@ int main() {
       {"ell_p_exact", test_ell_p_exact},
       {"polygon_moments", test_polygon_moments},
       {"boundary_moments", test_boundary_moments},
+      {"null_measure_ell_and_df", test_null_measure_ell_and_df},
+      {"all_null_measure", test_all_null_measure},
       {"defining_property", test_defining_property},
       {"unit_square_hand_computed", test_unit_square_hand_computed},
       {"out_of_range_zero", test_out_of_range_zero},

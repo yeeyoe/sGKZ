@@ -75,6 +75,24 @@ std::int64_t edge_lattice_length(const IntPoint& p, const IntPoint& q) {
   return std::gcd<std::int64_t>(p.x - q.x, p.y - q.y);
 }
 
+bool same_point(const IntPoint& lhs, const IntPoint& rhs) {
+  return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+void validate_measure_mask(const std::vector<IntPoint>& vertices,
+                           const std::vector<bool>& null_measure_edges) {
+  if (!null_measure_edges.empty() &&
+      null_measure_edges.size() != vertices.size()) {
+    throw std::invalid_argument(
+        "null_measure_edges must be empty or have one entry per polygon edge.");
+  }
+}
+
+bool edge_has_null_measure(const std::vector<bool>& null_measure_edges,
+                           std::size_t index) {
+  return !null_measure_edges.empty() && null_measure_edges[index];
+}
+
 // 3x3 行列式，按第一行展开。
 Rational det3(const std::array<std::array<Rational, 3>, 3>& m) {
   return m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
@@ -165,6 +183,7 @@ std::vector<DPoint> clip_halfplane_double(const std::vector<DPoint>& polygon,
 struct PreparedPolygon {
   std::vector<DPoint> vertices;         // 平移后的顶点
   std::vector<std::int64_t> gcds;       // 每条边的格点长度（平移不变）
+  std::vector<bool> null_measure_edges; // true 表示该边 dσ = 0
   std::array<double, 3> ell;            // 平移后的 ell_P
   double boundary_length = 0.0;         // |∂P|_{dσ}
 };
@@ -200,6 +219,9 @@ double df_prepared(const PreparedPolygon& prepared, double a, double b,
     }
   }
   for (std::size_t i = 0; i < n; ++i) {
+    if (edge_has_null_measure(prepared.null_measure_edges, i)) {
+      continue;
+    }
     const double sp = values[i];
     const double sq = values[(i + 1) % n];
     if (sp <= 0.0 && sq <= 0.0) {
@@ -259,7 +281,9 @@ std::pair<double, double> golden_minimize(F&& function, double lo, double hi,
 
 PreparedPolygon prepare_polygon(const std::vector<IntPoint>& vertices,
                                 const std::array<double, 3>& ell,
-                                double shift_x, double shift_y) {
+                                double shift_x, double shift_y,
+                                const std::vector<bool>& null_measure_edges) {
+  validate_measure_mask(vertices, null_measure_edges);
   PreparedPolygon prepared;
   prepared.vertices.reserve(vertices.size());
   for (const IntPoint& vertex : vertices) {
@@ -267,12 +291,15 @@ PreparedPolygon prepare_polygon(const std::vector<IntPoint>& vertices,
                                  static_cast<double>(vertex.y) - shift_y});
   }
   prepared.gcds.reserve(vertices.size());
+  prepared.null_measure_edges = null_measure_edges;
   double boundary = 0.0;
   for (std::size_t i = 0; i < vertices.size(); ++i) {
     const std::int64_t g =
         edge_lattice_length(vertices[i], vertices[(i + 1) % vertices.size()]);
     prepared.gcds.push_back(g);
-    boundary += static_cast<double>(g);
+    if (!edge_has_null_measure(null_measure_edges, i)) {
+      boundary += static_cast<double>(g);
+    }
   }
   prepared.ell = {ell[0] + ell[1] * shift_x + ell[2] * shift_y, ell[1],
                   ell[2]};
@@ -408,12 +435,18 @@ std::vector<IntPoint> normalize_polygon(std::vector<IntPoint> vertices) {
   return vertices;
 }
 
-std::vector<IntPoint> parse_polygon_file(const std::filesystem::path& path) {
+PolygonInput parse_polygon_input_file(const std::filesystem::path& path) {
   std::ifstream input(path);
   if (!input) {
     throw std::runtime_error("Cannot open polygon file: " + path.string());
   }
   std::vector<IntPoint> vertices;
+  struct EdgeEndpoints {
+    IntPoint first;
+    IntPoint second;
+  };
+  std::vector<EdgeEndpoints> requested_null_edges;
+  bool in_null_measure_section = false;
   std::string line;
   std::int64_t line_number = 0;
   while (std::getline(input, line)) {
@@ -422,25 +455,77 @@ std::vector<IntPoint> parse_polygon_file(const std::filesystem::path& path) {
       line.erase(comment);
     }
     std::replace(line.begin(), line.end(), ',', ' ');
-    std::istringstream parser(line);
-    long long x = 0;
-    long long y = 0;
-    if (!(parser >> x)) {
+    const auto first = line.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) {
       continue;
     }
-    if (!(parser >> y)) {
-      throw std::runtime_error("Missing y coordinate at " + path.string() +
-                               ":" + std::to_string(line_number));
+    const auto last = line.find_last_not_of(" \t\r\n");
+    const std::string trimmed = line.substr(first, last - first + 1);
+    if (trimmed == "null measure edges") {
+      if (in_null_measure_section) {
+        throw std::runtime_error("Duplicate null measure edges marker at " +
+                                 path.string() + ":" +
+                                 std::to_string(line_number));
+      }
+      in_null_measure_section = true;
+      continue;
+    }
+    std::istringstream parser(line);
+    long long coordinates[4] = {};
+    const int expected_fields = in_null_measure_section ? 4 : 2;
+    for (int i = 0; i < expected_fields; ++i) {
+      if (!(parser >> coordinates[i])) {
+        throw std::runtime_error("Expected " + std::to_string(expected_fields) +
+                                 " integer coordinates at " + path.string() +
+                                 ":" + std::to_string(line_number));
+      }
     }
     std::string extra;
     if (parser >> extra) {
-      throw std::runtime_error("Unexpected third field at " + path.string() +
+      throw std::runtime_error("Unexpected extra field at " + path.string() +
                                ":" + std::to_string(line_number));
     }
-    vertices.push_back({static_cast<std::int64_t>(x),
-                        static_cast<std::int64_t>(y)});
+    if (in_null_measure_section) {
+      requested_null_edges.push_back(
+          {{static_cast<std::int64_t>(coordinates[0]),
+            static_cast<std::int64_t>(coordinates[1])},
+           {static_cast<std::int64_t>(coordinates[2]),
+            static_cast<std::int64_t>(coordinates[3])}});
+    } else {
+      vertices.push_back({static_cast<std::int64_t>(coordinates[0]),
+                          static_cast<std::int64_t>(coordinates[1])});
+    }
   }
-  return normalize_polygon(std::move(vertices));
+  PolygonInput result;
+  result.vertices_ccw = normalize_polygon(std::move(vertices));
+  result.null_measure_edges.assign(result.vertices_ccw.size(), false);
+  for (const EdgeEndpoints& requested : requested_null_edges) {
+    std::size_t matched = result.vertices_ccw.size();
+    for (std::size_t i = 0; i < result.vertices_ccw.size(); ++i) {
+      const IntPoint& p = result.vertices_ccw[i];
+      const IntPoint& q =
+          result.vertices_ccw[(i + 1) % result.vertices_ccw.size()];
+      if ((same_point(requested.first, p) && same_point(requested.second, q)) ||
+          (same_point(requested.first, q) && same_point(requested.second, p))) {
+        matched = i;
+        break;
+      }
+    }
+    if (matched == result.vertices_ccw.size()) {
+      throw std::runtime_error("Null-measure edge at " + path.string() +
+                               " does not match a normalized polygon edge.");
+    }
+    if (result.null_measure_edges[matched]) {
+      throw std::runtime_error("Duplicate null-measure edge at " +
+                               path.string());
+    }
+    result.null_measure_edges[matched] = true;
+  }
+  return result;
+}
+
+std::vector<IntPoint> parse_polygon_file(const std::filesystem::path& path) {
+  return parse_polygon_input_file(path).vertices_ccw;
 }
 
 Moments polygon_moments(const std::vector<QPoint>& vertices_ccw) {
@@ -482,10 +567,15 @@ DMoments polygon_moments_double(const std::vector<DPoint>& vertices_ccw) {
 }
 
 BoundaryMoments boundary_moments(
-    const std::vector<IntPoint>& vertices_ccw) {
+    const std::vector<IntPoint>& vertices_ccw,
+    const std::vector<bool>& null_measure_edges) {
+  validate_measure_mask(vertices_ccw, null_measure_edges);
   BoundaryMoments moments;
   const std::size_t n = vertices_ccw.size();
   for (std::size_t i = 0; i < n; ++i) {
+    if (edge_has_null_measure(null_measure_edges, i)) {
+      continue;
+    }
     const IntPoint& p = vertices_ccw[i];
     const IntPoint& q = vertices_ccw[(i + 1) % n];
     const Rational g = rat64(edge_lattice_length(p, q));
@@ -497,14 +587,16 @@ BoundaryMoments boundary_moments(
 }
 
 std::array<Rational, 3> compute_ell_p(
-    const std::vector<IntPoint>& vertices_ccw) {
+    const std::vector<IntPoint>& vertices_ccw,
+    const std::vector<bool>& null_measure_edges) {
   std::vector<QPoint> rational_vertices;
   rational_vertices.reserve(vertices_ccw.size());
   for (const IntPoint& vertex : vertices_ccw) {
     rational_vertices.push_back({rat64(vertex.x), rat64(vertex.y)});
   }
   const Moments moments = polygon_moments(rational_vertices);
-  const BoundaryMoments boundary = boundary_moments(vertices_ccw);
+  const BoundaryMoments boundary =
+      boundary_moments(vertices_ccw, null_measure_edges);
   return solve3({{{moments.area, moments.ix, moments.iy},
                   {moments.ix, moments.ixx, moments.ixy},
                   {moments.iy, moments.ixy, moments.iyy}}},
@@ -514,7 +606,9 @@ std::array<Rational, 3> compute_ell_p(
 Rational df_simple_exact(const std::vector<IntPoint>& vertices_ccw,
                          const std::array<Rational, 3>& ell,
                          const Rational& a, const Rational& b,
-                         const Rational& c) {
+                         const Rational& c,
+                         const std::vector<bool>& null_measure_edges) {
+  validate_measure_mask(vertices_ccw, null_measure_edges);
   std::vector<QPoint> polygon;
   polygon.reserve(vertices_ccw.size());
   for (const IntPoint& vertex : vertices_ccw) {
@@ -531,6 +625,9 @@ Rational df_simple_exact(const std::vector<IntPoint>& vertices_ccw,
   Rational boundary = 0;
   const std::size_t n = vertices_ccw.size();
   for (std::size_t i = 0; i < n; ++i) {
+    if (edge_has_null_measure(null_measure_edges, i)) {
+      continue;
+    }
     const IntPoint& p = vertices_ccw[i];
     const IntPoint& q = vertices_ccw[(i + 1) % n];
     const Rational sp = a * rat64(p.x) + b * rat64(p.y) + c;
@@ -555,7 +652,8 @@ Rational df_simple_exact(const std::vector<IntPoint>& vertices_ccw,
 
 double df_simple_double(const std::vector<IntPoint>& vertices_ccw,
                         const std::array<double, 3>& ell, double a, double b,
-                        double c) {
+                        double c,
+                        const std::vector<bool>& null_measure_edges) {
   double shift_x = 0.0;
   double shift_y = 0.0;
   if (!vertices_ccw.empty()) {
@@ -569,7 +667,8 @@ double df_simple_double(const std::vector<IntPoint>& vertices_ccw,
     shift_y = static_cast<double>(min_y);
   }
   const PreparedPolygon prepared =
-      prepare_polygon(vertices_ccw, ell, shift_x, shift_y);
+      prepare_polygon(vertices_ccw, ell, shift_x, shift_y,
+                      null_measure_edges);
   return df_prepared(prepared, a, b, c + a * shift_x + b * shift_y, nullptr);
 }
 
@@ -626,7 +725,8 @@ Rational approximate_rational(double value, std::int64_t cap) {
 
 SearchResult search_witness(const std::vector<IntPoint>& vertices_ccw,
                             const std::array<Rational, 3>& ell,
-                            const SearchOptions& options) {
+                            const SearchOptions& options,
+                            const std::vector<bool>& null_measure_edges) {
   double min_x = static_cast<double>(vertices_ccw.front().x);
   double min_y = static_cast<double>(vertices_ccw.front().y);
   for (const IntPoint& vertex : vertices_ccw) {
@@ -635,7 +735,8 @@ SearchResult search_witness(const std::vector<IntPoint>& vertices_ccw,
   }
   const auto ell_d = ell_to_double(ell);
   const PreparedPolygon prepared =
-      prepare_polygon(vertices_ccw, ell_d, min_x, min_y);
+      prepare_polygon(vertices_ccw, ell_d, min_x, min_y,
+                      null_measure_edges);
 
   // 归一化除数：|∂P| · sup|ell_P| · diam。
   double sup_ell = 0.0;
@@ -861,7 +962,8 @@ SearchResult search_witness(const std::vector<IntPoint>& vertices_ccw,
 CertifyResult certify_witness(const std::vector<IntPoint>& vertices_ccw,
                               const std::array<Rational, 3>& ell,
                               const Witness& witness,
-                              std::int64_t max_denominator) {
+                              std::int64_t max_denominator,
+                              const std::vector<bool>& null_measure_edges) {
   CertifyResult result;
   const double target_a = witness.ux;
   const double target_b = witness.uy;
@@ -871,7 +973,7 @@ CertifyResult certify_witness(const std::vector<IntPoint>& vertices_ccw,
     const Rational b = approximate_rational(target_b, cap);
     const Rational c = approximate_rational(target_c, cap);
     const Rational value =
-        df_simple_exact(vertices_ccw, ell, a, b, c);
+        df_simple_exact(vertices_ccw, ell, a, b, c, null_measure_edges);
     if (value < 0) {
       result.certified = true;
       result.coefficients = {a, b, c};

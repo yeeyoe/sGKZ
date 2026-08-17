@@ -6,6 +6,7 @@
 
 #include <CGAL/Gmpz.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <filesystem>
@@ -39,6 +40,8 @@ void print_usage(std::ostream& stream) {
       << "  --certify-max-denom N  Denominator cap for certification.\n"
       << "  --svg FILE             Write polygon + witness crease SVG.\n"
       << "  --check-line \"a b c\"   Evaluate M_l(max{a x + b y + c, 0}).\n"
+      << "  Polygon files may end with a 'null measure edges' section; each\n"
+      << "  following line 'x1 y1 x2 y2' sets that polygon edge's dσ to zero.\n"
       << "  --verbose              Print per-direction minima.\n"
       << "  --help                 Show this message.\n";
 }
@@ -135,10 +138,12 @@ int main(int argc, char** argv) {
   }
 
   try {
-    const std::vector<kstab::IntPoint> vertices =
-        kstab::parse_polygon_file(*arguments.polygon);
-    const auto ell = kstab::compute_ell_p(vertices);
-    const auto boundary = kstab::boundary_moments(vertices);
+    const kstab::PolygonInput polygon =
+        kstab::parse_polygon_input_file(*arguments.polygon);
+    const std::vector<kstab::IntPoint>& vertices = polygon.vertices_ccw;
+    const auto ell = kstab::compute_ell_p(vertices, polygon.null_measure_edges);
+    const auto boundary =
+        kstab::boundary_moments(vertices, polygon.null_measure_edges);
 
     __int128_t twice_area = 0;
     for (std::size_t i = 0; i < vertices.size(); ++i) {
@@ -168,6 +173,10 @@ int main(int argc, char** argv) {
     std::cout << "twice_area=" << twice_area_stream.str() << '\n';
     std::cout << "boundary_length_dsigma=" << rational_string(boundary.length)
               << '\n';
+    std::cout << "null_measure_edge_count="
+              << std::count(polygon.null_measure_edges.begin(),
+                            polygon.null_measure_edges.end(), true)
+              << '\n';
     std::cout << "ell_P(x,y) = " << rational_string(ell[0]) << " + ("
               << rational_string(ell[1]) << ") x + ("
               << rational_string(ell[2]) << ") y\n";
@@ -187,13 +196,15 @@ int main(int argc, char** argv) {
       const kstab::Rational c = parse_coefficient(tokens[2], exact);
       if (exact) {
         const kstab::Rational value =
-            kstab::df_simple_exact(vertices, ell, a, b, c);
+            kstab::df_simple_exact(vertices, ell, a, b, c,
+                                   polygon.null_measure_edges);
         std::cout << "check_line_exact=true\n";
         std::cout << "M_l=" << rational_string(value) << '\n';
       } else {
         const double value = kstab::df_simple_double(
             vertices, kstab::ell_to_double(ell), kstab::rational_to_double(a),
-            kstab::rational_to_double(b), kstab::rational_to_double(c));
+            kstab::rational_to_double(b), kstab::rational_to_double(c),
+            polygon.null_measure_edges);
         std::cout << "check_line_exact=false\n";
         std::cout << "M_l=" << std::setprecision(17) << value << '\n';
       }
@@ -201,7 +212,8 @@ int main(int argc, char** argv) {
     }
 
     const kstab::SearchResult result =
-        kstab::search_witness(vertices, ell, arguments.search);
+        kstab::search_witness(vertices, ell, arguments.search,
+                              polygon.null_measure_edges);
     std::cout << std::setprecision(17);
     std::cout << "search_evaluations=" << result.evaluations << '\n';
     std::cout << "sweep_min_M_l=" << result.witness.value << '\n';
@@ -221,7 +233,8 @@ int main(int argc, char** argv) {
     bool certified = false;
     if (arguments.certify && result.unstable) {
       const kstab::CertifyResult certification = kstab::certify_witness(
-          vertices, ell, result.witness, arguments.certify_max_denom);
+          vertices, ell, result.witness, arguments.certify_max_denom,
+          polygon.null_measure_edges);
       certified = certification.certified;
       std::cout << "certified=" << certified << '\n';
       if (certified) {
