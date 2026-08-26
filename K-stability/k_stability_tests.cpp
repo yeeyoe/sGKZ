@@ -5,6 +5,7 @@
 //   梯形            (0,0),(2,0),(1,1),(0,1)  ell_P = (54-24y)/13
 
 #include "k_stability.hpp"
+#include "decompose.hpp"
 
 #include <cmath>
 #include <filesystem>
@@ -200,6 +201,87 @@ void test_all_null_measure() {
   require(std::isfinite(result.witness.value) &&
               std::isfinite(result.witness.normalized),
           "all-null boundary search must remain finite");
+}
+
+void test_measured_polygon_chord_split() {
+  const kstab::MeasuredPolygon square =
+      kstab::make_measured_polygon(unit_square());
+  // The vertical chord x=1/2 splits bottom and top edges at parameter 1/2;
+  // the new chord has measure zero and inherited edge measures are halved.
+  const auto split = kstab::split_by_chord(
+      square, 0, make_rational(1, 2), 2, make_rational(1, 2));
+  require(split.first_piece.edge_measures.back() == 0 &&
+              split.second_piece.edge_measures.back() == 0,
+          "new split chords must have zero measure");
+  require(kstab::boundary_moments(split.first_piece).length == 2 &&
+              kstab::boundary_moments(split.second_piece).length == 2,
+          "split pieces must inherit the parent boundary measure by length");
+
+  const auto first_ell = kstab::compute_ell_p(split.first_piece);
+  const auto second_ell = kstab::compute_ell_p(split.second_piece);
+  // The new chord has zero measure.  The two ell functions are affine but
+  // nonconstant, and agree at x=1/2: 10-24x and 24x-14.
+  require(first_ell[0] == -14 && first_ell[1] == 24 && first_ell[2] == 0 &&
+              second_ell[0] == 10 && second_ell[1] == -24 && second_ell[2] == 0,
+          "symmetric split pieces should have the expected affine ell functions");
+  require(first_ell[0] + first_ell[1] * split.first.x +
+              first_ell[2] * split.first.y ==
+              second_ell[0] + second_ell[1] * split.first.x +
+              second_ell[2] * split.first.y &&
+              first_ell[0] + first_ell[1] * split.second.x +
+              first_ell[2] * split.second.y ==
+              second_ell[0] + second_ell[1] * split.second.x +
+              second_ell[2] * split.second.y,
+          "equal affine functions agree on the entire chord");
+
+  const Rational affine[][3] = {
+      {Rational(1), Rational(0), Rational(0)},
+      {Rational(0), Rational(1), Rational(0)},
+      {Rational(1), Rational(1), Rational(1)},
+  };
+  for (const auto& h : affine) {
+    require(kstab::df_simple_exact(split.first_piece, first_ell, h[0], h[1], h[2]) == 0 &&
+                kstab::df_simple_exact(split.second_piece, second_ell, h[0], h[1], h[2]) == 0,
+            "piece ell functions must satisfy the inherited affine moments");
+  }
+}
+
+void test_tree_topology_contract() {
+  // One chord is the I=0 tree: two boundary leaves joined by one edge.
+  kstab::DecompositionTreeTopology chord;
+  chord.nodes = {
+      {kstab::DecompositionNodeKind::boundary_leaf, 0, std::nullopt, {}},
+      {kstab::DecompositionNodeKind::boundary_leaf, 2, std::nullopt, {}},
+  };
+  chord.edges = {{0, 1}};
+  const auto chord_summary = kstab::validate_tree_topology(chord, 4);
+  require(chord_summary.interior_nodes == 0 && chord_summary.boundary_leaves == 2 &&
+              chord_summary.free_variables == 2 && chord_summary.continuity_equations == 2,
+          "one chord should have two variables and two continuity equations");
+
+  // A trivalent center has three boundary leaves, five free geometry variables,
+  // and five continuity equations.
+  kstab::DecompositionTreeTopology tripod;
+  tripod.nodes = {
+      {kstab::DecompositionNodeKind::interior, std::nullopt, std::nullopt, {0, 1, 2}},
+      {kstab::DecompositionNodeKind::boundary_leaf, 0, std::nullopt, {}},
+      {kstab::DecompositionNodeKind::boundary_leaf, 1, std::nullopt, {}},
+      {kstab::DecompositionNodeKind::boundary_leaf, 2, std::nullopt, {}},
+  };
+  tripod.edges = {{0, 1}, {0, 2}, {0, 3}};
+  const auto tripod_summary = kstab::validate_tree_topology(tripod, 4);
+  require(tripod_summary.interior_nodes == 1 && tripod_summary.boundary_leaves == 3 &&
+              tripod_summary.free_variables == 5 && tripod_summary.continuity_equations == 5,
+          "trivalent tree count must be 3I+2");
+
+  tripod.nodes[0].cyclic_edges = {0, 1};
+  bool threw = false;
+  try {
+    (void)kstab::validate_tree_topology(tripod, 4);
+  } catch (const std::invalid_argument&) {
+    threw = true;
+  }
+  require(threw, "invalid interior cyclic order must fail");
 }
 
 void test_defining_property() {
@@ -520,6 +602,8 @@ int main() {
       {"boundary_moments", test_boundary_moments},
       {"null_measure_ell_and_df", test_null_measure_ell_and_df},
       {"all_null_measure", test_all_null_measure},
+      {"measured_polygon_chord_split", test_measured_polygon_chord_split},
+      {"tree_topology_contract", test_tree_topology_contract},
       {"defining_property", test_defining_property},
       {"unit_square_hand_computed", test_unit_square_hand_computed},
       {"out_of_range_zero", test_out_of_range_zero},

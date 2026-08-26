@@ -152,6 +152,119 @@ k_stability --polygon FILE [options]
 退出码：`0` 找到（且若要求则已认证）witness；`2` 未发现反例或认证失败；
 `1` 参数/输入/运行错误。
 
+## 单割线分解搜索
+
+`k_stability_decompose` 用于探索 Székelyhidi optimal test function 的两片
+分解。第一版只寻找一条 chord（两端均在原多边形边界上）的分解；它不枚举多个
+内部节点或多个割边。
+
+设 chord 的两个端点为 $U,V$，切分得到 $Q_1,Q_2$。原多边形的每段外边界
+继承原边上的 $\mathrm{d}\sigma$ 密度：若端点将一条原边按参数 $s$ 切开，则
+该段边界测度长度为原长度的相应比例。输入文件 `null measure edges` 中已有的
+零测度边也继续为零。新增 chord $UV$ 在两片中均取
+$\mathrm{d}\sigma|_{UV}=0$。
+
+程序对每个切分精确计算
+
+$$
+\ell_{Q_1}(x,y),\qquad \ell_{Q_2}(x,y),
+$$
+
+并求解连续性条件
+
+$$
+(\ell_{Q_1}-\ell_{Q_2})(U)=0,
+\qquad
+(\ell_{Q_1}-\ell_{Q_2})(V)=0.
+$$
+
+由于两者之差是 affine 函数，这两个端点条件等价于两片的 $\ell$ 在整条 chord
+上相等。工具还检查其拼接函数在 chord 两侧的局部凹性；只有连续、凹、且两片
+都没有在现有 simple-convex 扫描中找到负 witness 的候选才会输出。
+
+运行前，父多边形必须先由现有路径找到数值负 witness，且其有理 witness 认证
+成功。未认证的父不稳定性、或父多边形没有找到负 witness，都会使程序拒绝继续。
+
+### 用法
+
+```bash
+./build/K-stability/k_stability_decompose --polygon examples/d5_a74
+```
+
+提高子片扫描精度、增加根求解起点，或收紧连续性容差的例子：
+
+```bash
+./build/K-stability/k_stability_decompose \
+  --polygon examples/d5_a74 \
+  --theta-steps 1440 \
+  --t-steps 1024 \
+  --root-starts 12 \
+  --root-iterations 100 \
+  --root-tolerance 1e-12
+```
+
+### 参数
+
+| 参数 | 默认值 | 含义 |
+| --- | ---: | --- |
+| `--polygon FILE` | 必选 | 父多边形文件；接受 `k_stability` 的普通顶点格式和可选 `null measure edges` 区段。 |
+| `--theta-steps N` | `720` | 父多边形及每片 relative-K witness 扫描的方向数。 |
+| `--t-steps N` | `512` | 每个扫描方向上的偏移采样数。 |
+| `--no-refine` | 关 | 跳过父多边形 witness 搜索的局部细化。子片扫描目前使用同一 `SearchOptions`。 |
+| `--root-starts N` | `7` | 每一对非相邻边的二维连续性方程的初始点数。增大可降低遗漏不同实根的风险。 |
+| `--root-iterations N` | `60` | 每个起点的阻尼 Newton / 最小二乘迭代上限。 |
+| `--root-tolerance X` | `1e-10` | 数值连续性残差 $\sqrt{r_U^2+r_V^2}$ 的接受阈值。 |
+| `--rational-max-denom N` | `1048576` | 将数值切点参数重构为有理数时的分母上限。 |
+| `--certify-max-denom N` | `1048576` | 父不稳定 witness 有理认证的分母上限。 |
+
+返回码：`0` 表示至少找到一个通过所有数值筛选的分解候选；`2` 表示父多边形未
+通过不稳定认证，或没有找到合格分解；`1` 表示参数、输入或计算错误。
+
+### 输出
+
+标准输出采用逐行 `key=value`。在开始枚举 chord 前，程序输出父多边形状态：
+
+| 字段 | 含义 |
+| --- | --- |
+| `parent_relative_K_status` | 父多边形数值扫描状态。只有 `unstable` 才继续。 |
+| `parent_certified` | 父多边形的数值 witness 是否已通过有理精确认证。只有 `true` 才继续。 |
+| `parent_certified_M_l` | 认证 witness 的精确负相对 DF 值。 |
+| `decomposition_candidates` | 最终输出的合格 chord 候选数。 |
+
+每个候选以 `candidate=0`、`candidate=1` 等开头，随后字段为：
+
+| 字段 | 含义 |
+| --- | --- |
+| `candidate_edges=i,j` | chord 端点所在的原边编号。边 `i` 是规范化后顶点 `i` 到顶点 `(i+1) mod n`；编号从 `0` 开始。 |
+| `candidate_parameters=s,t` | 两端在其原边上的参数；端点为 $p_i+s(p_{i+1}-p_i)$ 与 $p_j+t(p_{j+1}-p_j)$。 |
+| `candidate_endpoints` | chord 的两个端点坐标；有理认证成功时输出精确分数，否则输出十进制近似。 |
+| `candidate_continuity_residual` | 两个连续性方程组成的残差范数。该值不超过 `--root-tolerance` 才会被接受。 |
+| `candidate_concave` | 两片 affine 函数按该 chord 拼接后是否通过局部凹性检查；输出候选恒为 `true`。 |
+| `candidate_certified_rational` | 切点参数是否被有理重构，并以精确有理 moment 系统重新验证连续性和凹性。 |
+| `candidate_parameters_rational` | 仅在 `candidate_certified_rational=true` 时出现的精确有理参数。 |
+
+每个候选随后有 `first_piece_*` 与 `second_piece_*` 两组字段。`first_piece` 是从
+第一个 chord 端点沿父多边形的逆时针边界走到第二个端点所得的片；另一个片为
+`second_piece`。这两个名称只是输出约定，不表示数学上的优先顺序。
+
+| 字段 | 含义 |
+| --- | --- |
+| `*_vertices` | 子多边形按逆时针顺序的顶点。最后一条边是新 chord，回到首顶点。数值候选用十进制；有理认证候选用精确分数。 |
+| `*_edge_measures` | 与 `*_vertices` 同序的每条边总 $\mathrm{d}\sigma$ 测度。最后一项对应新 chord，恒为 `0`。 |
+| `*_ell` | 在该子多边形及其继承测度下由 moment 条件唯一确定的 affine 函数。 |
+| `*_relative_K_status` | 对该片运行现有 simple-convex 扫描的结果。输出候选中均为 `no_counterexample_found`。 |
+
+`candidate_certified_rational=false` 不表示该候选错误，只表示在给定分母上限内
+未找到可精确验证的有理切点。相反，`true` 只认证 chord 几何、两片 moment
+系统、连续性和凹性；它**不**认证子片 K-semistability。所有子片的
+`no_counterexample_found` 都只是目前扫描没有发现 destabilizing simple convex
+function，不是严格的半稳定性证明。
+
+核心层还定义了后续多割线模式的 `DecompositionTreeTopology`：它验证用户给出的
+树是否连通无环、内部节点是否均为 degree 3、边界节点是否均为 degree 1，以及
+每个内部节点的循环边顺序。当前命令行只求解该模型的单割线特例；多割线的拓扑
+将由用户提供而不会自动枚举。
+
 ## 面积优先搜索
 
 `k_stability_search` 在固定顶点数 `d` 下逐步生成严格凸整点多边形。每一步只从
@@ -191,9 +304,9 @@ probe→confirm→final profile 保存 `pending`、`unverified` 或
 | --- | --- | --- |
 | `--database FILE` | `K-stability/k_stability_search.sqlite` | SQLite 状态及候选记录文件。 |
 | `--output-dir DIR` | `.` | 结果报告目录；写入 `k_stability_search_result.txt`。 |
-| `--shell-seconds SEC` | `60` | 每个 `(N,M)` 自动扩展 shell 的时间片。 |
+| `--shell-seconds SEC` | `60` | `(N,M),(N,2M) ... ` 称为一个shell. 控制每个shell 的搜索时间。 |
 | `--beam-width K` | `48` | 每批随机/beam 候选生成数量。 |
-| `--seed S` | `1` | 随机搜索种子；相同数据库会优先恢复已保存的随机状态。 |
+| `--seed S` | `1` | 作用是控制随机方向和步长采样。使用同一个新数据库、同样的参数和同一个 seed，通常可以得到可复现的随机序列。 |
 | `--stop-on-first` | 关闭 | 第一个精确认证候选出现后立即结束。默认持续搜索到时间预算耗尽。 |
 | `--smooth-only` | 关闭 | 只生成和检测每个顶点都光滑的多边形；奇异方向在采样时直接剔除。 |
 | `--certify-max-denom Q` | `1048576` | 数值 witness 有理化时的最大分母。该值改变会产生新的 detector profile。 |
