@@ -3,6 +3,9 @@
 /build-debug
 /build-ubsan
 
+# reference
+/paper
+
 # Output and generated results
 /results
 /K-stability/K-results
