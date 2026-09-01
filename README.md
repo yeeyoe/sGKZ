@@ -38,11 +38,11 @@
 本目录包含一个二维求解器，用于计算 secondary polytope 的最小模长点
 
 $$
-\sigma_A=\operatorname*{argmin}_{g\in\Sigma(A)}\|g\|.
+\sigma_A=\underset{g\in\Sigma(A)}{\mathrm{arg\,min}}\|g\|.
 $$
 
 这里 $A=(a_1,\ldots,a_N)\subset\mathbb Z^2$ 是标记整数点集，
-$Q=\operatorname{conv}(A)$，$\Sigma(A)\subset\mathbb R^N$ 是 $A$ 的
+$Q=\mathrm{conv}(A)$，$\Sigma(A)\subset\mathbb R^N$ 是 $A$ 的
 secondary polytope。程序也支持论文中的特殊点集
 
 $$
@@ -52,12 +52,12 @@ $$
 其中输入文件给出格多边形 $P$，程序负责枚举 $A_k$。
 
 对于三角剖分 $T$，本程序采用总质量归一化的 GKZ 向量。若
-$\operatorname{area2}$ 表示二倍面积，则
+$\mathrm{area2}$ 表示二倍面积，则
 
 $$
 g_T(a_i)
-=\frac{\sum_{\tau\in T,\,a_i\in\tau}\operatorname{area2}(\tau)}
-{3\operatorname{area2}(Q)}.
+=\frac{\sum_{\tau\in T,\,a_i\in\tau}\mathrm{area2}(\tau)}
+{3\mathrm{area2}(Q)}.
 $$
 
 因此 $\sum_i g_T(a_i)=1$。程序同时保存分母归一化之前的整数面积分子，
@@ -182,7 +182,7 @@ $\Sigma(A)$ 的所有顶点，也不枚举所有 regular triangulations。程序
 设当前 active set 为
 
 $$
-\mathcal V_t=\{v_1,\ldots,v_m\}\subset\operatorname{Vert}(\Sigma(A)).
+\mathcal V_t=\{v_1,\ldots,v_m\}\subset\mathrm{Vert}(\Sigma(A)).
 $$
 
 `active set` 指已经由 oracle 找到并且当前系数非零的 GKZ 向量集合，不是
@@ -200,7 +200,7 @@ $A$ 的子集。
 给定 height 向量 $h\in\mathbb R^A$，oracle 求
 
 $$
-v_h\in\operatorname*{argmin}_{v\in\Sigma(A)}\langle h,v\rangle.
+v_h\in\underset{v\in\Sigma(A)}{\mathrm{arg\,min}}\langle h,v\rangle.
 $$
 
 按照 secondary polytope 的基本性质，这等价于计算由 $h$ 诱导的 lower
@@ -226,8 +226,8 @@ CGAL 返回有限三角形后，程序自行累加每个顶点相邻三角形的
 GKZ 向量，并检查：
 
 $$
-\sum_{\tau\in T}\operatorname{area2}(\tau)
-=\operatorname{area2}(Q),
+\sum_{\tau\in T}\mathrm{area2}(\tau)
+=\mathrm{area2}(Q),
 \qquad
 \sum_i g_T(a_i)=1.
 $$
@@ -241,7 +241,7 @@ fully corrective 主循环会在后续调用中按需加入新的 GKZ 向量。
 程序先以零向量调用一次 oracle：
 
 $$
-v_1\in\operatorname*{argmin}_{v\in\Sigma(A)}\langle0,v\rangle.
+v_1\in\underset{v\in\Sigma(A)}{\mathrm{arg\,min}}\langle0,v\rangle.
 $$
 
 CGAL 在可能存在多个最优三角剖分时返回其中一个 refinement。初始化为
@@ -290,7 +290,7 @@ active set 中的所有系数；这就是 `fully corrective` 的含义。
 用当前候选点 $x_t$ 再调用 regular triangulation oracle：
 
 $$
-w_t\in\operatorname*{argmin}_{v\in\Sigma(A)}\langle x_t,v\rangle.
+w_t\in\underset{v\in\Sigma(A)}{\mathrm{arg\,min}}\langle x_t,v\rangle.
 $$
 
 定义 Frank--Wolfe gap
@@ -315,7 +315,7 @@ $$
 active GKZ 向量精确相同的向量，但 gap 仍超过停止阈值，程序将其视为
 数值 active QP 与 oracle 不一致并报错。重复判断直接比较整数面积分子，
 不使用浮点容差；同一 $A$ 下所有 GKZ 向量具有共同分母
-$3\operatorname{area2}(Q)$，所以这个判断等价于 GKZ 向量精确相等。
+$3\mathrm{area2}(Q)$，所以这个判断等价于 GKZ 向量精确相等。
 
 这个 gap 同时给出后验误差界
 
@@ -458,7 +458,7 @@ regular triangulation 调用次数的上限。
 $L_t$，不包含触发前历史顶点，也不进行周期投影或额外 oracle 调用。
 
 $$
-p=\operatorname{Proj}_{L_t}(0).
+p=\mathrm{Proj}_{L_t}(0).
 $$
 
 收集在 rank 达到二维 facet 上限 $|A|-4$，或连续
@@ -472,7 +472,7 @@ $v_p$ 一起加入 active set，只做一次 QP 校正，得到 final QP solutio
 $p\in\Sigma(A)$ 的证书。它的 lower envelope 给出
 
 $$
-\widehat\psi_k=\operatorname{area2}(P)k^3p^\vee-2k,
+\widehat\psi_k=\mathrm{area2}(P)k^3p^\vee-2k,
 $$
 
 用于观察 $-\Theta_P$ 的近似形状。若正常 FW 在收集完成前满足终止条件，或到达
@@ -513,9 +513,9 @@ python3 plot_results.py results/d5_a70_stable
 | 字段 | 含义 |
 | --- | --- |
 | `points` | $|A|$，即 GKZ 向量的坐标数。 |
-| `twice_area` | $\operatorname{area2}(Q)$。polygon 模式中 $Q=kP$，所以它等于 $k^2\operatorname{area2}(P)$。 |
+| `twice_area` | $\mathrm{area2}(Q)$。polygon 模式中 $Q=kP$，所以它等于 $k^2\mathrm{area2}(P)$。 |
 | `level` | polygon 模式中的 $k$；points 模式不输出。 |
-| `base_twice_area` | $\operatorname{area2}(P)$；只在 polygon 模式输出。 |
+| `base_twice_area` | $\mathrm{area2}(P)$；只在 polygon 模式输出。 |
 | `converged` | 精确 oracle 验证后的 gap 是否达到指定容差。它不等价于已有精确证书。 |
 | `iterations` | 最后一次 gap 检查的编号，从 `0` 开始。 |
 | `active_size` | 最终保留的正权重 GKZ 向量数。 |
@@ -591,10 +591,10 @@ height，`psi` 列为探索性的 $\widehat\psi_k$；可运行
 - 一般 points 模式的 `psi` 为空；polygon 模式使用
 
 $$
-\psi_k=\operatorname{area2}(P)k^3\sigma_k^\vee-2k.
+\psi_k=\mathrm{area2}(P)k^3\sigma_k^\vee-2k.
 $$
 
-这里二维情形中 $2V_P=\operatorname{area2}(P)$。
+这里二维情形中 $2V_P=\mathrm{area2}(P)$。
 
 ## $\ell_A$ 与 relative Chow-semistability
 
