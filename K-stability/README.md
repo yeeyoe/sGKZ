@@ -97,8 +97,7 @@ $g=\max\{\langle x,u\rangle-t,0\}$：
 4. **判定**：报告归一化值
    $M_\ell/(|\partial P|_{\mathrm{d}\sigma}\cdot\sup_P|\ell_P|\cdot\mathrm{diam} P)$；
    小于 $-10^{-6}$ 判 `unstable`，否则 `no_counterexample_found`。
-5. **可选认证**（`--certify`）：对数值 witness 的 $(\cos\theta^*,
-   \sin\theta^*,-t^*)$ 做连分数有理逼近（分母上限 $10,10^2,\dots$ 递增），
+5. **可选认证**（`--certify`）：对数值 witness 的 $(\cos\theta^*,\sin\theta^*,-t^*)$ 做连分数有理逼近（分母上限 $10,10^2,\dots$ 递增），
    逐档用 `Gmpq` 精确重算 $M_\ell$；有理折痕与格点多边形的交点参数是
    有理数，因此精确评估没有舍入。首个负值即认证 witness。
 
