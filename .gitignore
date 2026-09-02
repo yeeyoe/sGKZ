@@ -3,6 +3,19 @@
 /build-debug
 /build-ubsan
 
+# Prebuilt command-line executables (kept available after cloning)
+!/build/
+/build/*
+!/build/shortest_gkz
+!/build/K-stability/
+/build/K-stability/*
+!/build/K-stability/k_stability
+!/build/K-stability/k_stability_decompose
+!/build/K-stability/k_stability_search
+!/build/K-stability_highdim/
+/build/K-stability_highdim/*
+!/build/K-stability_highdim/k_stability_highdim
+
 # reference
 /paper/
 /HANDOFF.md
