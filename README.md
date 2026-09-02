@@ -4,6 +4,7 @@
 
 - [依赖与编译](#依赖与编译)
 - [快速调用](#快速调用)
+- [Quick Start (English)](QUICKSTART.md)
 - [输入文件](#输入文件)
   - [生成 Wang-Zhou 多边形](#生成-wang-zhou-多边形)
 - [主算法](#主算法)
