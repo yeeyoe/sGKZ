@@ -58,11 +58,28 @@ struct AttemptRecord {
   double value = 0.0;
   bool numerical_negative = false;
   bool has_exact_witness = false;
+  std::string q_squared_exact;
+  double q_squared_value = 0.0;
+  bool has_q_squared = false;
+};
+
+// Exact Q_P(g)^2 for an authenticated simple convex witness.
+Rational q_squared_exact(const PolygonCandidate& candidate,
+                         const std::array<Rational, 3>& coefficients,
+                         const Rational& exact_value);
+
+struct BackfillSummary {
+  std::uint64_t scanned = 0;
+  std::uint64_t backfilled = 0;
+  std::uint64_t skipped = 0;
+  std::uint64_t errors = 0;
 };
 
 struct VerifiedCandidateSummary {
   std::string key;
   std::int64_t twice_area = 0;
+  std::string q_squared_exact;
+  double q_squared_value = 0.0;
 };
 
 struct AreaSearchOptions {
@@ -139,6 +156,7 @@ class SearchDatabase {
   void save_vertex_singularity(const PolygonCandidate& candidate);
   bool has_attempt(const std::string& key, const std::string& profile) const;
   void save_attempt(const PolygonCandidate& candidate, const DetectorOutcome& outcome);
+  BackfillSummary backfill_q_squared();
   std::optional<AttemptRecord> get_attempt(
       const std::string& candidate_key, const std::string& profile) const;
   std::optional<ValidationRecord> get_validation(

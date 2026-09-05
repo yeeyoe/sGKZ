@@ -153,6 +153,46 @@ void test_profile_and_database() {
                                          kstab::Rational(0)};
   verified.certification.value = kstab::Rational(-1);
   database.save_attempt(candidate, verified);
+  const auto verified_attempt = database.get_attempt(candidate.key, verified.profile);
+  require(verified_attempt && verified_attempt->has_q_squared &&
+              verified_attempt->q_squared_exact == "2/3",
+          "authenticated attempt should persist exact Q squared");
+  kstab::DetectorOutcome larger = verified;
+  larger.profile = "statistics|larger-q";
+  larger.certification.value = kstab::Rational(-2);
+  database.save_attempt(candidate, larger);
+  sqlite3* max_db = nullptr;
+  require(sqlite3_open(path.string().c_str(), &max_db) == SQLITE_OK,
+          "open database for candidate Q maximum check");
+  sqlite3_stmt* max_statement = nullptr;
+  require(sqlite3_prepare_v2(max_db,
+                             "SELECT q_squared_exact FROM candidates WHERE key=?",
+                             -1, &max_statement, nullptr) == SQLITE_OK,
+          "prepare candidate Q maximum query");
+  sqlite3_bind_text(max_statement, 1, candidate.key.c_str(), -1, SQLITE_TRANSIENT);
+  require(sqlite3_step(max_statement) == SQLITE_ROW &&
+              std::string(reinterpret_cast<const char*>(sqlite3_column_text(max_statement, 0))) == "8/3",
+          "candidate Q squared should be the maximum authenticated value");
+  sqlite3_finalize(max_statement);
+  sqlite3_close(max_db);
+  sqlite3* raw = nullptr;
+  require(sqlite3_open(path.string().c_str(), &raw) == SQLITE_OK,
+          "open database for Q backfill fixture");
+  require(sqlite3_exec(raw,
+                       "UPDATE attempts SET q_squared_exact=NULL,q_squared_value=NULL;"
+                       "UPDATE candidates SET q_squared_exact=NULL,q_squared_value=NULL;",
+                       nullptr, nullptr, nullptr) == SQLITE_OK,
+          "clear Q fields for backfill fixture");
+  sqlite3_close(raw);
+  const auto backfill = database.backfill_q_squared();
+  require(backfill.scanned >= 1 && backfill.backfilled >= 1 && backfill.errors == 0,
+          "backfill should restore missing Q fields");
+  const auto backfilled_attempt = database.get_attempt(candidate.key, verified.profile);
+  require(backfilled_attempt && backfilled_attempt->q_squared_exact == "2/3",
+          "backfill should restore exact attempt Q squared");
+  const auto second_backfill = database.backfill_q_squared();
+  require(second_backfill.scanned == backfill.scanned && second_backfill.errors == 0,
+          "Q backfill should be idempotent");
   kstab::SearchSummary found;
   found.have_verified = true;
   found.best_twice_area = candidate.twice_area;
@@ -175,6 +215,23 @@ void test_profile_and_database() {
           "verified report should include vertex singularity metadata");
   std::filesystem::remove(report);
   std::filesystem::remove(path);
+}
+
+void test_q_squared_exact() {
+  kstab::PolygonCandidate square;
+  square.d = 4;
+  square.vertices = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+  square.twice_area = 2;
+  const std::array<kstab::Rational, 3> coefficients = {
+      kstab::Rational(1), kstab::Rational(0), kstab::Rational(-1, 2)};
+  const kstab::Rational q = kstab::q_squared_exact(
+      square, coefficients, kstab::Rational(-1, 4));
+  require(q == kstab::Rational(1, 4),
+          "unit square Q squared should equal one quarter");
+  const kstab::Rational scaled = kstab::q_squared_exact(
+      square, {kstab::Rational(2), kstab::Rational(0), kstab::Rational(-1)},
+      kstab::Rational(-1, 2));
+  require(scaled == q, "Q squared must be invariant under witness scaling");
 }
 
 void test_large_rational_load() {
@@ -424,6 +481,7 @@ int main() {
     test_rejection();
     test_vertex_singularity_flags();
     test_profile_and_database();
+    test_q_squared_exact();
     test_large_rational_load();
     test_dimension_scoping();
     test_search_statistics();

@@ -11,6 +11,7 @@ namespace {
 void usage(std::ostream& out) {
   out << "Usage: k_stability_search --d D --N N --M M --time-limit SEC [options]\n\n"
       << "Options:\n"
+      << "  --backfill-q           Fill exact Q_P(g)^2 for existing certified witnesses\n"
       << "  --database FILE       SQLite state file (default K-stability/k_stability_search.sqlite)\n"
       << "  --output-dir DIR      Result report directory (default .)\n"
       << "  --shell-seconds SEC   Per-shell time slice (default 60)\n"
@@ -31,10 +32,12 @@ std::string value(int argc, char** argv, int& i, const std::string& option) {
 
 int main(int argc, char** argv) {
   kstab::AreaSearchOptions options;
+  bool backfill_q = false;
   try {
     for (int i = 1; i < argc; ++i) {
       const std::string arg = argv[i];
       if (arg == "--help") { usage(std::cout); return 0; }
+      if (arg == "--backfill-q") { backfill_q = true; continue; }
       if (arg == "--d") options.d = std::stoi(value(argc, argv, i, arg));
       else if (arg == "--N") options.initial_N = std::stoi(value(argc, argv, i, arg));
       else if (arg == "--M") options.initial_M = std::stoi(value(argc, argv, i, arg));
@@ -49,6 +52,15 @@ int main(int argc, char** argv) {
       else if (arg == "--smooth-only") options.smooth_only = true;
       else if (arg == "--verbose") options.verbose = true;
       else throw std::invalid_argument("unknown option: " + arg);
+    }
+    if (backfill_q) {
+      kstab::SearchDatabase database(options.database);
+      const auto summary = database.backfill_q_squared();
+      std::cout << "backfill_scanned=" << summary.scanned << '\n'
+                << "backfill_success=" << summary.backfilled << '\n'
+                << "backfill_skipped=" << summary.skipped << '\n'
+                << "backfill_errors=" << summary.errors << '\n';
+      return summary.errors == 0 ? 0 : 1;
     }
     if (options.d < 3 || options.initial_N < 1 || options.initial_M < 1 ||
         options.beam_width < 1 || options.time_limit_seconds <= 0 ||
@@ -67,7 +79,9 @@ int main(int argc, char** argv) {
                                                    "same least volume") << '\n'
               << "The top 5 with least volume:\n";
     for (const auto& verified : summary.top_verified) {
-      std::cout << "key=" << verified.key << " twice_area=" << verified.twice_area << '\n';
+      std::cout << "key=" << verified.key << " twice_area=" << verified.twice_area
+                << " q_squared_exact=" << verified.q_squared_exact
+                << " q_squared_value=" << verified.q_squared_value << '\n';
     }
     std::cout << "generated=" << summary.generated << '\n'
               << "rejected=" << summary.rejected << '\n'

@@ -16,6 +16,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
+#include <unordered_map>
 #include <tuple>
 
 namespace kstab {
@@ -473,6 +474,23 @@ DetectorOutcome detect_candidate(const PolygonCandidate& candidate,
   return outcome;
 }
 
+Rational q_squared_exact(const PolygonCandidate& candidate,
+                         const std::array<Rational, 3>& coefficients,
+                         const Rational& exact_value) {
+  if (candidate.twice_area <= 0)
+    throw std::invalid_argument("Q squared requires positive polygon area");
+  Rational supremum = 0;
+  for (const IntPoint& vertex : candidate.vertices) {
+    const Rational value = coefficients[0] * vertex.x + coefficients[1] * vertex.y +
+                           coefficients[2];
+    if (value > supremum) supremum = value;
+  }
+  if (supremum <= 0)
+    throw std::invalid_argument("Q squared requires positive witness supremum");
+  const Rational area(CGAL::Gmpz(std::to_string(candidate.twice_area)), CGAL::Gmpz("2"));
+  return exact_value * exact_value / (area * supremum * supremum);
+}
+
 struct SearchDatabase::Impl {
   sqlite3* db = nullptr;
 };
@@ -483,8 +501,8 @@ SearchDatabase::SearchDatabase(const std::filesystem::path& path) : impl_(new Im
     throw std::runtime_error("cannot open SQLite database: " + path.string());
   const char* schema =
       "PRAGMA journal_mode=WAL;"
-      "CREATE TABLE IF NOT EXISTS candidates(key TEXT PRIMARY KEY,d INTEGER,directions TEXT,steps TEXT,twice_area TEXT,probe_score REAL,status TEXT,ell0 TEXT,ell1 TEXT,ell2 TEXT,vertices TEXT,normals TEXT,vertex_singularity_flags TEXT,singular_vertex_count INTEGER);"
-      "CREATE TABLE IF NOT EXISTS attempts(candidate_key TEXT,profile TEXT,status TEXT,value REAL,witness_ux REAL,witness_uy REAL,witness_t REAL,exact_a TEXT,exact_b TEXT,exact_c TEXT,exact_value TEXT,numerical_negative INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(candidate_key,profile));"
+      "CREATE TABLE IF NOT EXISTS candidates(key TEXT PRIMARY KEY,d INTEGER,directions TEXT,steps TEXT,twice_area TEXT,probe_score REAL,status TEXT,ell0 TEXT,ell1 TEXT,ell2 TEXT,vertices TEXT,normals TEXT,vertex_singularity_flags TEXT,singular_vertex_count INTEGER,q_squared_exact TEXT,q_squared_value REAL);"
+      "CREATE TABLE IF NOT EXISTS attempts(candidate_key TEXT,profile TEXT,status TEXT,value REAL,witness_ux REAL,witness_uy REAL,witness_t REAL,exact_a TEXT,exact_b TEXT,exact_c TEXT,exact_value TEXT,numerical_negative INTEGER NOT NULL DEFAULT 0,q_squared_exact TEXT,q_squared_value REAL,PRIMARY KEY(candidate_key,profile));"
       "CREATE TABLE IF NOT EXISTS candidate_validations(candidate_key TEXT,validation_profile TEXT,status TEXT,last_stage TEXT,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(candidate_key,validation_profile));"
       "CREATE TABLE IF NOT EXISTS state(name TEXT PRIMARY KEY,value TEXT);"
       "CREATE INDEX IF NOT EXISTS idx_candidates_d_status ON candidates(d,status);";
@@ -500,6 +518,11 @@ SearchDatabase::SearchDatabase(const std::filesystem::path& path) : impl_(new Im
   sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN normals TEXT;", nullptr, nullptr, nullptr);
   sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN vertex_singularity_flags TEXT;", nullptr, nullptr, nullptr);
   sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN singular_vertex_count INTEGER;", nullptr, nullptr, nullptr);
+  sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN q_squared_exact TEXT;", nullptr, nullptr, nullptr);
+  sqlite3_exec(impl_->db, "ALTER TABLE candidates ADD COLUMN q_squared_value REAL;", nullptr, nullptr, nullptr);
+  sqlite3_exec(impl_->db, "ALTER TABLE attempts ADD COLUMN q_squared_exact TEXT;", nullptr, nullptr, nullptr);
+  sqlite3_exec(impl_->db, "ALTER TABLE attempts ADD COLUMN q_squared_value REAL;", nullptr, nullptr, nullptr);
+  sqlite3_exec(impl_->db, "CREATE INDEX IF NOT EXISTS idx_candidates_q_squared_value ON candidates(q_squared_value DESC);", nullptr, nullptr, nullptr);
 }
 
 SearchDatabase::~SearchDatabase() {
@@ -576,9 +599,18 @@ bool SearchDatabase::has_attempt(const std::string& key, const std::string& prof
 
 void SearchDatabase::save_attempt(const PolygonCandidate& c, const DetectorOutcome& o) {
   const auto& w = o.numerical.witness;
+  std::optional<Rational> q_squared;
+  if (o.verified_unstable) {
+    try {
+      q_squared = q_squared_exact(c, o.certification.coefficients,
+                                  o.certification.value);
+    } catch (const std::exception&) {
+      q_squared.reset();
+    }
+  }
   std::string sql = "INSERT OR REPLACE INTO attempts "
       "(candidate_key,profile,status,value,witness_ux,witness_uy,witness_t,"
-      "exact_a,exact_b,exact_c,exact_value,numerical_negative) VALUES(" +
+      "exact_a,exact_b,exact_c,exact_value,numerical_negative,q_squared_exact,q_squared_value) VALUES(" +
       sql_quote(c.key) + "," +
       sql_quote(o.profile) + "," + sql_quote(o.verified_unstable ? "verified_unstable" : "unverified") + "," +
       std::to_string(w.value) + ",";
@@ -591,7 +623,14 @@ void SearchDatabase::save_attempt(const PolygonCandidate& c, const DetectorOutco
   } else {
     sql += "NULL,NULL,NULL,NULL,NULL,NULL,NULL";
   }
-  sql += "," + std::to_string(o.numerical_negative ? 1 : 0) + ");";
+  sql += "," + std::to_string(o.numerical_negative ? 1 : 0) + ",";
+  if (q_squared) {
+    sql += sql_quote(rat_string(*q_squared)) + "," +
+           std::to_string(rational_to_double(*q_squared));
+  } else {
+    sql += "NULL,NULL";
+  }
+  sql += ");";
   char* error = nullptr;
   if (sqlite3_exec(impl_->db, sql.c_str(), nullptr, nullptr, &error) != SQLITE_OK) {
     const std::string message = error ? error : "attempt insert failed";
@@ -602,13 +641,152 @@ void SearchDatabase::save_attempt(const PolygonCandidate& c, const DetectorOutco
     const std::string update = "UPDATE candidates SET status='verified_unstable' WHERE key=" +
                                sql_quote(c.key) + ";";
     sqlite3_exec(impl_->db, update.c_str(), nullptr, nullptr, nullptr);
+    if (q_squared) {
+      bool replace_candidate_q = true;
+      sqlite3_stmt* current = nullptr;
+      const std::string current_query =
+          "SELECT q_squared_exact FROM candidates WHERE key=" + sql_quote(c.key) + ";";
+      if (sqlite3_prepare_v2(impl_->db, current_query.c_str(), -1, &current, nullptr) == SQLITE_OK &&
+          sqlite3_step(current) == SQLITE_ROW && sqlite3_column_type(current, 0) != SQLITE_NULL) {
+        const auto* text = sqlite3_column_text(current, 0);
+        if (text && *text) replace_candidate_q = *q_squared > parse_rational(reinterpret_cast<const char*>(text));
+      }
+      sqlite3_finalize(current);
+      if (replace_candidate_q) {
+        const std::string q_update =
+            "UPDATE candidates SET q_squared_exact=" + sql_quote(rat_string(*q_squared)) +
+            ", q_squared_value=" + std::to_string(rational_to_double(*q_squared)) +
+            " WHERE key=" + sql_quote(c.key) + ";";
+        sqlite3_exec(impl_->db, q_update.c_str(), nullptr, nullptr, nullptr);
+      }
+      // Recompute from all authenticated attempts so replacing a profile with
+      // a smaller witness cannot leave a stale candidate maximum.
+      std::optional<Rational> maximum;
+      sqlite3_stmt* all_attempts = nullptr;
+      const std::string all_attempts_query =
+          "SELECT q_squared_exact FROM attempts WHERE candidate_key=" +
+          sql_quote(c.key) + " AND status='verified_unstable' AND q_squared_exact IS NOT NULL;";
+      if (sqlite3_prepare_v2(impl_->db, all_attempts_query.c_str(), -1, &all_attempts, nullptr) == SQLITE_OK) {
+        while (sqlite3_step(all_attempts) == SQLITE_ROW) {
+          const auto* text = sqlite3_column_text(all_attempts, 0);
+          if (!text || !*text) continue;
+          const Rational value = parse_rational(reinterpret_cast<const char*>(text));
+          if (!maximum || value > *maximum) maximum = value;
+        }
+      }
+      sqlite3_finalize(all_attempts);
+      if (maximum) {
+        const std::string maximum_update =
+            "UPDATE candidates SET q_squared_exact=" + sql_quote(rat_string(*maximum)) +
+            ",q_squared_value=" + std::to_string(rational_to_double(*maximum)) +
+            " WHERE key=" + sql_quote(c.key) + ";";
+        sqlite3_exec(impl_->db, maximum_update.c_str(), nullptr, nullptr, nullptr);
+      }
+    }
   }
+}
+
+BackfillSummary SearchDatabase::backfill_q_squared() {
+  BackfillSummary summary;
+  const auto candidates = load_candidates();
+  std::unordered_map<std::string, PolygonCandidate> by_key;
+  by_key.reserve(candidates.size());
+  for (const auto& candidate : candidates) by_key.emplace(candidate.key, candidate);
+
+  char* error = nullptr;
+  if (sqlite3_exec(impl_->db, "BEGIN IMMEDIATE;", nullptr, nullptr, &error) != SQLITE_OK) {
+    const std::string message = error ? error : "cannot begin Q squared backfill";
+    sqlite3_free(error);
+    throw std::runtime_error(message);
+  }
+  try {
+    const char* query =
+        "SELECT candidate_key,profile,exact_a,exact_b,exact_c,exact_value "
+        "FROM attempts WHERE status='verified_unstable';";
+    sqlite3_stmt* statement = nullptr;
+    if (sqlite3_prepare_v2(impl_->db, query, -1, &statement, nullptr) != SQLITE_OK)
+      throw std::runtime_error("cannot prepare Q squared backfill query");
+    while (sqlite3_step(statement) == SQLITE_ROW) {
+      ++summary.scanned;
+      const auto text_column = [&](int column) {
+        const auto* text = sqlite3_column_text(statement, column);
+        return text ? std::string(reinterpret_cast<const char*>(text)) : std::string();
+      };
+      const std::string key = text_column(0);
+      const std::string profile = text_column(1);
+      if (sqlite3_column_type(statement, 2) == SQLITE_NULL ||
+          sqlite3_column_type(statement, 3) == SQLITE_NULL ||
+          sqlite3_column_type(statement, 4) == SQLITE_NULL ||
+          sqlite3_column_type(statement, 5) == SQLITE_NULL) {
+        ++summary.skipped;
+        continue;
+      }
+      const auto candidate_it = by_key.find(key);
+      if (candidate_it == by_key.end()) {
+        ++summary.skipped;
+        continue;
+      }
+      try {
+        const std::array<Rational, 3> coefficients = {
+            parse_rational(text_column(2)), parse_rational(text_column(3)),
+            parse_rational(text_column(4))};
+        const Rational exact_value = parse_rational(text_column(5));
+        const Rational q = q_squared_exact(candidate_it->second, coefficients, exact_value);
+        const std::string update =
+            "UPDATE attempts SET q_squared_exact=" + sql_quote(rat_string(q)) +
+            ",q_squared_value=" + std::to_string(rational_to_double(q)) +
+            " WHERE candidate_key=" + sql_quote(key) + " AND profile=" +
+            sql_quote(profile) + ";";
+        if (sqlite3_exec(impl_->db, update.c_str(), nullptr, nullptr, &error) != SQLITE_OK) {
+          const std::string message = error ? error : "attempt Q squared update failed";
+          sqlite3_free(error);
+          throw std::runtime_error(message);
+        }
+
+        sqlite3_stmt* current = nullptr;
+        const std::string current_query =
+            "SELECT q_squared_exact FROM candidates WHERE key=" + sql_quote(key) + ";";
+        if (sqlite3_prepare_v2(impl_->db, current_query.c_str(), -1, &current, nullptr) != SQLITE_OK)
+          throw std::runtime_error("cannot read candidate Q squared");
+        std::optional<Rational> current_q;
+        if (sqlite3_step(current) == SQLITE_ROW && sqlite3_column_type(current, 0) != SQLITE_NULL) {
+          const auto* text = sqlite3_column_text(current, 0);
+          if (text && *text) current_q = parse_rational(reinterpret_cast<const char*>(text));
+        }
+        sqlite3_finalize(current);
+        if (!current_q || q > *current_q) {
+          const std::string candidate_update =
+              "UPDATE candidates SET q_squared_exact=" + sql_quote(rat_string(q)) +
+              ",q_squared_value=" + std::to_string(rational_to_double(q)) +
+              " WHERE key=" + sql_quote(key) + ";";
+          if (sqlite3_exec(impl_->db, candidate_update.c_str(), nullptr, nullptr, &error) != SQLITE_OK) {
+            const std::string message = error ? error : "candidate Q squared update failed";
+            sqlite3_free(error);
+            throw std::runtime_error(message);
+          }
+        }
+        ++summary.backfilled;
+      } catch (const std::exception&) {
+        ++summary.errors;
+      }
+    }
+    sqlite3_finalize(statement);
+    if (sqlite3_exec(impl_->db, "COMMIT;", nullptr, nullptr, &error) != SQLITE_OK) {
+      const std::string message = error ? error : "cannot commit Q squared backfill";
+      sqlite3_free(error);
+      throw std::runtime_error(message);
+    }
+  } catch (...) {
+    sqlite3_exec(impl_->db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    throw;
+  }
+  return summary;
 }
 
 std::optional<AttemptRecord> SearchDatabase::get_attempt(
     const std::string& key, const std::string& profile) const {
   const std::string sql =
-      "SELECT status,value,numerical_negative,exact_a,exact_b,exact_c,exact_value "
+      "SELECT status,value,numerical_negative,exact_a,exact_b,exact_c,exact_value,q_squared_exact,q_squared_value "
       "FROM attempts WHERE candidate_key=" + sql_quote(key) +
       " AND profile=" + sql_quote(profile) + " LIMIT 1;";
   sqlite3_stmt* statement = nullptr;
@@ -625,8 +803,14 @@ std::optional<AttemptRecord> SearchDatabase::get_attempt(
                        sqlite3_column_type(statement, 5) != SQLITE_NULL &&
                        sqlite3_column_type(statement, 6) != SQLITE_NULL &&
                        !text_column(6).empty();
-    result = AttemptRecord{text_column(0), sqlite3_column_double(statement, 1),
-                           sqlite3_column_int(statement, 2) != 0, exact};
+    AttemptRecord record{text_column(0), sqlite3_column_double(statement, 1),
+                         sqlite3_column_int(statement, 2) != 0, exact, {}, 0.0, false};
+    if (sqlite3_column_type(statement, 7) != SQLITE_NULL && !text_column(7).empty()) {
+      record.q_squared_exact = text_column(7);
+      record.has_q_squared = true;
+      record.q_squared_value = sqlite3_column_double(statement, 8);
+    }
+    result = record;
   }
   sqlite3_finalize(statement);
   return result;
@@ -875,7 +1059,7 @@ std::vector<VerifiedCandidateSummary> SearchDatabase::top_verified(
   if (limit == 0) return result;
   sqlite3_stmt* statement = nullptr;
   const std::string sql =
-      "SELECT c.key,c.twice_area FROM candidates AS c WHERE c.d=" +
+      "SELECT c.key,c.twice_area,c.q_squared_exact,c.q_squared_value FROM candidates AS c WHERE c.d=" +
       std::to_string(dimension) +
       " AND (EXISTS (SELECT 1 FROM candidate_validations AS v "
       "WHERE v.candidate_key=c.key AND v.status='verified_unstable') "
@@ -894,8 +1078,12 @@ std::vector<VerifiedCandidateSummary> SearchDatabase::top_verified(
     if (!key_text) throw std::runtime_error("NULL verified candidate key");
     const auto* area_text = sqlite3_column_text(statement, 1);
     if (!area_text) throw std::runtime_error("NULL verified candidate area");
+    const auto* q_text = sqlite3_column_text(statement, 2);
     result.push_back({std::string(reinterpret_cast<const char*>(key_text)),
-                      std::stoll(reinterpret_cast<const char*>(area_text))});
+                      std::stoll(reinterpret_cast<const char*>(area_text)),
+                      q_text ? std::string(reinterpret_cast<const char*>(q_text)) : std::string(),
+                      sqlite3_column_type(statement, 3) == SQLITE_NULL
+                          ? 0.0 : sqlite3_column_double(statement, 3)});
   }
   sqlite3_finalize(statement);
   return result;
@@ -942,6 +1130,24 @@ void SearchDatabase::write_report(const std::filesystem::path& path,
          << "singular_vertex_count=" << selected.singular_vertex_count << '\n'
          << "twice_area=" << selected.twice_area << '\n'
          << "area=" << selected.twice_area << "/2\n"
+         << "q_squared_exact=";
+  sqlite3_stmt* candidate_q_statement = nullptr;
+  const std::string candidate_q_query =
+      "SELECT q_squared_exact,q_squared_value FROM candidates WHERE key=" +
+      sql_quote(selected.key) + ";";
+  if (sqlite3_prepare_v2(impl_->db, candidate_q_query.c_str(), -1,
+                         &candidate_q_statement, nullptr) == SQLITE_OK &&
+      sqlite3_step(candidate_q_statement) == SQLITE_ROW) {
+    const auto* q_text = sqlite3_column_text(candidate_q_statement, 0);
+    output << (q_text ? reinterpret_cast<const char*>(q_text) : "");
+    output << '\n' << "q_squared_value="
+           << (sqlite3_column_type(candidate_q_statement, 1) == SQLITE_NULL
+                   ? 0.0 : sqlite3_column_double(candidate_q_statement, 1));
+  } else {
+    output << "\nq_squared_value=";
+  }
+  sqlite3_finalize(candidate_q_statement);
+  output
          << "boundary_length_dsigma=" << rat_string(boundary.length) << '\n'
          << "boundary_ix=" << rat_string(boundary.ix) << '\n'
          << "boundary_iy=" << rat_string(boundary.iy) << '\n'
@@ -956,7 +1162,7 @@ void SearchDatabase::write_report(const std::filesystem::path& path,
 
   const std::string sql =
       "SELECT profile,status,value,witness_ux,witness_uy,witness_t,"
-      "exact_a,exact_b,exact_c,exact_value FROM attempts WHERE candidate_key=" +
+      "exact_a,exact_b,exact_c,exact_value,q_squared_exact,q_squared_value FROM attempts WHERE candidate_key=" +
       sql_quote(selected.key) + " ORDER BY rowid;";
   sqlite3_stmt* statement = nullptr;
   sqlite3_prepare_v2(impl_->db, sql.c_str(), -1, &statement, nullptr);
@@ -978,6 +1184,10 @@ void SearchDatabase::write_report(const std::filesystem::path& path,
              << "attempt_exact_b=" << text_column(7) << '\n'
              << "attempt_exact_c=" << text_column(8) << '\n'
              << "attempt_exact_value=" << text_column(9) << '\n';
+      if (sqlite3_column_type(statement, 10) != SQLITE_NULL) {
+        output << "attempt_q_squared_exact=" << text_column(10) << '\n'
+               << "attempt_q_squared_value=" << sqlite3_column_double(statement, 11) << '\n';
+      }
     }
   }
   sqlite3_finalize(statement);

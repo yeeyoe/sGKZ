@@ -21,6 +21,9 @@ sqlite3 "$DB" '.schema candidates'
 sqlite3 "$DB" '.schema attempts'
 sqlite3 "$DB" '.schema candidate_validations'
 sqlite3 "$DB" '.schema state'
+
+# 补算已有认证 witness 的精确 Q_P(g)^2（可重复执行）
+./build/K-stability/k_stability_search --backfill-q --database "$DB"
 ```
 
 ## 候选数量
@@ -62,12 +65,12 @@ sqlite3 "$DB" \
    from attempts as a join candidates as c on c.key=a.candidate_key
    where c.d=3;'
 
-# 按面积查看 verified 候选
+# 按 Q_P(g)^2 降序查看 verified 候选
 sqlite3 -header -column "$DB" \
   'select key, twice_area, cast(twice_area as real)/2 as area
    from candidates
    where status="verified_unstable"
-   order by cast(twice_area as integer), key;'
+   order by q_squared_value desc, key;'
 
 # 指定 d 按面积查看 verified 候选
 sqlite3 -header -column "$DB" \
@@ -98,7 +101,8 @@ KEY='d6|p=1:0;23:12;-19:10;-22:-5;-27:-29;91:-1|k=15,2,4,1,2,1'
 ```bash
 sqlite3 -line "$DB" \
   "select key, d, directions, steps, vertices, normals,
-          twice_area, status, ell0, ell1, ell2
+          twice_area, status, ell0, ell1, ell2,
+          q_squared_exact, q_squared_value
    from candidates
    where key='$KEY';"
 ```
@@ -113,6 +117,8 @@ sqlite3 -line "$DB" \
 - `ell0,ell1,ell2`：`ell_P(x,y)=ell0+ell1*x+ell2*y`。
 - `vertex_singularity_flags`：按顶点排列的 `0/1`，`0` 表示光滑，`1` 表示奇异；
 - `singular_vertex_count`：奇异顶点总数，仅 verified 候选写入。
+- `q_squared_exact`：候选所有认证 witness 中最大的精确 $Q_P(g)^2$；
+- `q_squared_value`：同一指标的浮点表示，仅用于排序。
 
 按奇异点数查看 verified 候选：
 
@@ -152,7 +158,8 @@ sqlite3 -header -column "$DB" \
 sqlite3 -header -column "$DB" \
   "select candidate_key, profile, status, value,
           witness_ux, witness_uy, witness_t,
-          exact_a, exact_b, exact_c, exact_value, numerical_negative
+          exact_a, exact_b, exact_c, exact_value, numerical_negative,
+          q_squared_exact, q_squared_value
    from attempts
    where candidate_key='$KEY'
    order by rowid;"
@@ -162,7 +169,8 @@ sqlite3 -header -column "$DB" \
 
 ```bash
 sqlite3 -header -column "$DB" \
-  "select profile, exact_a, exact_b, exact_c, exact_value
+  "select profile, exact_a, exact_b, exact_c, exact_value,
+          q_squared_exact, q_squared_value
    from attempts
    where candidate_key='$KEY'
      and status='verified_unstable';"
@@ -170,6 +178,9 @@ sqlite3 -header -column "$DB" \
 
 只有 `verified_unstable` 记录应当含有 witness 字段；`unverified` 记录中的
 witness 字段必须为 `NULL`。
+
+attempts 中的 `q_squared_exact` 是该认证 witness 的精确有理数；候选表中的值
+是所有认证 profile 中的最大值。
 
 ## 搜索断点状态
 
