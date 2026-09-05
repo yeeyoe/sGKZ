@@ -178,9 +178,9 @@ sqlite3 -header -column "$DB" \
   'select name, value from state order by name;'
 ```
 
-其中包括按维数保存的 shell 和随机数生成器状态，例如 `d3|shell`、`d3|rng`。
-重新使用同一个数据库运行搜索时，程序只读取当前 `d` 的断点状态、候选和
-detector profile 记录，不会加载或处理其它维数的候选。
+其中包括按维数保存的随机数生成器状态，例如 `d3|rng`。shell 不作为断点保存，
+每次运行都从 `shell=0` 开始；程序只读取当前 `d` 的候选和 detector profile
+记录，不会加载或处理其它维数的候选。
 
 ## 结果报告
 

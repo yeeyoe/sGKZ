@@ -1,0 +1,2337 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{anyt/global//global/global/global}
+    \entry{araujo_calabi_2023}{book}{}{}
+      \name{author}{9}{}{%
+        {{hash=4c6f9e311b37ce68c3990c5ebbfe9d20}{%
+           family={Araujo},
+           familyi={A\bibinitperiod},
+           given={Carolina},
+           giveni={C\bibinitperiod}}}%
+        {{hash=70a50fb0e8109d5af788c6229f967f7a}{%
+           family={Castravet},
+           familyi={C\bibinitperiod},
+           given={Ana-Maria},
+           giveni={A\bibinithyphendelim M\bibinitperiod}}}%
+        {{hash=03ee7a5f5e2ca26ae1096a8e5411432b}{%
+           family={Cheltsov},
+           familyi={C\bibinitperiod},
+           given={Ivan},
+           giveni={I\bibinitperiod}}}%
+        {{hash=2630204985e40d5febd1de2935958afd}{%
+           family={Fujita},
+           familyi={F\bibinitperiod},
+           given={Kento},
+           giveni={K\bibinitperiod}}}%
+        {{hash=caa69c4b73e72790508e04c54ceabc68}{%
+           family={Kaloghiros},
+           familyi={K\bibinitperiod},
+           given={Anne-Sophie},
+           giveni={A\bibinithyphendelim S\bibinitperiod}}}%
+        {{hash=7a05df3c539273780d69da4e5bf72c0b}{%
+           family={Martinez-Garcia},
+           familyi={M\bibinithyphendelim G\bibinitperiod},
+           given={Jesus},
+           giveni={J\bibinitperiod}}}%
+        {{hash=2169dbb2b63b3cdd54a1e1e5f3c05848}{%
+           family={Shramov},
+           familyi={S\bibinitperiod},
+           given={Constantin},
+           giveni={C\bibinitperiod}}}%
+        {{hash=c7653d4c5766f104daa9395e3807a5ea}{%
+           family={Süß},
+           familyi={S\bibinitperiod},
+           given={Hendrik},
+           giveni={H\bibinitperiod}}}%
+        {{hash=97b949cae64c315860bae66f23e22306}{%
+           family={Viswanathan},
+           familyi={V\bibinitperiod},
+           given={Nivedita},
+           giveni={N\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Cambridge University Press}%
+      }
+      \strng{namehash}{9be26a1b3ceb0854f295a8221a7615dd}
+      \strng{fullhash}{2f9394d727c7ba17e42108ec3ab6ff2d}
+      \strng{fullhashraw}{2f9394d727c7ba17e42108ec3ab6ff2d}
+      \strng{bibnamehash}{9be26a1b3ceb0854f295a8221a7615dd}
+      \strng{authorbibnamehash}{9be26a1b3ceb0854f295a8221a7615dd}
+      \strng{authornamehash}{9be26a1b3ceb0854f295a8221a7615dd}
+      \strng{authorfullhash}{2f9394d727c7ba17e42108ec3ab6ff2d}
+      \strng{authorfullhashraw}{2f9394d727c7ba17e42108ec3ab6ff2d}
+      \field{labelalpha}{Ara+23}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-1-009-19338-2 978-1-009-19339-9}
+      \field{langid}{english}
+      \field{title}{The Calabi Problem for Fano Threefolds}
+      \field{urlday}{8}
+      \field{urlmonth}{6}
+      \field{urlyear}{2026}
+      \field{year}{2023}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.1017/9781009193382
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/6DMAA89F/Araujo 等 - 2023 - The Calabi Problem for Fano Threefolds.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://www.cambridge.org/core/product/identifier/9781009193382/type/book
+      \endverb
+      \verb{url}
+      \verb https://www.cambridge.org/core/product/identifier/9781009193382/type/book
+      \endverb
+    \endentry
+    \entry{berman_variational_2021}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=5e7f0a2c7e2a36d3bdf2b50290ac9458}{%
+           family={Berman},
+           familyi={B\bibinitperiod},
+           given={Robert\bibnamedelima J.},
+           giveni={R\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+        {{hash=8ba8bdc00458e300173703305114bdf1}{%
+           family={Boucksom},
+           familyi={B\bibinitperiod},
+           given={Sébastien},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f1b9dacc73129a398299bd373473ad2f}{%
+           family={Jonsson},
+           familyi={J\bibinitperiod},
+           given={Mattias},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{282cbcefebb35ce0f059fac17f948ee0}
+      \strng{fullhash}{282cbcefebb35ce0f059fac17f948ee0}
+      \strng{fullhashraw}{282cbcefebb35ce0f059fac17f948ee0}
+      \strng{bibnamehash}{282cbcefebb35ce0f059fac17f948ee0}
+      \strng{authorbibnamehash}{282cbcefebb35ce0f059fac17f948ee0}
+      \strng{authornamehash}{282cbcefebb35ce0f059fac17f948ee0}
+      \strng{authorfullhash}{282cbcefebb35ce0f059fac17f948ee0}
+      \strng{authorfullhashraw}{282cbcefebb35ce0f059fac17f948ee0}
+      \field{labelalpha}{BBJ21}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{0894-0347, 1088-6834}
+      \field{journaltitle}{J. Amer. Math. Soc.}
+      \field{langid}{english}
+      \field{number}{3}
+      \field{shorttitle}{{BBJ}}
+      \field{title}{A variational approach to the Yau–Tian–Donaldson conjecture}
+      \field{urlday}{3}
+      \field{urlmonth}{8}
+      \field{urlyear}{2022}
+      \field{volume}{34}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{605\bibrangedash 652}
+      \range{pages}{48}
+      \verb{doi}
+      \verb 10.1090/jams/964
+      \endverb
+      \verb{file}
+      \verb Berman 等。 - 2021 - A variational approach to the Yau–Tian–Donaldson c.pdf:/Users/mac/Zotero/storage/SE6VTIHX/Berman 等。 - 2021 - A variational approach to the Yau–Tian–Donaldson c.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://www.ams.org/jams/2021-34-03/S0894-0347-2021-00964-5/
+      \endverb
+      \verb{url}
+      \verb https://www.ams.org/jams/2021-34-03/S0894-0347-2021-00964-5/
+      \endverb
+    \endentry
+    \entry{boucksom_spaces_2021}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=8ba8bdc00458e300173703305114bdf1}{%
+           family={Boucksom},
+           familyi={B\bibinitperiod},
+           given={Sébastien},
+           giveni={S\bibinitperiod}}}%
+        {{hash=efa829641eb1c58c56bbd90142873cd8}{%
+           family={Eriksson},
+           familyi={E\bibinitperiod},
+           given={Dennis},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{aeaec5fba26376bb34993e958c4d8cc0}
+      \strng{fullhash}{aeaec5fba26376bb34993e958c4d8cc0}
+      \strng{fullhashraw}{aeaec5fba26376bb34993e958c4d8cc0}
+      \strng{bibnamehash}{aeaec5fba26376bb34993e958c4d8cc0}
+      \strng{authorbibnamehash}{aeaec5fba26376bb34993e958c4d8cc0}
+      \strng{authornamehash}{aeaec5fba26376bb34993e958c4d8cc0}
+      \strng{authorfullhash}{aeaec5fba26376bb34993e958c4d8cc0}
+      \strng{authorfullhashraw}{aeaec5fba26376bb34993e958c4d8cc0}
+      \field{labelalpha}{BE21}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{00018708}
+      \field{journaltitle}{Adv. Math.}
+      \field{langid}{english}
+      \field{shorttitle}{{BErik}}
+      \field{title}{Spaces of norms, determinant of cohomology and Fekete points in non-Archimedean geometry}
+      \field{urlday}{3}
+      \field{urlmonth}{8}
+      \field{urlyear}{2022}
+      \field{volume}{378}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.1016/j.aim.2020.107501
+      \endverb
+      \verb{file}
+      \verb Boucksom 和 Eriksson - 2021 - Spaces of norms, determinant of cohomology and Fek.pdf:/Users/mac/Zotero/storage/J589APYZ/Boucksom和Eriksson - 2021 - BE.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0001870820305296
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0001870820305296
+      \endverb
+    \endentry
+    \entry{boucksom_non-archimedean_2018}{misc}{}{}
+      \name{author}{2}{}{%
+        {{hash=8ba8bdc00458e300173703305114bdf1}{%
+           family={Boucksom},
+           familyi={B\bibinitperiod},
+           given={Sébastien},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f1b9dacc73129a398299bd373473ad2f}{%
+           family={Jonsson},
+           familyi={J\bibinitperiod},
+           given={Mattias},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{fullhash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{fullhashraw}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{bibnamehash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{authorbibnamehash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{authornamehash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{authorfullhash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{authorfullhashraw}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \field{extraname}{1}
+      \field{labelalpha}{BJ18}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{eprinttype}{arxiv}
+      \field{number}{{arXiv}:1805.11160}
+      \field{shorttitle}{{BJp}0}
+      \field{title}{A non-Archimedean approach to K-stability}
+      \field{year}{2018}
+      \field{dateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.1805.11160
+      \endverb
+      \verb{eprint}
+      \verb 1805.11160
+      \endverb
+      \verb{file}
+      \verb arXiv Fulltext PDF:/Users/mac/Zotero/storage/3LLEBHRJ/Boucksom和Jonsson - 2018 - A non-Archimedean approach to K-stability.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{boucksom_non-archimedean_2024}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=8ba8bdc00458e300173703305114bdf1}{%
+           family={Boucksom},
+           familyi={B\bibinitperiod},
+           given={Sébastien},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f1b9dacc73129a398299bd373473ad2f}{%
+           family={Jonsson},
+           familyi={J\bibinitperiod},
+           given={Mattias},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{fullhash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{fullhashraw}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{bibnamehash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{authorbibnamehash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{authornamehash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{authorfullhash}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \strng{authorfullhashraw}{3f78ff7a7cfd06472bc2c1b325ff2e9b}
+      \field{extraname}{2}
+      \field{labelalpha}{BJ24}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{1777-5310}
+      \field{journaltitle}{Ann. Inst. Fourier (Grenoble)}
+      \field{langid}{english}
+      \field{shorttitle}{{BJp}1}
+      \field{title}{A non-Archimedean approach to K-stability, I: Metric geometry of spaces of test configurations and valuations}
+      \field{urlday}{9}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{1\bibrangedash 99}
+      \range{pages}{99}
+      \verb{doi}
+      \verb 10.5802/aif.3668
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/MPNM62Y7/Boucksom和Jonsson - 2024 - A non-Archimedean approach to K-stability, I Metric geometry of spaces of test configurations and v.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://aif.centre-mersenne.org/articles/10.5802/aif.3668/
+      \endverb
+      \verb{url}
+      \verb https://aif.centre-mersenne.org/articles/10.5802/aif.3668/
+      \endverb
+    \endentry
+    \entry{boucksom_variational_2019}{inproceedings}{}{}
+      \name{author}{1}{}{%
+        {{hash=8ba8bdc00458e300173703305114bdf1}{%
+           family={Boucksom},
+           familyi={B\bibinitperiod},
+           given={Sébastien},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{8ba8bdc00458e300173703305114bdf1}
+      \strng{fullhash}{8ba8bdc00458e300173703305114bdf1}
+      \strng{fullhashraw}{8ba8bdc00458e300173703305114bdf1}
+      \strng{bibnamehash}{8ba8bdc00458e300173703305114bdf1}
+      \strng{authorbibnamehash}{8ba8bdc00458e300173703305114bdf1}
+      \strng{authornamehash}{8ba8bdc00458e300173703305114bdf1}
+      \strng{authorfullhash}{8ba8bdc00458e300173703305114bdf1}
+      \strng{authorfullhashraw}{8ba8bdc00458e300173703305114bdf1}
+      \field{labelalpha}{Bou19}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{booktitle}{Proc. Int. Cong. Math. 2018}
+      \field{eprinttype}{arxiv}
+      \field{shorttitle}{icm}
+      \field{title}{Variational and non-archimedean aspects of the Yau-Tian-Donaldson conjecture}
+      \field{urlday}{5}
+      \field{urlmonth}{6}
+      \field{urlyear}{2023}
+      \field{year}{2019}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{591\bibrangedash 617}
+      \range{pages}{27}
+      \verb{eprint}
+      \verb 1805.03289
+      \endverb
+      \verb{file}
+      \verb arXiv Fulltext PDF:/Users/mac/Zotero/storage/MD2XAIUY/Boucksom - 2018 - Variational and non-Archimedean aspects of the Yau.pdf:application/pdf;arXiv.org Snapshot:/Users/mac/Zotero/storage/3RXENB4T/1805.html:text/html
+      \endverb
+    \endentry
+    \entry{burgos_gil_arithmetic_2014}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=c0c36e1be1f05c201736d5ff30340de2}{%
+           family={Burgos\bibnamedelima Gil},
+           familyi={B\bibinitperiod\bibinitdelim G\bibinitperiod},
+           given={José\bibnamedelima I.},
+           giveni={J\bibinitperiod\bibinitdelim I\bibinitperiod}}}%
+        {{hash=db50720125fec145903f4a99e698ec3c}{%
+           family={Philippon},
+           familyi={P\bibinitperiod},
+           given={Patrice},
+           giveni={P\bibinitperiod}}}%
+        {{hash=26c8b89a470fea02fbfb5070e87d7166}{%
+           family={Sombra},
+           familyi={S\bibinitperiod},
+           given={Martín},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{4a9070f072d3cd12b608de948d103616}
+      \strng{fullhash}{4a9070f072d3cd12b608de948d103616}
+      \strng{fullhashraw}{4a9070f072d3cd12b608de948d103616}
+      \strng{bibnamehash}{4a9070f072d3cd12b608de948d103616}
+      \strng{authorbibnamehash}{4a9070f072d3cd12b608de948d103616}
+      \strng{authornamehash}{4a9070f072d3cd12b608de948d103616}
+      \strng{authorfullhash}{4a9070f072d3cd12b608de948d103616}
+      \strng{authorfullhashraw}{4a9070f072d3cd12b608de948d103616}
+      \field{labelalpha}{BPS14}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{eprinttype}{arxiv}
+      \field{journaltitle}{Astérisque}
+      \field{number}{360}
+      \field{shorttitle}{{BPS}}
+      \field{title}{Arithmetic geometry of toric varieties. Metrics, measures and heights}
+      \field{urlday}{25}
+      \field{urlmonth}{9}
+      \field{urlyear}{2025}
+      \field{year}{2014}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{eprint}
+      \verb 1105.5584
+      \endverb
+      \verb{file}
+      \verb Preprint PDF:/Users/mac/Zotero/storage/VQ5WF36P/Gil 等 - 2014 - Arithmetic geometry of toric varieties. Metrics, measures and heights.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{chen_constant_2021-1}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=a7b826adcd7a56cce1b47e4654f26b6b}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Xiuxiong},
+           giveni={X\bibinitperiod}}}%
+        {{hash=b8d1f3c954264dea27fdd15bd810d9a0}{%
+           family={Cheng},
+           familyi={C\bibinitperiod},
+           given={Jingrui},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{451d76968eba79731811577277f63811}
+      \strng{fullhash}{451d76968eba79731811577277f63811}
+      \strng{fullhashraw}{451d76968eba79731811577277f63811}
+      \strng{bibnamehash}{451d76968eba79731811577277f63811}
+      \strng{authorbibnamehash}{451d76968eba79731811577277f63811}
+      \strng{authornamehash}{451d76968eba79731811577277f63811}
+      \strng{authorfullhash}{451d76968eba79731811577277f63811}
+      \strng{authorfullhashraw}{451d76968eba79731811577277f63811}
+      \field{labelalpha}{CC21}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0894-0347, 1088-6834}
+      \field{journaltitle}{J. Amer. Math. Soc.}
+      \field{langid}{english}
+      \field{number}{4}
+      \field{title}{On the constant scalar curvature Kähler metrics ({II})—Existence results}
+      \field{urlday}{16}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{volume}{34}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{937\bibrangedash 1009}
+      \range{pages}{73}
+      \verb{doi}
+      \verb 10.1090/jams/966
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/T4FSRKE6/Chen and Cheng - 2021 - On the constant scalar curvature Kähler metrics (II)—Existence results.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://www.ams.org/jams/2021-34-04/S0894-0347-2021-00966-9/
+      \endverb
+      \verb{url}
+      \verb https://www.ams.org/jams/2021-34-04/S0894-0347-2021-00966-9/
+      \endverb
+    \endentry
+    \entry{cox_toric_2011}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=f491ad1431e56daa11842f8c7ad8aa73}{%
+           family={Cox},
+           familyi={C\bibinitperiod},
+           given={David\bibnamedelima A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=90d202ee474e4f8980fc2df6c7f982f0}{%
+           family={Little},
+           familyi={L\bibinitperiod},
+           given={John\bibnamedelima B.},
+           giveni={J\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=a5a551298e00f0bdd8d280bd0552a030}{%
+           family={Schenck},
+           familyi={S\bibinitperiod},
+           given={Henry\bibnamedelima K.},
+           giveni={H\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {American Mathematical Society}%
+      }
+      \strng{namehash}{8f3b390e2816aa658ee917221ed1c140}
+      \strng{fullhash}{8f3b390e2816aa658ee917221ed1c140}
+      \strng{fullhashraw}{8f3b390e2816aa658ee917221ed1c140}
+      \strng{bibnamehash}{8f3b390e2816aa658ee917221ed1c140}
+      \strng{authorbibnamehash}{8f3b390e2816aa658ee917221ed1c140}
+      \strng{authornamehash}{8f3b390e2816aa658ee917221ed1c140}
+      \strng{authorfullhash}{8f3b390e2816aa658ee917221ed1c140}
+      \strng{authorfullhashraw}{8f3b390e2816aa658ee917221ed1c140}
+      \field{labelalpha}{CLS11}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Toric varieties}
+      \field{volume}{124}
+      \field{year}{2011}
+      \field{dateera}{ce}
+      \verb{file}
+      \verb Toric Varieties by David Cox, John Little, Hal Schenck .pdf:/Users/mac/Zotero/storage/RZF386XY/Toric Varieties by David Cox, John Little, Hal Schenck .pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{chen_extremal_2018}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=38633ed640bd7b33c49dcf162e9082f0}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Bohui},
+           giveni={B\bibinitperiod}}}%
+        {{hash=9cde8e88fce1f53a05f3333cc0c082b7}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={An-Min},
+           giveni={A\bibinithyphendelim M\bibinitperiod}}}%
+        {{hash=e36607ffef509d2d8ea442bc7584f16c}{%
+           family={Sheng},
+           familyi={S\bibinitperiod},
+           given={Li},
+           giveni={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{b0d284d9bcc4e61abf569b840fac8083}
+      \strng{fullhash}{b0d284d9bcc4e61abf569b840fac8083}
+      \strng{fullhashraw}{b0d284d9bcc4e61abf569b840fac8083}
+      \strng{bibnamehash}{b0d284d9bcc4e61abf569b840fac8083}
+      \strng{authorbibnamehash}{b0d284d9bcc4e61abf569b840fac8083}
+      \strng{authornamehash}{b0d284d9bcc4e61abf569b840fac8083}
+      \strng{authorfullhash}{b0d284d9bcc4e61abf569b840fac8083}
+      \strng{authorfullhashraw}{b0d284d9bcc4e61abf569b840fac8083}
+      \field{labelalpha}{CLS18}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{00018708}
+      \field{journaltitle}{Adv. Math.}
+      \field{langid}{english}
+      \field{title}{Extremal metrics on toric surfaces}
+      \field{urlday}{16}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{volume}{340}
+      \field{year}{2018}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{363\bibrangedash 405}
+      \range{pages}{43}
+      \verb{doi}
+      \verb 10.1016/j.aim.2018.10.015
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/GXHU7JGP/Chen et al. - 2018 - Extremal metrics on toric surfaces.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0001870818304018
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0001870818304018
+      \endverb
+    \endentry
+    \entry{dervan_uniform_2016}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=8323c78cc74f62fae6f5485be744d190}{%
+           family={Dervan},
+           familyi={D\bibinitperiod},
+           given={Ruadhaí},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{8323c78cc74f62fae6f5485be744d190}
+      \strng{fullhash}{8323c78cc74f62fae6f5485be744d190}
+      \strng{fullhashraw}{8323c78cc74f62fae6f5485be744d190}
+      \strng{bibnamehash}{8323c78cc74f62fae6f5485be744d190}
+      \strng{authorbibnamehash}{8323c78cc74f62fae6f5485be744d190}
+      \strng{authornamehash}{8323c78cc74f62fae6f5485be744d190}
+      \strng{authorfullhash}{8323c78cc74f62fae6f5485be744d190}
+      \strng{authorfullhashraw}{8323c78cc74f62fae6f5485be744d190}
+      \field{labelalpha}{Der16}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1073-7928, 1687-0247}
+      \field{journaltitle}{Int. Math. Res. Not. {IMRN}}
+      \field{langid}{english}
+      \field{number}{15}
+      \field{title}{Uniform Stability of Twisted Constant Scalar Curvature Kähler Metrics}
+      \field{urlday}{16}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{volume}{2016}
+      \field{year}{2016}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{4728\bibrangedash 4783}
+      \range{pages}{56}
+      \verb{doi}
+      \verb 10.1093/imrn/rnv291
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/RGLMLBF3/Dervan - 2016 - Uniform Stability of Twisted Constant Scalar Curvature Kähler Metrics.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://academic.oup.com/imrn/article-lookup/doi/10.1093/imrn/rnv291
+      \endverb
+      \verb{url}
+      \verb https://academic.oup.com/imrn/article-lookup/doi/10.1093/imrn/rnv291
+      \endverb
+    \endentry
+    \entry{donaldson_scalar_2001}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=28a6bd4c63e1d58acf26a92675d403dc}{%
+           family={Donaldson},
+           familyi={D\bibinitperiod},
+           given={Simon\bibnamedelima K.},
+           giveni={S\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+      }
+      \strng{namehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{fullhash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{fullhashraw}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{bibnamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorbibnamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authornamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorfullhash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorfullhashraw}{28a6bd4c63e1d58acf26a92675d403dc}
+      \field{extraname}{1}
+      \field{labelalpha}{Don01}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{0022-040X}
+      \field{journaltitle}{J. Differential Geom.}
+      \field{langid}{english}
+      \field{number}{3}
+      \field{shorttitle}{{DP}1}
+      \field{title}{Scalar Curvature and Projective Embeddings, I}
+      \field{urlday}{5}
+      \field{urlmonth}{6}
+      \field{urlyear}{2023}
+      \field{volume}{59}
+      \field{year}{2001}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.4310/jdg/1090349449
+      \endverb
+      \verb{file}
+      \verb Donaldson - 2001 - Scalar Curvature and Projective Embeddings, I.pdf:/Users/mac/Zotero/storage/QWHNFCBB/Donaldson - 2001 - Scalar Curvature and Projective Embeddings, I.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://projecteuclid.org/journals/journal-of-differential-geometry/volume-59/issue-3/Scalar-Curvature-and-Projective-Embeddings-I/10.4310/jdg/1090349449.full
+      \endverb
+      \verb{url}
+      \verb https://projecteuclid.org/journals/journal-of-differential-geometry/volume-59/issue-3/Scalar-Curvature-and-Projective-Embeddings-I/10.4310/jdg/1090349449.full
+      \endverb
+    \endentry
+    \entry{donaldson_scalar_2002}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=28a6bd4c63e1d58acf26a92675d403dc}{%
+           family={Donaldson},
+           familyi={D\bibinitperiod},
+           given={Simon\bibnamedelima K.},
+           giveni={S\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+      }
+      \strng{namehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{fullhash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{fullhashraw}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{bibnamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorbibnamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authornamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorfullhash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorfullhashraw}{28a6bd4c63e1d58acf26a92675d403dc}
+      \field{extraname}{2}
+      \field{labelalpha}{Don02}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{0022-040X}
+      \field{journaltitle}{J. Differential Geom.}
+      \field{langid}{english}
+      \field{number}{2}
+      \field{shorttitle}{D02}
+      \field{title}{Scalar Curvature and Stability of Toric Varieties}
+      \field{urlday}{17}
+      \field{urlmonth}{7}
+      \field{urlyear}{2022}
+      \field{volume}{62}
+      \field{year}{2002}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{289\bibrangedash 349}
+      \range{pages}{61}
+      \verb{doi}
+      \verb 10.4310/jdg/1090950195
+      \endverb
+      \verb{file}
+      \verb Donaldson - 2002 - Scalar Curvature and Stability of Toric Varieties.pdf:/Users/mac/Zotero/storage/XER59MZP/Donaldson - 2002 - Scalar Curvature and Stability of Toric Varieties.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://projecteuclid.org/journals/journal-of-differential-geometry/volume-62/issue-2/Scalar-Curvature-and-Stability-of-Toric-Varieties/10.4310/jdg/1090950195.full
+      \endverb
+      \verb{url}
+      \verb https://projecteuclid.org/journals/journal-of-differential-geometry/volume-62/issue-2/Scalar-Curvature-and-Stability-of-Toric-Varieties/10.4310/jdg/1090950195.full
+      \endverb
+    \endentry
+    \entry{donaldson_extremal_2008}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=28a6bd4c63e1d58acf26a92675d403dc}{%
+           family={Donaldson},
+           familyi={D\bibinitperiod},
+           given={Simon\bibnamedelima K.},
+           giveni={S\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+      }
+      \strng{namehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{fullhash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{fullhashraw}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{bibnamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorbibnamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authornamehash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorfullhash}{28a6bd4c63e1d58acf26a92675d403dc}
+      \strng{authorfullhashraw}{28a6bd4c63e1d58acf26a92675d403dc}
+      \field{extraname}{3}
+      \field{labelalpha}{Don08}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{0022-040X}
+      \field{journaltitle}{J. Differential Geom.}
+      \field{langid}{english}
+      \field{number}{3}
+      \field{shorttitle}{Extremal metrics on toric surfaces}
+      \field{title}{Extremal metrics on toric surfaces: a continuity method}
+      \field{urlday}{16}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{volume}{79}
+      \field{year}{2008}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.4310/jdg/1213798183
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/TF326EDM/Donaldson - 2008 - Extremal metrics on toric surfaces a continuity method.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://projecteuclid.org/journals/journal-of-differential-geometry/volume-79/issue-3/Extremal-metrics-on-toric-surfaces-a-continuity-method/10.4310/jdg/1213798183.full
+      \endverb
+      \verb{url}
+      \verb https://projecteuclid.org/journals/journal-of-differential-geometry/volume-79/issue-3/Extremal-metrics-on-toric-surfaces-a-continuity-method/10.4310/jdg/1213798183.full
+      \endverb
+    \endentry
+    \entry{de_loera_triangulations_2010}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=4b9b522f6cf996f52d110e32c3e0bf1f}{%
+           family={De\bibnamedelima Loera},
+           familyi={D\bibinitperiod\bibinitdelim L\bibinitperiod},
+           given={Jesús\bibnamedelima A.},
+           giveni={J\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=309aa21f1615eba15c04852c3038bc70}{%
+           family={Rambau},
+           familyi={R\bibinitperiod},
+           given={Jörg},
+           giveni={J\bibinitperiod}}}%
+        {{hash=71a176c979f0a6bf7228668676f8c26a}{%
+           family={Santos},
+           familyi={S\bibinitperiod},
+           given={Francisco},
+           giveni={F\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Berlin, Heidelberg}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{81892578111b5c28684dcbc3f4da192b}
+      \strng{fullhash}{81892578111b5c28684dcbc3f4da192b}
+      \strng{fullhashraw}{81892578111b5c28684dcbc3f4da192b}
+      \strng{bibnamehash}{81892578111b5c28684dcbc3f4da192b}
+      \strng{authorbibnamehash}{81892578111b5c28684dcbc3f4da192b}
+      \strng{authornamehash}{81892578111b5c28684dcbc3f4da192b}
+      \strng{authorfullhash}{81892578111b5c28684dcbc3f4da192b}
+      \strng{authorfullhashraw}{81892578111b5c28684dcbc3f4da192b}
+      \field{labelalpha}{DRS10}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-3-642-12970-4 978-3-642-12971-1}
+      \field{langid}{english}
+      \field{series}{Algorithms and Computation in Mathematics}
+      \field{title}{Triangulations: structures for algorithms and applications}
+      \field{urlday}{9}
+      \field{urlmonth}{7}
+      \field{urlyear}{2022}
+      \field{volume}{25}
+      \field{year}{2010}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb De Loera 等。 - 2010 - Triangulations.pdf:/Users/mac/Zotero/storage/VGR4MSDM/De Loera 等。 - 2010 - Triangulations.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://link.springer.com/10.1007/978-3-642-12971-1
+      \endverb
+      \verb{url}
+      \verb http://link.springer.com/10.1007/978-3-642-12971-1
+      \endverb
+    \endentry
+    \entry{figalli_monge-ampere_2017}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=5e34b95c0fc7b1e001583eb24a79a381}{%
+           family={Figalli},
+           familyi={F\bibinitperiod},
+           given={Alessio},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Zürich}%
+      }
+      \list{publisher}{1}{%
+        {European Mathematical Society}%
+      }
+      \strng{namehash}{5e34b95c0fc7b1e001583eb24a79a381}
+      \strng{fullhash}{5e34b95c0fc7b1e001583eb24a79a381}
+      \strng{fullhashraw}{5e34b95c0fc7b1e001583eb24a79a381}
+      \strng{bibnamehash}{5e34b95c0fc7b1e001583eb24a79a381}
+      \strng{authorbibnamehash}{5e34b95c0fc7b1e001583eb24a79a381}
+      \strng{authornamehash}{5e34b95c0fc7b1e001583eb24a79a381}
+      \strng{authorfullhash}{5e34b95c0fc7b1e001583eb24a79a381}
+      \strng{authorfullhashraw}{5e34b95c0fc7b1e001583eb24a79a381}
+      \field{labelalpha}{Fig17}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-3-03719-670-0}
+      \field{pagetotal}{1}
+      \field{series}{Zurich lectures in advanced mathematics}
+      \field{title}{The Monge-Ampère equation and its applications}
+      \field{year}{2017}
+      \field{dateera}{ce}
+      \verb{doi}
+      \verb 10.4171/170
+      \endverb
+    \endentry
+    \entry{gale_convex_1968}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=8921ac40fd1635d7d5bcf2cc6307b6f7}{%
+           family={Gale},
+           familyi={G\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod}}}%
+        {{hash=3fc4fb7684111cb9dcd6eb11d4024766}{%
+           family={Klee},
+           familyi={K\bibinitperiod},
+           given={Victor},
+           giveni={V\bibinitperiod}}}%
+        {{hash=18de24308c36b3348b1477a2f7aa442f}{%
+           family={Rockafellar},
+           familyi={R\bibinitperiod},
+           given={R.\bibnamedelimi Tyrrell},
+           giveni={R\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+      }
+      \strng{namehash}{3c20559d10912beb745f4838f557ab07}
+      \strng{fullhash}{3c20559d10912beb745f4838f557ab07}
+      \strng{fullhashraw}{3c20559d10912beb745f4838f557ab07}
+      \strng{bibnamehash}{3c20559d10912beb745f4838f557ab07}
+      \strng{authorbibnamehash}{3c20559d10912beb745f4838f557ab07}
+      \strng{authornamehash}{3c20559d10912beb745f4838f557ab07}
+      \strng{authorfullhash}{3c20559d10912beb745f4838f557ab07}
+      \strng{authorfullhashraw}{3c20559d10912beb745f4838f557ab07}
+      \field{labelalpha}{GKR68}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Proc. Amer. Math. Soc.}
+      \field{number}{4}
+      \field{title}{Convex functions on convex polytopes}
+      \field{urlday}{12}
+      \field{urlmonth}{1}
+      \field{urlyear}{2026}
+      \field{volume}{19}
+      \field{year}{1968}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{867\bibrangedash 873}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.2307/2035330
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/VJLW5QQ9/Gale4.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{gelfand_discriminants_1994}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=09a8ce7105f48c5d620fd910e80f0656}{%
+           family={Gelfand},
+           familyi={G\bibinitperiod},
+           given={Israel\bibnamedelima M.},
+           giveni={I\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=1a05f42569e2c440e34da9fd334bb0d8}{%
+           family={Kapranov},
+           familyi={K\bibinitperiod},
+           given={Mikhail\bibnamedelima M.},
+           giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=13aa5b914b3ea891c950959084a0aff7}{%
+           family={Zelevinsky},
+           familyi={Z\bibinitperiod},
+           given={Andrei\bibnamedelima V.},
+           giveni={A\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Boston}%
+      }
+      \list{publisher}{1}{%
+        {Birkhäuser}%
+      }
+      \strng{namehash}{3fb99a4eeda78d3a162d12df2bba5aba}
+      \strng{fullhash}{3fb99a4eeda78d3a162d12df2bba5aba}
+      \strng{fullhashraw}{3fb99a4eeda78d3a162d12df2bba5aba}
+      \strng{bibnamehash}{3fb99a4eeda78d3a162d12df2bba5aba}
+      \strng{authorbibnamehash}{3fb99a4eeda78d3a162d12df2bba5aba}
+      \strng{authornamehash}{3fb99a4eeda78d3a162d12df2bba5aba}
+      \strng{authorfullhash}{3fb99a4eeda78d3a162d12df2bba5aba}
+      \strng{authorfullhashraw}{3fb99a4eeda78d3a162d12df2bba5aba}
+      \field{labelalpha}{GKZ94}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{isbn}{978-0-8176-4770-4 978-0-8176-4771-1}
+      \field{langid}{english}
+      \field{shorttitle}{{GKZ}}
+      \field{title}{Discriminants, Resultants and Multidimensional Determinants}
+      \field{urlday}{4}
+      \field{urlmonth}{6}
+      \field{urlyear}{2022}
+      \field{year}{1994}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{file}
+      \verb Gelfand 等。 - 1994 - Discriminants, Resultants, and Multidimensional De.pdf:/Users/mac/Zotero/storage/9276ETEP/Gelfand 等 - 1994 - GKZ.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://link.springer.com/10.1007/978-0-8176-4771-1
+      \endverb
+      \verb{url}
+      \verb http://link.springer.com/10.1007/978-0-8176-4771-1
+      \endverb
+    \endentry
+    \entry{hisamoto_stability_2020}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=55f18057f8dc62d08702aa71f569194b}{%
+           family={Hisamoto},
+           familyi={H\bibinitperiod},
+           given={Tomoyuki},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{55f18057f8dc62d08702aa71f569194b}
+      \strng{fullhash}{55f18057f8dc62d08702aa71f569194b}
+      \strng{fullhashraw}{55f18057f8dc62d08702aa71f569194b}
+      \strng{bibnamehash}{55f18057f8dc62d08702aa71f569194b}
+      \strng{authorbibnamehash}{55f18057f8dc62d08702aa71f569194b}
+      \strng{authornamehash}{55f18057f8dc62d08702aa71f569194b}
+      \strng{authorfullhash}{55f18057f8dc62d08702aa71f569194b}
+      \strng{authorfullhashraw}{55f18057f8dc62d08702aa71f569194b}
+      \field{labelalpha}{His20}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arxiv}
+      \field{number}{{arXiv}:1610.07998}
+      \field{title}{Stability and coercivity for toric polarizations}
+      \field{urlday}{13}
+      \field{urlmonth}{9}
+      \field{urlyear}{2025}
+      \field{year}{2020}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.1610.07998
+      \endverb
+      \verb{eprint}
+      \verb 1610.07998
+      \endverb
+      \verb{file}
+      \verb Preprint PDF:/Users/mac/Zotero/storage/HJFV5HWZ/Hisamoto - 2020 - Stability and coercivity for toric polarizations.pdf:application/pdf;Snapshot:/Users/mac/Zotero/storage/DKCJ5JVJ/1610.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1610.07998
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1610.07998
+      \endverb
+      \keyw{Mathematics - Algebraic Geometry,Mathematics - Differential Geometry}
+    \endentry
+    \entry{inoue_entropies_2022-1}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=d7cec3e9e73c5b6f542c6581dcb8f3d0}{%
+           family={Inoue},
+           familyi={I\bibinitperiod},
+           given={Eiji},
+           giveni={E\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{d7cec3e9e73c5b6f542c6581dcb8f3d0}
+      \strng{fullhash}{d7cec3e9e73c5b6f542c6581dcb8f3d0}
+      \strng{fullhashraw}{d7cec3e9e73c5b6f542c6581dcb8f3d0}
+      \strng{bibnamehash}{d7cec3e9e73c5b6f542c6581dcb8f3d0}
+      \strng{authorbibnamehash}{d7cec3e9e73c5b6f542c6581dcb8f3d0}
+      \strng{authornamehash}{d7cec3e9e73c5b6f542c6581dcb8f3d0}
+      \strng{authorfullhash}{d7cec3e9e73c5b6f542c6581dcb8f3d0}
+      \strng{authorfullhashraw}{d7cec3e9e73c5b6f542c6581dcb8f3d0}
+      \field{labelalpha}{Ino22}
+      \field{sortinit}{I}
+      \field{sortinithash}{8d291c51ee89b6cd86bf5379f0b151d8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{eprinttype}{arxiv}
+      \field{langid}{english}
+      \field{number}{{arXiv}:2101.11197}
+      \field{shorttitle}{Inoue 1}
+      \field{title}{Entropies in $\mu$-framework of canonical metrics and K-stability, I -- Archimedean aspect: Perelman's W-entropy and $\mu$-cscK metrics}
+      \field{urlday}{15}
+      \field{urlmonth}{5}
+      \field{urlyear}{2024}
+      \field{year}{2022}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{eprint}
+      \verb 2101.11197
+      \endverb
+      \verb{file}
+      \verb Inoue - 2022 - Entropies in \$mu\$-framework of canonical metrics .pdf:/Users/mac/Zotero/storage/HRQXEQLN/Inoue - 2022 - Entropies in \$mu\$-framework of canonical metrics .pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2101.11197
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2101.11197
+      \endverb
+    \endentry
+    \entry{jordan_program_nodate}{software}{}{}
+      \name{author}{3}{}{%
+        {{hash=994c7840ba55b7191fcf2e919d660bba}{%
+           family={Jordan},
+           familyi={J\bibinitperiod},
+           given={Skip},
+           giveni={S\bibinitperiod}}}%
+        {{hash=d2d75fc8419b773f097f2069a606044a}{%
+           family={Joswig},
+           familyi={J\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=5b11bbff0ac8f79ab0a56ba172e0b2be}{%
+           family={Kastner},
+           familyi={K\bibinitperiod},
+           given={Lars},
+           giveni={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{b06552a9037b426b7d197e1dd581d2f8}
+      \strng{fullhash}{b06552a9037b426b7d197e1dd581d2f8}
+      \strng{fullhashraw}{b06552a9037b426b7d197e1dd581d2f8}
+      \strng{bibnamehash}{b06552a9037b426b7d197e1dd581d2f8}
+      \strng{authorbibnamehash}{b06552a9037b426b7d197e1dd581d2f8}
+      \strng{authornamehash}{b06552a9037b426b7d197e1dd581d2f8}
+      \strng{authorfullhash}{b06552a9037b426b7d197e1dd581d2f8}
+      \strng{authorfullhashraw}{b06552a9037b426b7d197e1dd581d2f8}
+      \field{labelalpha}{JJK}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://polymake.org/doku.php/mptopcom}}
+      \field{title}{Program: mptopcom}
+    \endentry
+    \entry{jubert_yautiandonaldson_2023}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=7608be6b67980466d8ee75909a5ee41d}{%
+           family={Jubert},
+           familyi={J\bibinitperiod},
+           given={Simon},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{7608be6b67980466d8ee75909a5ee41d}
+      \strng{fullhash}{7608be6b67980466d8ee75909a5ee41d}
+      \strng{fullhashraw}{7608be6b67980466d8ee75909a5ee41d}
+      \strng{bibnamehash}{7608be6b67980466d8ee75909a5ee41d}
+      \strng{authorbibnamehash}{7608be6b67980466d8ee75909a5ee41d}
+      \strng{authornamehash}{7608be6b67980466d8ee75909a5ee41d}
+      \strng{authorfullhash}{7608be6b67980466d8ee75909a5ee41d}
+      \strng{authorfullhashraw}{7608be6b67980466d8ee75909a5ee41d}
+      \field{labelalpha}{Jub23}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{1777-5310}
+      \field{journaltitle}{Ann. Inst. Fourier (Grenoble)}
+      \field{langid}{english}
+      \field{number}{6}
+      \field{title}{A Yau–Tian–Donaldson correspondence on a class of toric fibrations}
+      \field{urlday}{16}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{volume}{73}
+      \field{year}{2023}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{2567\bibrangedash 2604}
+      \range{pages}{38}
+      \verb{doi}
+      \verb 10.5802/aif.3580
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/8P2DUTBU/Jubert - 2023 - A Yau–Tian–Donaldson correspondence on a class of toric fibrations.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://aif.centre-mersenne.org/articles/10.5802/aif.3580/
+      \endverb
+      \verb{url}
+      \verb https://aif.centre-mersenne.org/articles/10.5802/aif.3580/
+      \endverb
+    \endentry
+    \entry{kapranov_chow_1992}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=1a05f42569e2c440e34da9fd334bb0d8}{%
+           family={Kapranov},
+           familyi={K\bibinitperiod},
+           given={Mikhail\bibnamedelima M.},
+           giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=1146827b08c62c2c18700dd73b1dc482}{%
+           family={Sturmfels},
+           familyi={S\bibinitperiod},
+           given={Bernd},
+           giveni={B\bibinitperiod}}}%
+        {{hash=13aa5b914b3ea891c950959084a0aff7}{%
+           family={Zelevinsky},
+           familyi={Z\bibinitperiod},
+           given={Andrei\bibnamedelima V.},
+           giveni={A\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+      }
+      \strng{namehash}{ed2812c423925a396dc0c1f235924a6f}
+      \strng{fullhash}{ed2812c423925a396dc0c1f235924a6f}
+      \strng{fullhashraw}{ed2812c423925a396dc0c1f235924a6f}
+      \strng{bibnamehash}{ed2812c423925a396dc0c1f235924a6f}
+      \strng{authorbibnamehash}{ed2812c423925a396dc0c1f235924a6f}
+      \strng{authornamehash}{ed2812c423925a396dc0c1f235924a6f}
+      \strng{authorfullhash}{ed2812c423925a396dc0c1f235924a6f}
+      \strng{authorfullhashraw}{ed2812c423925a396dc0c1f235924a6f}
+      \field{labelalpha}{KSZ92}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{0012-7094}
+      \field{journaltitle}{Duke Math. J.}
+      \field{number}{1}
+      \field{shorttitle}{{KSZ}}
+      \field{title}{Chow polytopes and general resultants}
+      \field{urlday}{20}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{volume}{67}
+      \field{year}{1992}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.1215/S0012-7094-92-06707-X
+      \endverb
+      \verb{urlraw}
+      \verb https://projecteuclid.org/journals/duke-mathematical-journal/volume-67/issue-1/Chow-polytopes-and-general-resultants/10.1215/S0012-7094-92-06707-X.full
+      \endverb
+      \verb{url}
+      \verb https://projecteuclid.org/journals/duke-mathematical-journal/volume-67/issue-1/Chow-polytopes-and-general-resultants/10.1215/S0012-7094-92-06707-X.full
+      \endverb
+    \endentry
+    \entry{lee_asymptotic_2019}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=cf91e9e8efae462b419cf43bac6c5be1}{%
+           family={Lee},
+           familyi={L\bibinitperiod},
+           given={King-Leung},
+           giveni={K\bibinithyphendelim L\bibinitperiod}}}%
+        {{hash=35069ab0f2565b95f02723d645a36cbd}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Zhiyuan},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=2bdbaaee2c627ed9189294bd52548448}{%
+           family={Sturm},
+           familyi={S\bibinitperiod},
+           given={Jacob},
+           giveni={J\bibinitperiod}}}%
+        {{hash=68f806f5bf2a1e15fa340421696aac3b}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Xiaowei},
+           giveni={X\bibinitperiod}}}%
+      }
+      \strng{namehash}{bd1a34cfdec7b1d5f94cd63066e0e979}
+      \strng{fullhash}{9ee4e859fbc64694662bd4517a098fec}
+      \strng{fullhashraw}{9ee4e859fbc64694662bd4517a098fec}
+      \strng{bibnamehash}{bd1a34cfdec7b1d5f94cd63066e0e979}
+      \strng{authorbibnamehash}{bd1a34cfdec7b1d5f94cd63066e0e979}
+      \strng{authornamehash}{bd1a34cfdec7b1d5f94cd63066e0e979}
+      \strng{authorfullhash}{9ee4e859fbc64694662bd4517a098fec}
+      \strng{authorfullhashraw}{9ee4e859fbc64694662bd4517a098fec}
+      \field{labelalpha}{Lee+19}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Math. Res. Lett.}
+      \field{langid}{english}
+      \field{number}{6}
+      \field{title}{Asymptotic Chow stability of toric Del Pezzo surfaces}
+      \field{volume}{26}
+      \field{year}{2019}
+      \field{dateera}{ce}
+      \field{pages}{1759\bibrangedash 1787}
+      \range{pages}{29}
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/4JUJHRLN/Lee et al. - Asymptotic Chow stability of toric Del Pezzo surfaces.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{li_geodesic_2022}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=616e72ab25ec5a7be69da574eb49af9a}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Chi},
+           giveni={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{616e72ab25ec5a7be69da574eb49af9a}
+      \strng{fullhash}{616e72ab25ec5a7be69da574eb49af9a}
+      \strng{fullhashraw}{616e72ab25ec5a7be69da574eb49af9a}
+      \strng{bibnamehash}{616e72ab25ec5a7be69da574eb49af9a}
+      \strng{authorbibnamehash}{616e72ab25ec5a7be69da574eb49af9a}
+      \strng{authornamehash}{616e72ab25ec5a7be69da574eb49af9a}
+      \strng{authorfullhash}{616e72ab25ec5a7be69da574eb49af9a}
+      \strng{authorfullhashraw}{616e72ab25ec5a7be69da574eb49af9a}
+      \field{labelalpha}{Li22}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{journaltitle}{Ann. Sci. Éc. Norm. Supér.}
+      \field{langid}{english}
+      \field{number}{6}
+      \field{shorttitle}{csck}
+      \field{title}{Geodesic rays and stability in the {cscK} problem}
+      \field{volume}{55}
+      \field{year}{2022}
+      \field{dateera}{ce}
+      \field{pages}{1529\bibrangedash 1574}
+      \range{pages}{46}
+      \verb{file}
+      \verb Li - Geodesic rays and stability in the cscK problem.pdf:/Users/mac/Zotero/storage/NJ7RQ3VX/Li - Geodesic rays and stability in the cscK problem.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{li_extremal_2023}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=2f98a5f7d862436e50ff6e6132329983}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Anmin},
+           giveni={A\bibinitperiod}}}%
+        {{hash=bce9cccc48498cac4af5aa901d347337}{%
+           family={Lian},
+           familyi={L\bibinitperiod},
+           given={Zhao},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=e36607ffef509d2d8ea442bc7584f16c}{%
+           family={Sheng},
+           familyi={S\bibinitperiod},
+           given={Li},
+           giveni={L\bibinitperiod}}}%
+      }
+      \strng{namehash}{11d6e66516b156396e2747c02d9bfa52}
+      \strng{fullhash}{11d6e66516b156396e2747c02d9bfa52}
+      \strng{fullhashraw}{11d6e66516b156396e2747c02d9bfa52}
+      \strng{bibnamehash}{11d6e66516b156396e2747c02d9bfa52}
+      \strng{authorbibnamehash}{11d6e66516b156396e2747c02d9bfa52}
+      \strng{authornamehash}{11d6e66516b156396e2747c02d9bfa52}
+      \strng{authorfullhash}{11d6e66516b156396e2747c02d9bfa52}
+      \strng{authorfullhashraw}{11d6e66516b156396e2747c02d9bfa52}
+      \field{labelalpha}{LLS23}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0075-4102, 1435-5345}
+      \field{journaltitle}{J. Reine Angew. Math.}
+      \field{langid}{english}
+      \field{number}{798}
+      \field{title}{Extremal metrics on toric manifolds and homogeneous toric bundles}
+      \field{urlday}{30}
+      \field{urlmonth}{8}
+      \field{urlyear}{2024}
+      \field{volume}{2023}
+      \field{year}{2023}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{237\bibrangedash 259}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.1515/crelle-2023-0017
+      \endverb
+      \verb{file}
+      \verb Li 等 - 2023 - Extremal metrics on toric manifolds and homogeneou.pdf:/Users/mac/Zotero/storage/8GSKUCQ6/Li 等 - 2023 - Extremal metrics on toric manifolds and homogeneou.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://www.degruyter.com/document/doi/10.1515/crelle-2023-0017/html
+      \endverb
+      \verb{url}
+      \verb https://www.degruyter.com/document/doi/10.1515/crelle-2023-0017/html
+      \endverb
+    \endentry
+    \entry{li_k-stability_2022}{misc}{}{}
+      \name{author}{2}{}{%
+        {{hash=92e14a8c19eb5a0c7c199c85db74f106}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Yan},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=847b802eb49a8d64e0694a5f417c19e7}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Bin},
+           giveni={B\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{363aada2df814856ad6dc573f984e0ec}
+      \strng{fullhash}{363aada2df814856ad6dc573f984e0ec}
+      \strng{fullhashraw}{363aada2df814856ad6dc573f984e0ec}
+      \strng{bibnamehash}{363aada2df814856ad6dc573f984e0ec}
+      \strng{authorbibnamehash}{363aada2df814856ad6dc573f984e0ec}
+      \strng{authornamehash}{363aada2df814856ad6dc573f984e0ec}
+      \strng{authorfullhash}{363aada2df814856ad6dc573f984e0ec}
+      \strng{authorfullhashraw}{363aada2df814856ad6dc573f984e0ec}
+      \field{labelalpha}{LZ22}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{day}{14}
+      \field{eprinttype}{arxiv}
+      \field{month}{1}
+      \field{number}{{arXiv}:2111.04269}
+      \field{title}{K-stability and polystable degenerations of polarized spherical varieties}
+      \field{urlday}{18}
+      \field{urlmonth}{8}
+      \field{urlyear}{2025}
+      \field{year}{2022}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.2111.04269
+      \endverb
+      \verb{eprint}
+      \verb 2111.04269
+      \endverb
+      \verb{file}
+      \verb Preprint PDF:/Users/mac/Zotero/storage/MR9MV8PW/Li and Zhou - 2022 - K-stability and polystable degenerations of polarized spherical varieties.pdf:application/pdf;Snapshot:/Users/mac/Zotero/storage/E68E7WN8/2111.html:text/html
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2111.04269
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2111.04269
+      \endverb
+      \keyw{Mathematics - Algebraic Geometry,Mathematics - Differential Geometry}
+    \endentry
+    \entry{nitta_uniform_2021}{misc}{}{}
+      \name{author}{2}{}{%
+        {{hash=000807d15b9633c2f7f383705c156845}{%
+           family={Nitta},
+           familyi={N\bibinitperiod},
+           given={Yasufumi},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=22eec8f6b54b199bae783d56e79beca9}{%
+           family={Saito},
+           familyi={S\bibinitperiod},
+           given={Shunsuke},
+           giveni={S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{cb80d0cc9694a405c26b6a4450fa2e8e}
+      \strng{fullhash}{cb80d0cc9694a405c26b6a4450fa2e8e}
+      \strng{fullhashraw}{cb80d0cc9694a405c26b6a4450fa2e8e}
+      \strng{bibnamehash}{cb80d0cc9694a405c26b6a4450fa2e8e}
+      \strng{authorbibnamehash}{cb80d0cc9694a405c26b6a4450fa2e8e}
+      \strng{authornamehash}{cb80d0cc9694a405c26b6a4450fa2e8e}
+      \strng{authorfullhash}{cb80d0cc9694a405c26b6a4450fa2e8e}
+      \strng{authorfullhashraw}{cb80d0cc9694a405c26b6a4450fa2e8e}
+      \field{labelalpha}{NS21}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The aim of this paper is to solve a uniform version of the Yau-Tian-Donaldson conjecture for polarized toric manifolds. Also, we show a combinatorial sufficient condition for uniform relative K-polystability.}
+      \field{day}{20}
+      \field{eprinttype}{arxiv}
+      \field{month}{10}
+      \field{number}{{arXiv}:2110.10386}
+      \field{title}{A uniform version of the Yau-Tian-Donaldson correspondence for extremal Kähler metrics on polarized toric manifolds}
+      \field{urlday}{10}
+      \field{urlmonth}{9}
+      \field{urlyear}{2025}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.2110.10386
+      \endverb
+      \verb{eprint}
+      \verb 2110.10386
+      \endverb
+      \verb{file}
+      \verb Preprint PDF:/Users/mac/Zotero/storage/V8CFPG7L/Nitta and Saito - 2021 - A uniform version of the Yau-Tian-Donaldson correspondence for extremal Kähler metrics on polarized.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2110.10386
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2110.10386
+      \endverb
+    \endentry
+    \entry{ono_necessary_2011}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=d0540e4d1b518aa54cd320b5c391ddc3}{%
+           family={Ono},
+           familyi={O\bibinitperiod},
+           given={Hajime},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{fullhash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{fullhashraw}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{bibnamehash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{authorbibnamehash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{authornamehash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{authorfullhash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{authorfullhashraw}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \field{extraname}{1}
+      \field{labelalpha}{Ono11}
+      \field{sortinit}{O}
+      \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0025-5645}
+      \field{journaltitle}{J. Math. Soc. Japan}
+      \field{langid}{english}
+      \field{number}{4}
+      \field{title}{A necessary condition for Chow semistability of polarized toric manifolds}
+      \field{urlday}{4}
+      \field{urlmonth}{6}
+      \field{urlyear}{2022}
+      \field{volume}{63}
+      \field{year}{2011}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.2969/jmsj/06341377
+      \endverb
+      \verb{file}
+      \verb Ono - 2011 - A necessary condition for Chow semistability of po.pdf:/Users/mac/Zotero/storage/C8CEZKH7/Ono - 2011 - A necessary condition for Chow semistability of po.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://projecteuclid.org/journals/journal-of-the-mathematical-society-of-japan/volume-63/issue-4/A-necessary-condition-for-Chow-semistability-of-polarized-toric-manifolds/10.2969/jmsj/06341377.full
+      \endverb
+      \verb{url}
+      \verb https://projecteuclid.org/journals/journal-of-the-mathematical-society-of-japan/volume-63/issue-4/A-necessary-condition-for-Chow-semistability-of-polarized-toric-manifolds/10.2969/jmsj/06341377.full
+      \endverb
+    \endentry
+    \entry{ono_algebro-geometric_2013}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=d0540e4d1b518aa54cd320b5c391ddc3}{%
+           family={Ono},
+           familyi={O\bibinitperiod},
+           given={Hajime},
+           giveni={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{fullhash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{fullhashraw}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{bibnamehash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{authorbibnamehash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{authornamehash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{authorfullhash}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \strng{authorfullhashraw}{d0540e4d1b518aa54cd320b5c391ddc3}
+      \field{extraname}{2}
+      \field{labelalpha}{Ono13}
+      \field{sortinit}{O}
+      \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{10936106, 19450036}
+      \field{journaltitle}{Asian J. Math.}
+      \field{langid}{english}
+      \field{number}{4}
+      \field{title}{Algebro-geometric semistability of polarized toric manifolds}
+      \field{urlday}{4}
+      \field{urlmonth}{6}
+      \field{urlyear}{2022}
+      \field{volume}{17}
+      \field{year}{2013}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{609\bibrangedash 616}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.4310/AJM.2013.v17.n4.a3
+      \endverb
+      \verb{file}
+      \verb Ono - 2013 - Algebro-geometric semistability of polarized toric.pdf:/Users/mac/Zotero/storage/FG7DP5JW/Ono - 2013 - Algebro-geometric semistability of polarized toric.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://www.intlpress.com/site/pub/pages/journals/items/ajm/content/vols/0017/0004/a003/
+      \endverb
+      \verb{url}
+      \verb http://www.intlpress.com/site/pub/pages/journals/items/ajm/content/vols/0017/0004/a003/
+      \endverb
+    \endentry
+    \entry{rambau_topcom_2002}{inproceedings}{}{}
+      \name{author}{1}{}{%
+        {{hash=309aa21f1615eba15c04852c3038bc70}{%
+           family={Rambau},
+           familyi={R\bibinitperiod},
+           given={Jörg},
+           giveni={J\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {World Scientiﬁc}%
+      }
+      \strng{namehash}{309aa21f1615eba15c04852c3038bc70}
+      \strng{fullhash}{309aa21f1615eba15c04852c3038bc70}
+      \strng{fullhashraw}{309aa21f1615eba15c04852c3038bc70}
+      \strng{bibnamehash}{309aa21f1615eba15c04852c3038bc70}
+      \strng{authorbibnamehash}{309aa21f1615eba15c04852c3038bc70}
+      \strng{authornamehash}{309aa21f1615eba15c04852c3038bc70}
+      \strng{authorfullhash}{309aa21f1615eba15c04852c3038bc70}
+      \strng{authorfullhashraw}{309aa21f1615eba15c04852c3038bc70}
+      \field{labelalpha}{Ram02}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Mathematical Software—{ICMS} 2002}
+      \field{note}{\url{https://www.wm.uni-bayreuth.de/de/team/rambau_joerg/TOPCOM/index.html}}
+      \field{title}{{TOPCOM}: Triangulations of Point Configurations and Oriented Matroids}
+      \field{urlday}{14}
+      \field{urlmonth}{10}
+      \field{urlyear}{2024}
+      \field{year}{2002}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{330\bibrangedash 340}
+      \range{pages}{11}
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/AN787K2N/TOPCOM-manual.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{ross_study_2006}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=401cffa4037aed395814b6546693a29b}{%
+           family={Ross},
+           familyi={R\bibinitperiod},
+           given={Julius},
+           giveni={J\bibinitperiod}}}%
+        {{hash=832f9206fe12eeaf70508ec033fafdaf}{%
+           family={Thomas},
+           familyi={T\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{25083b8fe742f7ee6cee3a11158ed0cc}
+      \strng{fullhash}{25083b8fe742f7ee6cee3a11158ed0cc}
+      \strng{fullhashraw}{25083b8fe742f7ee6cee3a11158ed0cc}
+      \strng{bibnamehash}{25083b8fe742f7ee6cee3a11158ed0cc}
+      \strng{authorbibnamehash}{25083b8fe742f7ee6cee3a11158ed0cc}
+      \strng{authornamehash}{25083b8fe742f7ee6cee3a11158ed0cc}
+      \strng{authorfullhash}{25083b8fe742f7ee6cee3a11158ed0cc}
+      \strng{authorfullhashraw}{25083b8fe742f7ee6cee3a11158ed0cc}
+      \field{labelalpha}{RT06}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{1056-3911, 1534-7486}
+      \field{journaltitle}{J. Algebraic Geom.}
+      \field{langid}{english}
+      \field{number}{2}
+      \field{shorttitle}{{RT}}
+      \field{title}{A study of the Hilbert-Mumford criterion for the stability of projective varieties}
+      \field{urlday}{18}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{volume}{16}
+      \field{year}{2006}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{201\bibrangedash 255}
+      \range{pages}{55}
+      \verb{doi}
+      \verb 10.1090/S1056-3911-06-00461-9
+      \endverb
+      \verb{file}
+      \verb 已提交版本:/Users/mac/Zotero/storage/VIPE3HW8/Ross和Thomas - 2006 - A study of the Hilbert-Mumford criterion for the stability of projective varieties.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://www.ams.org/jag/2007-16-02/S1056-3911-06-00461-9/
+      \endverb
+      \verb{url}
+      \verb https://www.ams.org/jag/2007-16-02/S1056-3911-06-00461-9/
+      \endverb
+    \endentry
+    \entry{sektnan_investigation_2018}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=4b001d35fdcb48582ccfb0870b079a20}{%
+           family={Sektnan},
+           familyi={S\bibinitperiod},
+           given={Lars\bibnamedelima M.},
+           giveni={L\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \strng{namehash}{4b001d35fdcb48582ccfb0870b079a20}
+      \strng{fullhash}{4b001d35fdcb48582ccfb0870b079a20}
+      \strng{fullhashraw}{4b001d35fdcb48582ccfb0870b079a20}
+      \strng{bibnamehash}{4b001d35fdcb48582ccfb0870b079a20}
+      \strng{authorbibnamehash}{4b001d35fdcb48582ccfb0870b079a20}
+      \strng{authornamehash}{4b001d35fdcb48582ccfb0870b079a20}
+      \strng{authorfullhash}{4b001d35fdcb48582ccfb0870b079a20}
+      \strng{authorfullhashraw}{4b001d35fdcb48582ccfb0870b079a20}
+      \field{labelalpha}{Sek18}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We investigate the relationship between stability and the existence of extremal Ka¨hler metrics on certain toric surfaces. In particular, we consider how log stability depends on weights for toric surfaces whose moment polytope is a quadrilateral. For quadrilaterals, we give a computable criterion for stability with 0 weights along two of the edges of the quadrilateral. This in turn implies the existence of a deﬁnite log-stable region for quadrilaterals. This uses constructions due to Apostolov-Calderbank-Gauduchon and Legendre.}
+      \field{journaltitle}{New York J. Math.}
+      \field{langid}{english}
+      \field{number}{24}
+      \field{title}{An investigation of stability on certain toric surfaces}
+      \field{volume}{2018}
+      \field{year}{2018}
+      \field{dateera}{ce}
+      \field{pages}{317\bibrangedash 354}
+      \range{pages}{38}
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/WHXZPMAI/Sektnan - An investigation of stability on certain toric surfaces.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{szekelyhidi_extremal_2006}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{hash=67dac044c573b9c6ad8959bc3e2921bf}{%
+           family={Székelyhidi},
+           familyi={S\bibinitperiod},
+           given={Gábor},
+           giveni={G\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Imperial College London}%
+      }
+      \strng{namehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{fullhash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{fullhashraw}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{bibnamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorbibnamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authornamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorfullhash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorfullhashraw}{67dac044c573b9c6ad8959bc3e2921bf}
+      \field{extraname}{1}
+      \field{labelalpha}{Szé06}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arxiv}
+      \field{title}{Extremal metrics and K-stability}
+      \field{type}{phdthesis}
+      \field{urlday}{27}
+      \field{urlmonth}{4}
+      \field{urlyear}{2025}
+      \field{year}{2006}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{eprint}
+      \verb math/0611002
+      \endverb
+      \verb{file}
+      \verb Full Text PDF:/Users/mac/Zotero/storage/7ZN4LA4J/Székelyhidi - 2006 - Extremal metrics and K-stability (PhD thesis).pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/math/0611002
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/math/0611002
+      \endverb
+    \endentry
+    \entry{szekelyhidi_optimal_2008}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=67dac044c573b9c6ad8959bc3e2921bf}{%
+           family={Székelyhidi},
+           familyi={S\bibinitperiod},
+           given={Gábor},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{fullhash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{fullhashraw}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{bibnamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorbibnamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authornamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorfullhash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorfullhashraw}{67dac044c573b9c6ad8959bc3e2921bf}
+      \field{extraname}{2}
+      \field{labelalpha}{Szé08}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0022-040X}
+      \field{journaltitle}{J. Differential Geom.}
+      \field{langid}{english}
+      \field{number}{3}
+      \field{title}{Optimal test-configurations for toric varieties}
+      \field{urlday}{4}
+      \field{urlmonth}{6}
+      \field{urlyear}{2022}
+      \field{volume}{80}
+      \field{year}{2008}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.4310/jdg/1226090485
+      \endverb
+      \verb{file}
+      \verb Székelyhidi - 2008 - Optimal test-configurations for toric varieties.pdf:/Users/mac/Zotero/storage/FLKY6QDQ/Székelyhidi - 2008 - Optimal test-configurations for toric varieties.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://projecteuclid.org/journals/journal-of-differential-geometry/volume-80/issue-3/Optimal-test-configurations-for-toric-varieties/10.4310/jdg/1226090485.full
+      \endverb
+      \verb{url}
+      \verb https://projecteuclid.org/journals/journal-of-differential-geometry/volume-80/issue-3/Optimal-test-configurations-for-toric-varieties/10.4310/jdg/1226090485.full
+      \endverb
+    \endentry
+    \entry{szekelyhidi_introduction_2014}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=67dac044c573b9c6ad8959bc3e2921bf}{%
+           family={Székelyhidi},
+           familyi={S\bibinitperiod},
+           given={Gábor},
+           giveni={G\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {American Mathematical Society}%
+      }
+      \strng{namehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{fullhash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{fullhashraw}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{bibnamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorbibnamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authornamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorfullhash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorfullhashraw}{67dac044c573b9c6ad8959bc3e2921bf}
+      \field{extraname}{3}
+      \field{labelalpha}{Szé14}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{series}{Graduate Studies in Mathematics}
+      \field{title}{An Introduction to Extremal Kähler Metrics}
+      \field{volume}{152}
+      \field{year}{2014}
+      \field{dateera}{ce}
+    \endentry
+    \entry{szekelyhidi_filtrations_2015}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=67dac044c573b9c6ad8959bc3e2921bf}{%
+           family={Székelyhidi},
+           familyi={S\bibinitperiod},
+           given={Gábor},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{fullhash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{fullhashraw}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{bibnamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorbibnamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authornamehash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorfullhash}{67dac044c573b9c6ad8959bc3e2921bf}
+      \strng{authorfullhashraw}{67dac044c573b9c6ad8959bc3e2921bf}
+      \field{extraname}{4}
+      \field{labelalpha}{Szé15}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{0025-5831, 1432-1807}
+      \field{journaltitle}{Math. Ann.}
+      \field{langid}{english}
+      \field{number}{1}
+      \field{shorttitle}{Filtrations and test-configurations}
+      \field{title}{Filtrations and test-configurations: With an appendix by Sebastien Boucksom}
+      \field{urlday}{16}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{volume}{362}
+      \field{year}{2015}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{451\bibrangedash 484}
+      \range{pages}{34}
+      \verb{doi}
+      \verb 10.1007/s00208-014-1126-3
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/549UIKNM/Székelyhidi - 2015 - Filtrations and test-configurations With an appendix by Sebastien Boucksom.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://link.springer.com/10.1007/s00208-014-1126-3
+      \endverb
+      \verb{url}
+      \verb http://link.springer.com/10.1007/s00208-014-1126-3
+      \endverb
+    \endentry
+    \entry{tate_asymptotic_2011}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=199b7aaa17009241a8d523cb68f5c36a}{%
+           family={Tate},
+           familyi={T\bibinitperiod},
+           given={Tatsuya},
+           giveni={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{199b7aaa17009241a8d523cb68f5c36a}
+      \strng{fullhash}{199b7aaa17009241a8d523cb68f5c36a}
+      \strng{fullhashraw}{199b7aaa17009241a8d523cb68f5c36a}
+      \strng{bibnamehash}{199b7aaa17009241a8d523cb68f5c36a}
+      \strng{authorbibnamehash}{199b7aaa17009241a8d523cb68f5c36a}
+      \strng{authornamehash}{199b7aaa17009241a8d523cb68f5c36a}
+      \strng{authorfullhash}{199b7aaa17009241a8d523cb68f5c36a}
+      \strng{authorfullhashraw}{199b7aaa17009241a8d523cb68f5c36a}
+      \field{labelalpha}{Tat11}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{00221236}
+      \field{journaltitle}{J. Funct. Anal.}
+      \field{langid}{english}
+      \field{number}{2}
+      \field{title}{Asymptotic Euler–Maclaurin formula over lattice polytopes}
+      \field{urlday}{31}
+      \field{urlmonth}{8}
+      \field{urlyear}{2022}
+      \field{volume}{260}
+      \field{year}{2011}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{501\bibrangedash 540}
+      \range{pages}{40}
+      \verb{doi}
+      \verb 10.1016/j.jfa.2010.08.011
+      \endverb
+      \verb{file}
+      \verb Tate - 2011 - Asymptotic Euler–Maclaurin formula over lattice po.pdf:/Users/mac/Zotero/storage/BB4JQPEK/Tate - 2011 - Asymptotic Euler–Maclaurin formula over lattice po.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0022123610003332
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0022123610003332
+      \endverb
+      \keyw{Euler–Maclaurin formulas with remainder}
+    \endentry
+    \entry{tian_kahler-einstein_1997}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=499838dc01d408a03e13cf16deb18308}{%
+           family={Tian},
+           familyi={T\bibinitperiod},
+           given={Gang},
+           giveni={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{499838dc01d408a03e13cf16deb18308}
+      \strng{fullhash}{499838dc01d408a03e13cf16deb18308}
+      \strng{fullhashraw}{499838dc01d408a03e13cf16deb18308}
+      \strng{bibnamehash}{499838dc01d408a03e13cf16deb18308}
+      \strng{authorbibnamehash}{499838dc01d408a03e13cf16deb18308}
+      \strng{authornamehash}{499838dc01d408a03e13cf16deb18308}
+      \strng{authorfullhash}{499838dc01d408a03e13cf16deb18308}
+      \strng{authorfullhashraw}{499838dc01d408a03e13cf16deb18308}
+      \field{labelalpha}{Tia97}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{journaltitle}{Invent. math.}
+      \field{langid}{english}
+      \field{number}{1}
+      \field{shorttitle}{Tian97}
+      \field{title}{Kahler-Einstein metrics with positive scalar curvature}
+      \field{volume}{130}
+      \field{year}{1997}
+      \field{dateera}{ce}
+      \field{pages}{1\bibrangedash 37}
+      \range{pages}{37}
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/ABFG628B/Tian - K »ahler-Einstein metrics with positive scalar curvature.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{whitney_sagemath_nodate}{software}{}{}
+      \name{author}{1}{}{%
+        {{hash=35b880eab04a9dcedc87373d8ea49f1b}{%
+           family={Whitney},
+           familyi={W\bibinitperiod},
+           given={Josh},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{35b880eab04a9dcedc87373d8ea49f1b}
+      \strng{fullhash}{35b880eab04a9dcedc87373d8ea49f1b}
+      \strng{fullhashraw}{35b880eab04a9dcedc87373d8ea49f1b}
+      \strng{bibnamehash}{35b880eab04a9dcedc87373d8ea49f1b}
+      \strng{authorbibnamehash}{35b880eab04a9dcedc87373d8ea49f1b}
+      \strng{authornamehash}{35b880eab04a9dcedc87373d8ea49f1b}
+      \strng{authorfullhash}{35b880eab04a9dcedc87373d8ea49f1b}
+      \strng{authorfullhashraw}{35b880eab04a9dcedc87373d8ea49f1b}
+      \field{labelalpha}{Whi}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://doc.sagemath.org/html/en/reference/discrete\_geometry/sage/geometry/triangulation/point\_configuration.html}}
+      \field{title}{{SageMath} function: secondary\_polytope()}
+    \endentry
+    \entry{wang_existence_2011}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=1ec2d010645971a4ce304c028240974b}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Xu-jia},
+           giveni={X\bibinithyphendelim j\bibinitperiod}}}%
+        {{hash=847b802eb49a8d64e0694a5f417c19e7}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Bin},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{38199875b19c71905b76fe4ac67938b4}
+      \strng{fullhash}{38199875b19c71905b76fe4ac67938b4}
+      \strng{fullhashraw}{38199875b19c71905b76fe4ac67938b4}
+      \strng{bibnamehash}{38199875b19c71905b76fe4ac67938b4}
+      \strng{authorbibnamehash}{38199875b19c71905b76fe4ac67938b4}
+      \strng{authornamehash}{38199875b19c71905b76fe4ac67938b4}
+      \strng{authorfullhash}{38199875b19c71905b76fe4ac67938b4}
+      \strng{authorfullhashraw}{38199875b19c71905b76fe4ac67938b4}
+      \field{extraname}{1}
+      \field{labelalpha}{WZ11}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{00018708}
+      \field{journaltitle}{Adv. Math.}
+      \field{langid}{english}
+      \field{number}{5}
+      \field{title}{On the existence and nonexistence of extremal metrics on toric Kähler surfaces}
+      \field{urlday}{9}
+      \field{urlmonth}{9}
+      \field{urlyear}{2022}
+      \field{volume}{226}
+      \field{year}{2011}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{4429\bibrangedash 4455}
+      \range{pages}{27}
+      \verb{doi}
+      \verb 10.1016/j.aim.2010.12.008
+      \endverb
+      \verb{file}
+      \verb Wang 和 Zhou - 2011 - On the existence and nonexistence of extremal metr.pdf:/Users/mac/Zotero/storage/ETC4T6GT/Wang 和 Zhou - 2011 - On the existence and nonexistence of extremal metr.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S000187081000441X
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S000187081000441X
+      \endverb
+    \endentry
+    \entry{wang_k-stability_2014}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=39e5ebee56a4517d31b0e692620d86f8}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Xu-Jia},
+           giveni={X\bibinithyphendelim J\bibinitperiod}}}%
+        {{hash=847b802eb49a8d64e0694a5f417c19e7}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Bin},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{2fc65fa1e1945c10f081e48f3fc17859}
+      \strng{fullhash}{2fc65fa1e1945c10f081e48f3fc17859}
+      \strng{fullhashraw}{2fc65fa1e1945c10f081e48f3fc17859}
+      \strng{bibnamehash}{2fc65fa1e1945c10f081e48f3fc17859}
+      \strng{authorbibnamehash}{2fc65fa1e1945c10f081e48f3fc17859}
+      \strng{authornamehash}{2fc65fa1e1945c10f081e48f3fc17859}
+      \strng{authorfullhash}{2fc65fa1e1945c10f081e48f3fc17859}
+      \strng{authorfullhashraw}{2fc65fa1e1945c10f081e48f3fc17859}
+      \field{extraname}{2}
+      \field{labelalpha}{WZ14}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Bull. Inst. Math. Acad. Sin. (N.S.)}
+      \field{langid}{english}
+      \field{number}{1}
+      \field{title}{K-stability and canonical metrics on toric manifolds}
+      \field{volume}{9}
+      \field{year}{2014}
+      \field{dateera}{ce}
+      \field{pages}{85\bibrangedash 110}
+      \range{pages}{26}
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/JWZLHYS7/Wang and Zhou - K-STABILITY AND CANONICAL METRICS ON TORIC MANIFOLDS.pdf:application/pdf
+      \endverb
+    \endentry
+    \entry{xia_sharp_2021}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=c2374477ec6b167e6437cf67eb0bf999}{%
+           family={Xia},
+           familyi={X\bibinitperiod},
+           given={Mingchen},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{c2374477ec6b167e6437cf67eb0bf999}
+      \strng{fullhash}{c2374477ec6b167e6437cf67eb0bf999}
+      \strng{fullhashraw}{c2374477ec6b167e6437cf67eb0bf999}
+      \strng{bibnamehash}{c2374477ec6b167e6437cf67eb0bf999}
+      \strng{authorbibnamehash}{c2374477ec6b167e6437cf67eb0bf999}
+      \strng{authornamehash}{c2374477ec6b167e6437cf67eb0bf999}
+      \strng{authorfullhash}{c2374477ec6b167e6437cf67eb0bf999}
+      \strng{authorfullhashraw}{c2374477ec6b167e6437cf67eb0bf999}
+      \field{labelalpha}{Xia21}
+      \field{sortinit}{X}
+      \field{sortinithash}{1965c258adceecf23ce3d67b05113442}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{issn}{1948-206X, 2157-5045}
+      \field{journaltitle}{Anal. {PDE}}
+      \field{number}{6}
+      \field{shorttitle}{xia mw}
+      \field{title}{On sharp lower bounds for Calabi type functionals and destabilizing properties of gradient flows}
+      \field{urlday}{6}
+      \field{urlmonth}{6}
+      \field{urlyear}{2023}
+      \field{volume}{14}
+      \field{year}{2021}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{1951\bibrangedash 1976}
+      \range{pages}{26}
+      \verb{doi}
+      \verb 10.2140/apde.2021.14.1951
+      \endverb
+      \verb{file}
+      \verb arXiv.org Snapshot:/Users/mac/Zotero/storage/8XTIUUMA/1901.html:text/html;Full Text PDF:/Users/mac/Zotero/storage/P8MYVYI8/Xia - 2021 - On sharp lower bounds for Calabi type functionals .pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1901.07889
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1901.07889
+      \endverb
+    \endentry
+    \entry{yao_mabuchi_2022}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=a1e670dee2a2d39388466d4d722b48da}{%
+           family={Yao},
+           familyi={Y\bibinitperiod},
+           given={Yi},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{fullhash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{fullhashraw}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{bibnamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorbibnamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authornamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorfullhash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorfullhashraw}{a1e670dee2a2d39388466d4d722b48da}
+      \field{extraname}{1}
+      \field{labelalpha}{Yao22}
+      \field{sortinit}{Y}
+      \field{sortinithash}{fd67ad5a9ef0f7456bdd9aab10fe1495}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Abstract}
+      \field{issn}{1073-7928, 1687-0247}
+      \field{journaltitle}{Int. Math. Res. Not. {IMRN}}
+      \field{langid}{english}
+      \field{number}{24}
+      \field{title}{Mabuchi Solitons and Relative Ding Stability of Toric Fano Varieties}
+      \field{urlday}{23}
+      \field{urlmonth}{7}
+      \field{urlyear}{2022}
+      \field{volume}{2022}
+      \field{year}{2022}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{19790\bibrangedash 19853}
+      \range{pages}{64}
+      \verb{doi}
+      \verb 10.1093/imrn/rnab226
+      \endverb
+      \verb{file}
+      \verb Yao - 2021 - Mabuchi Solitons and Relative Ding Stability of To.pdf:/Users/mac/Zotero/storage/EDWHS8ZT/Yao - 2021 - Mabuchi Solitons and Relative Ding Stability of To.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://academic.oup.com/imrn/advance-article/doi/10.1093/imrn/rnab226/6374223
+      \endverb
+      \verb{url}
+      \verb https://academic.oup.com/imrn/advance-article/doi/10.1093/imrn/rnab226/6374223
+      \endverb
+    \endentry
+    \entry{yao_program_2025}{software}{}{}
+      \name{author}{1}{}{%
+        {{hash=a1e670dee2a2d39388466d4d722b48da}{%
+           family={Yao},
+           familyi={Y\bibinitperiod},
+           given={Yi},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{fullhash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{fullhashraw}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{bibnamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorbibnamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authornamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorfullhash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorfullhashraw}{a1e670dee2a2d39388466d4d722b48da}
+      \field{extraname}{2}
+      \field{labelalpha}{Yao25}
+      \field{sortinit}{Y}
+      \field{sortinithash}{fd67ad5a9ef0f7456bdd9aab10fe1495}
+      \field{extraalpha}{1}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://github.com/yeeyoe/shortest-GKZ-vector}}
+      \field{title}{Program: shortest-{GKZ}-vector}
+      \field{year}{2025}
+      \field{dateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/yeeyoe/shortest-GKZ-vector
+      \endverb
+      \verb{url}
+      \verb https://github.com/yeeyoe/shortest-GKZ-vector
+      \endverb
+    \endentry
+    \entry{yao_maximal_2025}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=a1e670dee2a2d39388466d4d722b48da}{%
+           family={Yao},
+           familyi={Y\bibinitperiod},
+           given={Yi},
+           giveni={Y\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {arXiv}%
+      }
+      \strng{namehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{fullhash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{fullhashraw}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{bibnamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorbibnamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authornamehash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorfullhash}{a1e670dee2a2d39388466d4d722b48da}
+      \strng{authorfullhashraw}{a1e670dee2a2d39388466d4d722b48da}
+      \field{extraname}{3}
+      \field{labelalpha}{Yao25}
+      \field{sortinit}{Y}
+      \field{sortinithash}{fd67ad5a9ef0f7456bdd9aab10fe1495}
+      \field{extraalpha}{2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arxiv}
+      \field{number}{{arXiv}:2511.16401}
+      \field{title}{The maximal destabilizers for Chow and K-stability}
+      \field{urlday}{21}
+      \field{urlmonth}{11}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.48550/arXiv.2511.16401
+      \endverb
+      \verb{eprint}
+      \verb 2511.16401
+      \endverb
+      \verb{file}
+      \verb Preprint PDF:/Users/mac/Zotero/storage/Q4X8WSG6/Yao - 2025 - The maximal destabilizers for Chow and K-stability.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/2511.16401
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/2511.16401
+      \endverb
+      \keyw{Mathematics - Algebraic Geometry,Mathematics - Differential Geometry}
+    \endentry
+    \entry{yotsutani_relative_2019}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=7315ed22a2318f3a152b15ef129c4b80}{%
+           family={Yotsutani},
+           familyi={Y\bibinitperiod},
+           given={Naoto},
+           giveni={N\bibinitperiod}}}%
+        {{hash=847b802eb49a8d64e0694a5f417c19e7}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Bin},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{071a25f4779008890201318baf175a2c}
+      \strng{fullhash}{071a25f4779008890201318baf175a2c}
+      \strng{fullhashraw}{071a25f4779008890201318baf175a2c}
+      \strng{bibnamehash}{071a25f4779008890201318baf175a2c}
+      \strng{authorbibnamehash}{071a25f4779008890201318baf175a2c}
+      \strng{authornamehash}{071a25f4779008890201318baf175a2c}
+      \strng{authorfullhash}{071a25f4779008890201318baf175a2c}
+      \strng{authorfullhashraw}{071a25f4779008890201318baf175a2c}
+      \field{labelalpha}{YZ19}
+      \field{sortinit}{Y}
+      \field{sortinithash}{fd67ad5a9ef0f7456bdd9aab10fe1495}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{In this paper we study the relative Chow and K-stability of toric manifolds. First, we give a criterion for relative K-stability and instability of toric Fano manifolds in the toric sense. The reduction of relative Chow stability on toric manifolds will be investigated using the Hibert-Mumford criterion in two ways. One is to consider the maximal torus action and its weight polytope. We obtain a reduction by the strategy of Ono [34], which ﬁts into the relative {GIT} stability detected by Székelyhidi. The other way relies on C∗-actions and Chow weights associated to toric degenerations following Donaldson and Ross-Thomas [13, 36]. In the end, we determine the relative K-stability of all toric Fano threefolds and present counterexamples which are relatively K-stable in the toric sense but which are asymptotically relatively Chow unstable.}
+      \field{issn}{0040-8735}
+      \field{journaltitle}{Tohoku Math. J.}
+      \field{langid}{english}
+      \field{note}{Corrigenda: {arXiv}:1602.08201v3}
+      \field{number}{4}
+      \field{title}{Relative algebro-geometric stabilities of toric manifolds}
+      \field{urlday}{13}
+      \field{urlmonth}{11}
+      \field{urlyear}{2025}
+      \field{volume}{71}
+      \field{year}{2019}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.2748/tmj/1576724790
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/7NSADGL7/Yotsutani and Zhou - 2019 - Relative algebro-geometric stabilities of toric manifolds.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://projecteuclid.org/journals/tohoku-mathematical-journal/volume-71/issue-4/Relative-algebro-geometric-stabilities-of-toric-manifolds/10.2748/tmj/1576724790.full
+      \endverb
+      \verb{url}
+      \verb https://projecteuclid.org/journals/tohoku-mathematical-journal/volume-71/issue-4/Relative-algebro-geometric-stabilities-of-toric-manifolds/10.2748/tmj/1576724790.full
+      \endverb
+    \endentry
+    \entry{zhou_relative_2008}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=847b802eb49a8d64e0694a5f417c19e7}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Bin},
+           giveni={B\bibinitperiod}}}%
+        {{hash=5c4fc4f3b0b2124eb5ad06c1f7b4af03}{%
+           family={Zhu},
+           familyi={Z\bibinitperiod},
+           given={Xiaohua},
+           giveni={X\bibinitperiod}}}%
+      }
+      \strng{namehash}{5beee0776eebf61bfb09855880b3a196}
+      \strng{fullhash}{5beee0776eebf61bfb09855880b3a196}
+      \strng{fullhashraw}{5beee0776eebf61bfb09855880b3a196}
+      \strng{bibnamehash}{5beee0776eebf61bfb09855880b3a196}
+      \strng{authorbibnamehash}{5beee0776eebf61bfb09855880b3a196}
+      \strng{authornamehash}{5beee0776eebf61bfb09855880b3a196}
+      \strng{authorfullhash}{5beee0776eebf61bfb09855880b3a196}
+      \strng{authorfullhashraw}{5beee0776eebf61bfb09855880b3a196}
+      \field{labelalpha}{ZZ08}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{00018708}
+      \field{journaltitle}{Adv. Math.}
+      \field{langid}{english}
+      \field{number}{4}
+      \field{title}{Relative K-stability and modified K-energy on toric manifolds}
+      \field{urlday}{16}
+      \field{urlmonth}{10}
+      \field{urlyear}{2025}
+      \field{volume}{219}
+      \field{year}{2008}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{1327\bibrangedash 1362}
+      \range{pages}{36}
+      \verb{doi}
+      \verb 10.1016/j.aim.2008.06.016
+      \endverb
+      \verb{file}
+      \verb PDF:/Users/mac/Zotero/storage/SN7SY2P4/Zhou and Zhu - 2008 - Relative K-stability and modified K-energy on toric manifolds.pdf:application/pdf
+      \endverb
+      \verb{urlraw}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0001870808001837
+      \endverb
+      \verb{url}
+      \verb https://linkinghub.elsevier.com/retrieve/pii/S0001870808001837
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

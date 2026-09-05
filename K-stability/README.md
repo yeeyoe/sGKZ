@@ -118,6 +118,7 @@ k_stability --polygon FILE [options]
 | `--no-refine` | 关 | 跳过局部细化。 |
 | `--certify` | 关 | 用有理数精确认证 witness。 |
 | `--certify-max-denom N` | `1048576` | 认证时有理逼近的分母上限。 |
+| `--database FILE` | `K-stability/k_stability_search.sqlite` | `--certify` 成功时，登记可还原为 canonical 搜索候选的多边形。 |
 | `--svg FILE` | 不写出 | 写出多边形 + witness 折痕线（含 $P\cap\{s\ge0\}$ 阴影）的 SVG。 |
 | `--check-line "a b c"` | 无 | 直接精确/数值评估 $M_\ell(\max\{ax+by+c,0\})$；`p/q` 或整数走精确路径。 |
 | `--verbose` | 关 | 逐方向输出最小值到标准错误。 |
@@ -147,6 +148,11 @@ k_stability --polygon FILE [options]
 | `witness_theta` / `witness_t` / `witness_g` | 最优候选的参数与函数形式。 |
 | `relative_K_status` | `unstable` 或 `no_counterexample_found`。 |
 | `certified` 等 | `--certify` 时的认证 witness 与精确 `certified_M_l<0`。 |
+
+使用 `--certify` 且认证成功时，程序会自动尝试将多边形登记到 `--database` 指定的
+搜索 SQLite 库。只有首点为原点、首边方向为 `(1,0)`、严格凸且无零测度边，并能
+严格还原为 canonical candidate 的输入才会导入；否则仍输出认证结果，但不会写入
+搜索候选表。成功导入时会额外输出 `registered_database` 和 `registered_key`。
 
 退出码：`0` 找到（且若要求则已认证）witness；`2` 未发现反例或认证失败；
 `1` 参数/输入/运行错误。
@@ -303,7 +309,7 @@ probe→confirm→final profile 保存 `pending`、`unverified` 或
 | --- | --- | --- |
 | `--database FILE` | `K-stability/k_stability_search.sqlite` | SQLite 状态及候选记录文件。 |
 | `--output-dir DIR` | `.` | 结果报告目录；写入 `k_stability_search_result.txt`。 |
-| `--shell-seconds SEC` | `60` | `(N,M),(N,2M) ... ` 称为一个shell. 控制每个shell 的搜索时间。 |
+| `--shell-seconds SEC` | `60` | 每个 shell 的时间片；到期后切换到下一个 shell。 |
 | `--beam-width K` | `48` | 每批随机/beam 候选生成数量。 |
 | `--seed S` | `1` | 作用是控制随机方向和步长采样。使用同一个新数据库、同样的参数和同一个 seed，通常可以得到可复现的随机序列。 |
 | `--stop-on-first` | 关闭 | 第一个精确认证候选出现后立即结束。默认持续搜索到时间预算耗尽。 |
@@ -311,9 +317,49 @@ probe→confirm→final profile 保存 `pending`、`unverified` 或
 | `--certify-max-denom Q` | `1048576` | 数值 witness 有理化时的最大分母。该值改变会产生新的 detector profile。 |
 | `--verbose` | 关闭 | 输出额外进度信息。 |
 
-自动 shell 按 `(N,M)`, `(N,2M)`, `(2N,2M)`, `(2N,4M), ...` 扩展，直到达到
-`--time-limit`。重新运行同一个数据库会恢复 shell、随机状态和已有候选；同一
-detector profile 下的 `unverified` 候选不会重复检测。
+自动 shell 线性扩展；同一组范围连续运行 4 个 shell，再交替增大方向坐标上界
+`N` 与步长上界 `M`。令命令行参数中的初值为 `N0`、`M0`，并令
+`stage=floor(shell/4)`：
+
+* `stage=2k`：`N=N0*(k+1)`，`M=M0*(k+1)`；
+* `stage=2k+1`：`N=N0*(k+2)`，`M=M0*(k+1)`。
+
+例如 `N0=3,M0=2` 时：`shell=0-3` 使用 `(3,2)`，`shell=4-7` 使用 `(6,2)`，
+`shell=8-11` 使用 `(6,4)`，`shell=12-15` 使用 `(9,4)`。
+
+每个 shell 的范围是一个**累计上界**，不是排除前面范围的环带：例如同一组范围
+内的后续 shell 仍然可以生成更小范围内的方向和步长。
+每个 shell 只在自己的时间片内随机采样，不会穷举完整范围。每次运行从 `shell=0`
+开始，但恢复该维度的 RNG 状态；数据库继续去重候选并恢复验证阶段。代码不再设置
+固定的 `N/M` 上限，实际可达到的范围由时间预算和计算资源决定。
+
+方向抽样使用权重 $1/(1+\max(|p_x|,|p_y|))^2$，步长抽样有 90% 概率落在
+`[1,min(M,2)]`，另有 10% 概率覆盖完整 `[1,M]`，以偏向小面积并保留少量大范围探索。
+候选 frontier 每 8 个取出 7 个最小 `twice_area` 候选，1 个取出 probe 分数最低的
+候选。方向枚举 `primitive_directions(N)` 的复杂度为 $O(N^2)$，因此高 `N` shell
+单位时间内可生成的候选数会下降。全局 `--time-limit` 和每个 shell 的
+`--shell-seconds` 都是在阶段边界检查的软截止，不能中断已经开始的方向枚举或单个
+detector 调用。
+
+### 以最小面积为目标的搜索建议
+
+搜索结果按 `twice_area` 排序，但 shell 本身不是按面积分层，随机采样也不保证
+穷举某个范围。因此固定给每个 shell 相同时间并不等价于固定候选数量；本策略通过
+在低范围连续停留 4 个时间片、方向和步长偏置以及 7:1 面积 frontier 比例来补偿。
+
+如果首要目标是找到面积尽可能小的 unstable 多边形，建议让搜索尽量停留在低
+shell，例如：
+
+```bash
+./build/K-stability/k_stability_search \
+  --d 6 --N 3 --M 2 \
+  --time-limit 60 --shell-seconds 60
+```
+
+这样一次运行主要搜索 `shell=0`；重复运行会沿用数据库中的候选、验证结果和 RNG
+状态，不会重复计入已经完成的检测。需要扩大范围时，再逐步提高 `N0`、`M0` 或
+缩短 `--shell-seconds` 让程序进入后续 shell，并始终以数据库中的最小
+`best_twice_area` 作为比较标准。
 
 ### 输出说明
 
@@ -353,7 +399,7 @@ SQLite 持久化输出在 `--database FILE` 指定的文件中，文字结果报
 - verified 候选额外保存 `vertex_singularity_flags`（按顶点排列的 `0/1` 光滑/奇异标记）和 `singular_vertex_count`；
 - `candidate_validations` 表保存候选级完整 profile 状态和最后完成阶段；
 - `attempts` 表保存每个候选/profile/stage 的检测结果，只有认证记录含 witness 字段；
-- `state` 表保存按维数隔离的 shell、随机游标等断点状态，例如 `d3|shell` 和 `d3|rng`；`generator_revision` 是全库共享的几何生成器版本。
+- `state` 表保存按维数隔离的随机游标等状态，例如 `d3|rng`；shell 每次运行从 `0` 开始，`generator_revision` 是全库共享的几何生成器版本。
 - 单个 SQLite 文件可以保存多个 `d` 的候选，但搜索启动时只加载当前 `--d` 的记录，统计和结果报告也只针对当前维数；数据库通过 `(d,status)` 索引加速筛选。
 - 找到认证候选时，报告文件保存其完整几何信息、面积、边界测度、`ell_P`、
   奇异点标记、profile 和精确 witness；没有找到时报告内容为 `没找到`。

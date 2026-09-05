@@ -19,7 +19,7 @@ add_executable(k_stability
   main.cpp
 )
 target_include_directories(k_stability PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(k_stability PRIVATE k_stability_core)
+target_link_libraries(k_stability PRIVATE k_stability_search_core)
 
 add_executable(k_stability_decompose decompose_main.cpp)
 target_include_directories(k_stability_decompose PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -85,5 +85,11 @@ if(BUILD_TESTING)
   add_test(
     NAME k_stability_cli_square_svg
     COMMAND /bin/sh -c "$<TARGET_FILE:k_stability> --polygon ${CMAKE_SOURCE_DIR}/examples/unit_square.polygon --svg ${CMAKE_CURRENT_BINARY_DIR}/unit_square.svg > /dev/null 2>&1; rc=$?; test $rc -eq 2 && grep -q '</svg>' ${CMAKE_CURRENT_BINARY_DIR}/unit_square.svg"
+  )
+
+  # A certified canonical polygon is automatically registered in the search DB.
+  add_test(
+    NAME k_stability_cli_certify_register
+    COMMAND /bin/sh -c "$<TARGET_FILE:k_stability> --polygon ${CMAKE_SOURCE_DIR}/examples/d5_a74 --certify --theta-steps 180 --t-steps 128 --database ${CMAKE_CURRENT_BINARY_DIR}/certify_register.sqlite > ${CMAKE_CURRENT_BINARY_DIR}/certify_register.out 2>&1 && grep -q 'certified=true' ${CMAKE_CURRENT_BINARY_DIR}/certify_register.out && grep -q 'registered_key=d5' ${CMAKE_CURRENT_BINARY_DIR}/certify_register.out"
   )
 endif()

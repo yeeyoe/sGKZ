@@ -3,6 +3,7 @@
 // 数学定义见 paper/K-stability.tex。
 
 #include "k_stability.hpp"
+#include "search.hpp"
 
 #include <CGAL/Gmpz.h>
 
@@ -23,6 +24,7 @@ struct Arguments {
   std::optional<std::filesystem::path> polygon;
   std::optional<std::filesystem::path> svg;
   std::optional<std::string> check_line;
+  std::filesystem::path database = "K-stability/k_stability_search.sqlite";
   kstab::SearchOptions search;
   bool certify = false;
   std::int64_t certify_max_denom = 1048576;
@@ -39,6 +41,7 @@ void print_usage(std::ostream& stream) {
       << "  --certify              Certify the witness with rational arithmetic.\n"
       << "  --certify-max-denom N  Denominator cap for certification.\n"
       << "  --svg FILE             Write polygon + witness crease SVG.\n"
+      << "  --database FILE        Register certified candidates in search SQLite state.\n"
       << "  --check-line \"a b c\"   Evaluate M_l(max{a x + b y + c, 0}).\n"
       << "  Polygon files may end with a 'null measure edges' section; each\n"
       << "  following line 'x1 y1 x2 y2' sets that polygon edge's dσ to zero.\n"
@@ -65,6 +68,8 @@ Arguments parse_arguments(int argc, char** argv) {
       arguments.polygon = require_value(argc, argv, i, option);
     } else if (option == "--svg") {
       arguments.svg = require_value(argc, argv, i, option);
+    } else if (option == "--database") {
+      arguments.database = require_value(argc, argv, i, option);
     } else if (option == "--check-line") {
       arguments.check_line = require_value(argc, argv, i, option);
     } else if (option == "--theta-steps") {
@@ -247,6 +252,37 @@ int main(int argc, char** argv) {
                   << "), 0}\n";
         std::cout << "certified_M_l=" << rational_string(certification.value)
                   << '\n';
+        kstab::PolygonCandidate candidate;
+        std::string import_reason;
+        const bool has_null_measure_edge = std::any_of(
+            polygon.null_measure_edges.begin(), polygon.null_measure_edges.end(),
+            [](bool is_null) { return is_null; });
+        if (has_null_measure_edge) {
+          import_reason = "polygon has null-measure edges";
+        }
+        if (!has_null_measure_edge &&
+            kstab::candidate_from_vertices(vertices, candidate, &import_reason)) {
+          kstab::AreaSearchOptions import_options;
+          import_options.d = candidate.d;
+          import_options.certify_max_denominator = arguments.certify_max_denom;
+          kstab::SearchDatabase database(arguments.database);
+          database.ensure_generator_revision("incremental-convex-v1");
+          database.save_candidate(candidate, "pending");
+          kstab::DetectorOutcome outcome;
+          outcome.profile = kstab::current_validation_profile(import_options) + "|stage=final";
+          outcome.verified_unstable = true;
+          outcome.numerical_negative = true;
+          outcome.certification = certification;
+          outcome.numerical.witness = result.witness;
+          database.save_attempt(candidate, outcome);
+          database.save_validation(candidate, kstab::current_validation_profile(import_options),
+                                   "verified_unstable", "final");
+          std::cout << "registered_database=" << arguments.database.string() << '\n';
+          std::cout << "registered_key=" << candidate.key << '\n';
+        } else {
+          std::cout << "registered_database=false\n";
+          std::cout << "registration_reason=" << import_reason << '\n';
+        }
       }
     } else if (arguments.certify) {
       std::cout << "certified=false\n";

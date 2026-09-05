@@ -1,0 +1,17 @@
+# candidate_key=d5|p=1:0;8:1;-6:1;-7:-1;14:-1|k=4,1,2,2,1
+# d=5
+# twice_area=82
+# status=verified_unstable
+# directions=1:0;8:1;-6:1;-7:-1;14:-1
+# steps=4,1,2,2,1
+# facet_normals=0:1;-1:8;-1:-6;1:-7;1:14
+# ell_P(x,y)=47454846/89595785 + (678468/89595785) x + (-3946662/17919157) y
+# vertex_singularity_flags=0,0,1,1,1
+# singular_vertex_count=3
+# witness_kind=exact
+# witness_line=(5/6) x + (5/9) y + (-7/4) = 0
+0 0
+4 0
+12 1
+0 3
+-14 1

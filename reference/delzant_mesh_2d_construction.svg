@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="560" viewBox="0 0 1050 560" role="img" aria-labelledby="title desc">
+  <title id="title">Two-dimensional Delzant mesh construction</title>
+  <desc id="desc">A lattice polygon with vertex charts, edge collars, an interior core, an artificial interface, mesh replacements, a slab, and triangular slab cells.</desc>
+  <defs>
+    <pattern id="squareGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M20 0H0V20" fill="none" stroke="#95a6b4" stroke-width="0.7" opacity="0.75"/>
+    </pattern>
+    <pattern id="skewGrid" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="skewX(-18)">
+      <path d="M20 0H0V20" fill="none" stroke="#9d9a81" stroke-width="0.7" opacity="0.72"/>
+    </pattern>
+    <clipPath id="polygonClip">
+      <polygon points="115,430 145,150 395,92 565,205 515,440"/>
+    </clipPath>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#334553"/>
+    </marker>
+    <style>
+      .heading { font: 700 20px Arial, sans-serif; fill: #1b2d39; }
+      .label { font: 15px Arial, sans-serif; fill: #243946; }
+      .small { font: 13px Arial, sans-serif; fill: #405867; }
+      .num { font: 700 15px Arial, sans-serif; fill: #ffffff; }
+    </style>
+  </defs>
+  <rect width="1050" height="560" fill="#ffffff"/>
+  <text x="525" y="35" text-anchor="middle" class="heading">Two-dimensional Delzant mesh construction</text>
+
+  <polygon points="115,430 145,150 395,92 565,205 515,440" fill="#fff8df" stroke="#243946" stroke-width="3"/>
+  <g clip-path="url(#polygonClip)">
+    <rect x="90" y="75" width="500" height="390" fill="url(#squareGrid)" opacity="0.58"/>
+    <polygon points="155,405 179,178 386,130 520,218 486,405" fill="#e9f3f6"/>
+    <polygon points="155,405 179,178 386,130 520,218 486,405" fill="url(#squareGrid)" opacity="0.66"/>
+    <polygon points="145,150 207,136 198,207 165,225" fill="#b9dceb" opacity="0.95"/>
+    <polygon points="395,92 445,126 386,181 350,150" fill="#b9dceb" opacity="0.95"/>
+    <polygon points="565,205 535,274 485,240 510,184" fill="#b9dceb" opacity="0.95"/>
+    <polygon points="515,440 451,440 461,386 522,365" fill="#b9dceb" opacity="0.95"/>
+    <polygon points="115,430 127,355 182,372 190,434" fill="#b9dceb" opacity="0.95"/>
+    <polygon points="172,225 193,217 192,381 164,389" fill="#d9edc4" opacity="0.9"/>
+    <polygon points="209,143 373,105 385,133 211,174" fill="#d9edc4" opacity="0.9"/>
+    <polygon points="443,137 533,205 512,231 420,164" fill="#d9edc4" opacity="0.9"/>
+    <polygon points="496,260 518,276 485,398 455,399" fill="#d9edc4" opacity="0.9"/>
+    <polygon points="193,396 455,396 485,406 188,406" fill="#d9edc4" opacity="0.9"/>
+  </g>
+
+  <polyline points="155,405 179,178 386,130 520,218 486,405 155,405" fill="none" stroke="#27718d" stroke-width="2.8" stroke-dasharray="8 5"/>
+  <polyline points="161,405 185,178 392,130 526,218 492,405" fill="none" stroke="#c56b25" stroke-width="2.5" stroke-dasharray="2 4"/>
+  <polygon points="155,405 179,178 185,178 161,405" fill="#f5b968" opacity="0.72"/>
+  <polygon points="179,178 386,130 392,130 185,178" fill="#f5b968" opacity="0.72"/>
+  <polygon points="386,130 520,218 526,218 392,130" fill="#f5b968" opacity="0.72"/>
+  <polygon points="520,218 486,405 492,405 526,218" fill="#f5b968" opacity="0.72"/>
+  <polygon points="486,405 155,405 161,405 492,405" fill="#f5b968" opacity="0.72"/>
+  <path d="M179 178 L185 178 L185 198 L179 198 Z" fill="#e6843e" stroke="#874414" stroke-width="1"/>
+  <path d="M179 198 L185 198 L179 218 Z" fill="#e6843e" stroke="#874414" stroke-width="1"/>
+  <path d="M185 198 L185 218 L179 218 Z" fill="#e6843e" stroke="#874414" stroke-width="1"/>
+
+  <circle cx="145" cy="150" r="13" fill="#28718c"/><text x="145" y="156" text-anchor="middle" class="num">1</text>
+  <line x1="145" y1="137" x2="84" y2="91" stroke="#334553" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="18" y="72" class="label">vertex chart</text>
+  <text x="18" y="92" class="small">integral quadrant</text>
+
+  <circle cx="255" cy="155" r="13" fill="#5c873a"/><text x="255" y="161" text-anchor="middle" class="num">2</text>
+  <line x1="255" y1="168" x2="276" y2="220" stroke="#334553" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="243" y="245" class="label">facet collar</text>
+  <text x="243" y="265" class="small">edge chart boxes</text>
+
+  <circle cx="336" cy="280" r="13" fill="#5e7988"/><text x="336" y="286" text-anchor="middle" class="num">3</text>
+  <text x="302" y="309" class="label">interior core</text>
+
+  <circle cx="346" cy="132" r="13" fill="#27718d"/><text x="346" y="138" text-anchor="middle" class="num">4</text>
+  <line x1="346" y1="119" x2="364" y2="64" stroke="#334553" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="377" y="58" class="label">fixed artificial interface H</text>
+  <text x="377" y="78" class="small">dashed blue polygon</text>
+
+  <circle cx="438" cy="132" r="13" fill="#c56b25"/><text x="438" y="138" text-anchor="middle" class="num">5</text>
+  <line x1="438" y1="145" x2="658" y2="134" stroke="#334553" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="674" y="129" class="label">mesh faces H_k^- and H_k^+</text>
+  <text x="674" y="149" class="small">dotted orange replacements of H</text>
+
+  <circle cx="181" cy="202" r="13" fill="#9a5520"/><text x="181" y="208" text-anchor="middle" class="num">6</text>
+  <line x1="194" y1="202" x2="657" y2="238" stroke="#334553" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="674" y="233" class="label">one-layer slab and slab cells C</text>
+  <text x="674" y="253" class="small">orange strip; triangulate into lattice triangles</text>
+
+  <rect x="630" y="292" width="370" height="165" fill="#fafcfd" stroke="#afbdc6" stroke-width="1.2"/>
+  <text x="649" y="320" class="label">Inside one slab cell C</text>
+  <polygon points="679,422 784,338 862,422" fill="#f7c377" stroke="#934f1f" stroke-width="2"/>
+  <line x1="771" y1="327" x2="771" y2="439" stroke="#273f4c" stroke-width="2" stroke-dasharray="6 4"/>
+  <polygon points="679,422 771,349 771,422" fill="#b9dceb" opacity="0.82"/>
+  <polygon points="771,349 862,422 771,422" fill="#d9edc4" opacity="0.82"/>
+  <text x="756" y="369" class="label">C</text>
+  <text x="716" y="407" class="label">E_-</text>
+  <text x="803" y="407" class="label">E_+</text>
+  <text x="875" y="382" class="small">middle cut</text>
+  <text x="649" y="480" class="small">E = C intersected with one owned half and one mesh box R.</text>
+  <text x="649" y="501" class="small">The two half-open owners meet only on the middle cut.</text>
+
+  <text x="525" y="534" text-anchor="middle" class="small">The picture is schematic: all charts are integral-affine, so their local grids are copies of k^{-1} Z^2.</text>
+</svg>

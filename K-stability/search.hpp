@@ -108,6 +108,13 @@ bool build_candidate(int d, const std::vector<Direction>& first_directions,
                      const std::vector<std::int64_t>& first_steps,
                      PolygonCandidate& result, std::string* reason = nullptr);
 
+// Convert a normalized CCW polygon to the canonical candidate representation
+// used by the area search. Returns false when the polygon is not in the
+// searcher's origin-based canonical form.
+bool candidate_from_vertices(const std::vector<IntPoint>& vertices,
+                             PolygonCandidate& result,
+                             std::string* reason = nullptr);
+
 std::vector<int> compute_vertex_singularity_flags(
     const PolygonCandidate& candidate);
 

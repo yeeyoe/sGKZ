@@ -251,12 +251,23 @@ void restore_rng(std::mt19937_64& rng, const std::string& state) {
   }
 }
 
-std::int64_t shell_value(int base, std::uint64_t shell, bool n_value) {
-  const std::uint64_t exponent = n_value ? shell / 2 : (shell + 1) / 2;
-  const std::uint64_t multiplier = std::uint64_t{1} << std::min<std::uint64_t>(exponent, 30);
-  if (base > std::numeric_limits<int>::max() / static_cast<int>(multiplier))
-    return std::numeric_limits<int>::max();
-  return static_cast<std::int64_t>(base * multiplier);
+std::optional<int> shell_value(int base, std::uint64_t shell, bool n_value) {
+  // Keep each range for several equal time slices. Random sampling does not
+  // exhaust a range, so this gives the smallest feasible polygons more
+  // opportunities before enlarging the direction or step bound.
+  //
+  // shell : 0..3  4..7  8..11  12..15 ...
+  // N     :   1      2       2        3 ...
+  // M     :   1      1       2        2 ...
+  constexpr std::uint64_t k_shells_per_range = 4;
+  const std::uint64_t stage = shell / k_shells_per_range;
+  const std::uint64_t multiplier =
+      n_value ? ((stage + 1) / 2 + 1) : (stage / 2 + 1);
+  if (multiplier > static_cast<std::uint64_t>(std::numeric_limits<int>::max()) /
+                       static_cast<std::uint64_t>(base)) {
+    return std::nullopt;
+  }
+  return static_cast<int>(static_cast<std::uint64_t>(base) * multiplier);
 }
 
 std::string dimension_state_name(int dimension, const std::string& name) {
@@ -358,6 +369,53 @@ bool build_candidate(int d, const std::vector<Direction>& first_directions,
   result.ell = compute_ell_p(vertices);
   result.twice_area = static_cast<std::int64_t>(area);
   result.key = candidate_key(result);
+  return true;
+}
+
+bool candidate_from_vertices(const std::vector<IntPoint>& vertices,
+                             PolygonCandidate& result, std::string* reason) {
+  auto fail = [&](const std::string& message) {
+    if (reason) *reason = message;
+    return false;
+  };
+  const int d = static_cast<int>(vertices.size());
+  if (d < 3) return fail("polygon has fewer than three vertices");
+  if (vertices.front().x != 0 || vertices.front().y != 0)
+    return fail("first vertex is not the origin");
+  std::vector<Direction> directions;
+  std::vector<std::int64_t> steps;
+  directions.reserve(d - 1);
+  steps.reserve(d - 1);
+  for (int i = 0; i < d - 1; ++i) {
+    const WideInt dx = static_cast<WideInt>(vertices[i + 1].x) -
+                       static_cast<WideInt>(vertices[i].x);
+    const WideInt dy = static_cast<WideInt>(vertices[i + 1].y) -
+                       static_cast<WideInt>(vertices[i].y);
+    const WideInt abs_dx = dx < 0 ? -dx : dx;
+    const WideInt abs_dy = dy < 0 ? -dy : dy;
+    const WideInt length = std::gcd(abs_dx, abs_dy);
+    if (length <= 0 || length > std::numeric_limits<std::int64_t>::max())
+      return fail("polygon has an invalid edge length");
+    const WideInt primitive_x = dx / length;
+    const WideInt primitive_y = dy / length;
+    if (primitive_x < std::numeric_limits<std::int64_t>::min() ||
+        primitive_x > std::numeric_limits<std::int64_t>::max() ||
+        primitive_y < std::numeric_limits<std::int64_t>::min() ||
+        primitive_y > std::numeric_limits<std::int64_t>::max())
+      return fail("polygon direction overflow");
+    directions.push_back({static_cast<std::int64_t>(primitive_x),
+                          static_cast<std::int64_t>(primitive_y)});
+    steps.push_back(static_cast<std::int64_t>(length));
+  }
+  if (directions.front().x != 1 || directions.front().y != 0)
+    return fail("first edge is not the canonical (1,0) direction");
+  if (!build_candidate(d, directions, steps, result, reason)) return false;
+  if (result.vertices.size() != vertices.size())
+    return fail("polygon is not in canonical search geometry");
+  for (std::size_t i = 0; i < vertices.size(); ++i) {
+    if (result.vertices[i].x != vertices[i].x || result.vertices[i].y != vertices[i].y)
+      return fail("polygon is not in canonical search geometry");
+  }
   return true;
 }
 
@@ -933,23 +991,12 @@ SearchSummary run_search(const AreaSearchOptions& options) {
   database.ensure_generator_revision("incremental-convex-v1");
   const std::string validation_profile = current_validation_profile(options);
   const std::string rng_state_name = dimension_state_name(options.d, "rng");
-  const std::string shell_state_name = dimension_state_name(options.d, "shell");
-  // An old database may have one unscoped rng/shell pair. It is safe to
-  // migrate that pair only when all existing candidates have the requested d;
-  // mixed-dimension databases must never reuse another dimension's cursor.
-  const bool legacy_state_is_unambiguous =
-      database.count_candidates() == database.count_candidates(options.d);
-  const auto load_dimension_state = [&](const std::string& name,
-                                        const std::string& scoped_name) {
-    std::string state = database.load_state(scoped_name);
-    if (state.empty() && legacy_state_is_unambiguous) {
-      state = database.load_state(name);
-      if (!state.empty()) database.save_state(scoped_name, state);
-    }
-    return state;
-  };
+  // Shell is intentionally reset to 0 on every run. Random search does not
+  // exhaust a shell, so resuming from a previously saved high shell would skip
+  // the small-volume region. The database still deduplicates candidates and
+  // resumes their validation stages.
   std::mt19937_64 rng(options.seed);
-  restore_rng(rng, load_dimension_state("rng", rng_state_name));
+  restore_rng(rng, database.load_state(rng_state_name));
   std::unordered_set<std::string> queued;
   std::vector<PolygonCandidate> area_frontier;
   std::vector<PolygonCandidate> score_frontier;
@@ -959,9 +1006,10 @@ SearchSummary run_search(const AreaSearchOptions& options) {
   SearchSummary summary;
   const auto started = std::chrono::steady_clock::now();
   const auto deadline = started + std::chrono::duration<double>(options.time_limit_seconds);
+  // Always start from shell=0. The database itself records which candidates
+  // have already been tested; random search never exhausts a shell, so there
+  // is no benefit in resuming from a previously saved high shell.
   std::uint64_t shell = 0;
-  const std::string saved_shell = load_dimension_state("shell", shell_state_name);
-  if (!saved_shell.empty()) shell = std::stoull(saved_shell);
   std::unordered_set<std::string> generated;
   bool stop_requested = false;
 
@@ -1019,6 +1067,10 @@ SearchSummary run_search(const AreaSearchOptions& options) {
   };
 
   const auto run_probe = [&](PolygonCandidate& candidate, bool resume_existing) {
+    if (std::chrono::steady_clock::now() >= deadline) {
+      stop_requested = true;
+      return false;
+    }
     // A crash after the probe attempt was committed but before the validation
     // row was advanced must resume at confirm without evaluating the probe again.
     if (resume_existing) {
@@ -1064,6 +1116,10 @@ SearchSummary run_search(const AreaSearchOptions& options) {
   };
 
   const auto run_final = [&](PolygonCandidate& candidate) {
+    if (std::chrono::steady_clock::now() >= deadline) {
+      stop_requested = true;
+      return;
+    }
     const std::string profile_key = stage_profile(DetectorTier::final);
     if (const auto previous = database.get_attempt(candidate.key, profile_key)) {
       if (previous->status == "verified_unstable" && previous->has_exact_witness) {
@@ -1099,6 +1155,10 @@ SearchSummary run_search(const AreaSearchOptions& options) {
 
   const auto prepare_loaded_candidate = [&](PolygonCandidate candidate,
                                              bool count_as_generated) {
+    if (std::chrono::steady_clock::now() >= deadline) {
+      stop_requested = true;
+      return;
+    }
     generated.insert(candidate.key);
     if (count_as_generated) ++summary.generated;
     if (options.smooth_only && !candidate_is_smooth(candidate)) {
@@ -1153,17 +1213,26 @@ SearchSummary run_search(const AreaSearchOptions& options) {
   if (options.stop_on_first && summary.have_verified) stop_requested = true;
 
   while (!stop_requested && std::chrono::steady_clock::now() < deadline) {
-    const int n_bound = static_cast<int>(shell_value(options.initial_N, shell, true));
-    const int m_bound = static_cast<int>(shell_value(options.initial_M, shell, false));
+    const auto n_bound = shell_value(options.initial_N, shell, true);
+    const auto m_bound = shell_value(options.initial_M, shell, false);
+    if (!n_bound || !m_bound) {
+      if (options.verbose)
+        std::cerr << "search stopped: shell bounds exceed int range\n";
+      break;
+    }
     if (options.verbose)
-      std::cerr << "search shell=" << shell << " N=" << n_bound
-                << " M=" << m_bound << '\n';
+      std::cerr << "search shell=" << shell << " N=" << *n_bound
+                << " M=" << *m_bound << '\n';
     const auto shell_deadline = std::min(deadline, std::chrono::steady_clock::now() +
         std::chrono::duration<double>(options.shell_seconds));
-    const auto directions = primitive_directions(n_bound);
+    if (std::chrono::steady_clock::now() >= deadline) {
+      stop_requested = true;
+      break;
+    }
+    const auto directions = primitive_directions(*n_bound);
     auto sample_step = [&](std::int64_t upper_bound) {
-      const std::int64_t small = std::min<std::int64_t>(upper_bound, 4);
-      if (std::uniform_int_distribution<int>(0, 99)(rng) < 75)
+      const std::int64_t small = std::min<std::int64_t>(upper_bound, 2);
+      if (std::uniform_int_distribution<int>(0, 99)(rng) < 90)
         return std::uniform_int_distribution<std::int64_t>(1, small)(rng);
       return std::uniform_int_distribution<std::int64_t>(1, upper_bound)(rng);
     };
@@ -1172,7 +1241,7 @@ SearchSummary run_search(const AreaSearchOptions& options) {
       for (int batch = 0; batch < options.beam_width && !stop_requested &&
            std::chrono::steady_clock::now() < shell_deadline; ++batch) {
         std::vector<Direction> dirs{{1, 0}};
-        std::vector<std::int64_t> steps{sample_step(m_bound)};
+        std::vector<std::int64_t> steps{sample_step(*m_bound)};
         std::vector<IntPoint> vertices{{0, 0}, {steps.front(), 0}};
         for (int i = 1; i < options.d - 1; ++i) {
           struct FeasibleDirection {
@@ -1186,18 +1255,26 @@ SearchSummary run_search(const AreaSearchOptions& options) {
               continue;
             if (options.smooth_only && abs_wide(cross(previous, p)) != 1)
               continue;
-            std::int64_t max_step = m_bound;
+            std::int64_t max_step = *m_bound;
             if (p.y < 0) {
               const WideInt numerator = static_cast<WideInt>(vertices.back().y) - 1;
               const WideInt denominator = -static_cast<WideInt>(p.y);
               max_step = static_cast<std::int64_t>(numerator / denominator);
-              max_step = std::min(max_step, static_cast<std::int64_t>(m_bound));
+              max_step = std::min(max_step, static_cast<std::int64_t>(*m_bound));
             }
             if (max_step >= 1) feasible.push_back({p, max_step});
           }
           if (feasible.empty()) break;
-          const auto pick = std::uniform_int_distribution<std::size_t>(
-              0, feasible.size() - 1)(rng);
+          std::vector<double> direction_weights;
+          direction_weights.reserve(feasible.size());
+          for (const auto& option : feasible) {
+            const auto coordinate_norm = std::max(std::llabs(option.direction.x),
+                                                  std::llabs(option.direction.y));
+            const double denominator = 1.0 + static_cast<double>(coordinate_norm);
+            direction_weights.push_back(1.0 / (denominator * denominator));
+          }
+          const auto pick = std::discrete_distribution<std::size_t>(
+              direction_weights.begin(), direction_weights.end())(rng);
           const auto selected = feasible[pick];
           const std::int64_t step = sample_step(selected.max_step);
           const WideInt x = static_cast<WideInt>(vertices.back().x) +
@@ -1257,9 +1334,9 @@ SearchSummary run_search(const AreaSearchOptions& options) {
         });
         PolygonCandidate c = std::move(*it); score_frontier.erase(it); return c;
       };
-      for (int take = 0; take < 4 && !stop_requested &&
+      for (int take = 0; take < 8 && !stop_requested &&
            std::chrono::steady_clock::now() < deadline; ++take) {
-        const bool use_score = (take % 4) == 3;
+        const bool use_score = take == 7;
         auto candidate = use_score ? pop_score() : pop_area();
         if (!candidate) break;
         const auto validation = database.get_validation(candidate->key, validation_profile);
@@ -1319,11 +1396,8 @@ SearchSummary run_search(const AreaSearchOptions& options) {
         }
       }
       database.save_state(rng_state_name, serialize_rng(rng));
-      database.save_state(shell_state_name, std::to_string(shell));
     }
     ++shell;
-    database.save_state(shell_state_name, std::to_string(shell));
-    if (shell > 30) break;
   }
   return finish();
 }
