@@ -34,3 +34,6 @@ __pycache__/
 
 # Local research papers are not part of the GitHub project
 /papers/
+
+# Local search result files
+/k_stability_search_result.txt
