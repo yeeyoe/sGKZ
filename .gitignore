@@ -1,0 +1,36 @@
+# Build products and binaries
+/build*/
+**/build*/
+CMakeFiles/
+**/CMakeFiles/
+*.dSYM/
+
+# Search databases and SQLite sidecars
+*.sqlite
+*.sqlite-*
+
+# Generated results, reports, plots, and caches
+/results/
+**/results/
+/K-stability/K-results/
+/K-stability_highdim/nK_results/
+/K-stability/Q_volume_joint_graph/
+/K-stability/all_about_d5_a382/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pdf
+*.bbl
+
+# Generated polygon preview images
+/examples/*.svg
+
+# macOS metadata
+.DS_Store
+
+# Local handoff notes
+/HANDOFF.md
+
+# Local research papers are not part of the GitHub project
+/papers/

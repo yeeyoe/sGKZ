@@ -1,0 +1,7 @@
+# Unit square with dσ = 0 on the bottom edge.
+0 0
+1 0
+1 1
+0 1
+null measure edges
+0 0 1 0

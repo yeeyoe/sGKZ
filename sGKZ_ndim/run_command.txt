@@ -1,0 +1,12 @@
+sGKZ_ndim/build/sgkz \
+  --points examples/8pt.points \
+  --output sGKZ_ndim/results/8pt.csv
+
+
+sGKZ_ndim/build/sgkz \
+  --polytope examples/six_points.points \
+  --k 1 \
+  --verbose \
+  --output sGKZ_ndim/results/six_points.csv \
+  > sGKZ_ndim/results/six_points.out \
+  2> sGKZ_ndim/results/six_points.log

@@ -1,0 +1,494 @@
+# K-stability：精确计算 $\ell_P$ 并检测相对 K-不稳定性
+
+本目录实现 `paper/K-stability.tex` 的两个目标，与主程序 `shortest_gkz`
+完全隔离：不链接 `gkz_core`，只依赖 CGAL（`Gmpq` 精确有理数）。
+
+设 $P\subset\mathbb R^2$ 是格点多边形，边界上带格点测度
+$\mathrm{d}\sigma$（在原语法向量 $v_i$ 的边 $F_i$ 上
+$\mathrm{d}\sigma|_{F_i}=\mathrm{d}s/|v_i|$；等价地，边 $p\to q$ 的
+$\mathrm{d}\sigma$ 长度是格点长度 $\gcd(|q_x-p_x|,|q_y-p_y|)$），即顶点差向量的分量的 $\gcd$。
+
+## 目标 1：精确计算 $\ell_P$
+
+$\ell_P$ 是唯一满足下式的仿射函数：对所有仿射函数 $h$，
+
+$$
+\int_{\partial P}h\,\mathrm{d}\sigma=\int_P h\,\ell_P\,\mathrm{d}x.
+$$
+
+取 $h=1,x,y$ 得 $3\times3$ 线性系统
+
+$$
+\begin{pmatrix}
+V & \int_P x & \int_P y\\
+\int_P x & \int_P x^2 & \int_P xy\\
+\int_P y & \int_P xy & \int_P y^2
+\end{pmatrix}
+\begin{pmatrix}a\\b\\c\end{pmatrix}
+=
+\begin{pmatrix}
+|\partial P|_{\mathrm{d}\sigma}\\
+\int_{\partial P}x\,\mathrm{d}\sigma\\
+\int_{\partial P}y\,\mathrm{d}\sigma
+\end{pmatrix},
+\qquad \ell_P=a+bx+cy.
+$$
+
+格点多边形的所有矩都是有理数：面积分用从原点出发的带符号三角形扇公式，
+边界积分对仿射 $h$ 有精确公式
+$\int_{p q}h\,\mathrm{d}\sigma=\gcd(|\Delta x|,|\Delta y|)\,\frac{h(p)+h(q)}2$。
+程序用 `CGAL::Gmpq` 以 Cramer 法则精确求解，输出分数形式的 $\ell_P$。
+
+### 零边界测度边
+
+多边形文件可在顶点列表后加入单独一行精确文本 `null measure edges`；其后
+每个非空、非注释行有四个整数 `x1 y1 x2 y2`，表示端点为该两点的边取
+$\mathrm{d}\sigma=0$：
+
+```text
+0 0
+1 0
+1 1
+0 1
+null measure edges
+0 0 1 0
+```
+
+端点顺序不限，但每一项必须无歧义地匹配规范化后的真实多边形边；重复边、
+不存在的边以及共线顶点合并后不再存在的子边都会报错。零测度边会同时影响
+moment 条件、$\ell_P$、$M_\ell$ 求值、数值搜索、精确认证和归一化。省略该
+区段或令其为空时，行为与原先完全相同。
+
+手算基准（回归测试冻结）：
+
+| 多边形 | $\ell_P$ |
+| --- | --- |
+| 单位正方形 | $4$ |
+| 三角形 $(0,0),(1,0),(0,1)$ | $6$ |
+| 梯形 $(0,0),(2,0),(1,1),(0,1)$ | $\dfrac{54-24y}{13}$ |
+
+## 目标 2：Donaldson 简单凸函数测试
+
+Donaldson 事实（$n=2$）：$P$ 相对 K-不稳定当且仅当存在简单凸函数
+
+$$
+g=\max\{ax+by+c,\,0\}
+$$
+
+使相对 DF 不变量
+
+$$
+M_\ell(g)=\int_{\partial P}g\,\mathrm{d}\sigma-\int_P g\,\ell_P\,\mathrm{d}x<0.
+$$
+
+$M_\ell$ 只依赖折痕线 $\{ax+by+c=0\}$ 及其法向一侧。程序以单位法向
+$u=(\cos\theta,\sin\theta)$ 和偏移 $t$ 参数化
+$g=\max\{\langle x,u\rangle-t,0\}$：
+
+1. **方向扫描**：$\theta\in[0,2\pi)$ 均匀网格（默认 720），另加所有边法向
+   与顶点对法向作为种子方向。
+2. **偏移采样**：固定 $u$ 时，对每个 $t$ 用半平面裁剪
+   $P^+=P\cap\{s\ge0\}$（Sutherland–Hodgman）在 double 下计算
+   $M_\ell=K-J$，其中 $K$ 逐条原始边对子段积分，$J$ 由 $P^+$ 的二阶矩
+   组合。$t$ 在投影范围 $[w_{\min},w_{\max}]$ 上均匀采样（默认 512）并
+   显式评估所有顶点投影 breakpoint；区间外 $M\equiv0$。
+3. **细化**：最优小区间内 golden-section 细化，再对前 5 个候选做
+   3 轮交替 $(\theta,t)$ 细化（$t$ 括号始终夹在 $[w_{\min},w_{\max}]$）。
+4. **判定**：报告归一化值
+   $M_\ell/(|\partial P|_{\mathrm{d}\sigma}\cdot\sup_P|\ell_P|\cdot\mathrm{diam} P)$；
+   小于 $-10^{-6}$ 判 `unstable`，否则 `no_counterexample_found`。
+5. **可选认证**（`--certify`）：对数值 witness 的 $(\cos\theta^*,\sin\theta^*,-t^*)$ 做连分数有理逼近（分母上限 $10,10^2,\dots$ 递增），
+   逐档用 `Gmpq` 精确重算 $M_\ell$；有理折痕与格点多边形的交点参数是
+   有理数，因此精确评估没有舍入。首个负值即认证 witness。
+
+严格性层级：找到 witness（尤其 `certified=true`）是相对 K-不稳定的严格
+证明；`no_counterexample_found` 只是数值证据，不是半稳定性的证明。
+
+## 用法
+
+```bash
+k_stability --polygon FILE [options]
+```
+
+| 参数 | 默认值 | 含义 |
+| --- | ---: | --- |
+| `--polygon FILE` | 必选 | 格点多边形顶点文件（每行 `x y`，`#` 注释，逗号视为空白；顺时针输入自动反转；可追加 `null measure edges` 区段）。 |
+| `--theta-steps N` | `720` | 折痕方向数。 |
+| `--t-steps N` | `512` | 每方向偏移采样数。 |
+| `--no-refine` | 关 | 跳过局部细化。 |
+| `--certify` | 关 | 用有理数精确认证 witness。 |
+| `--certify-max-denom N` | `1048576` | 认证时有理逼近的分母上限。 |
+| `--database FILE` | `K-stability/k_stability_search.sqlite` | `--certify` 成功时，登记可还原为 canonical 搜索候选的多边形。 |
+| `--svg FILE` | 不写出 | 写出多边形 + witness 折痕线（含 $P\cap\{s\ge0\}$ 阴影）的 SVG。 |
+| `--check-line "a b c"` | 无 | 直接精确/数值评估 $M_\ell(\max\{ax+by+c,0\})$；`p/q` 或整数走精确路径。 |
+| `--verbose` | 关 | 逐方向输出最小值到标准错误。 |
+
+例子：
+
+```bash
+./build/K-stability/k_stability --polygon examples/unit_square.polygon
+./build/K-stability/k_stability --polygon examples/my --svg /tmp/my.svg
+./build/K-stability/k_stability --polygon examples/unit_square.polygon \
+  --check-line "1 0 -1/2"        # 精确输出 M_l=1/4
+```
+
+## 输出字段
+
+标准输出为逐行 `key=value`：
+
+| 字段 | 含义 |
+| --- | --- |
+| `vertices` / `twice_area` | 顶点数 / 二倍面积。 |
+| `boundary_length_dsigma` | $|\partial P|_{\mathrm{d}\sigma}$，精确有理数。 |
+| `null_measure_edge_count` | 取 $\mathrm{d}\sigma=0$ 的规范化多边形边数。 |
+| `ell_P(x,y)` | $\ell_P$ 的精确分数系数。 |
+| `ell_P_constant` | $\ell_P$ 是否为常数。 |
+| `search_evaluations` | $M_\ell$ 求值次数。 |
+| `sweep_min_M_l` / `sweep_min_M_l_normalized` | 搜索得到的（归一化）最小值。 |
+| `witness_theta` / `witness_t` / `witness_g` | 最优候选的参数与函数形式。 |
+| `relative_K_status` | `unstable` 或 `no_counterexample_found`。 |
+| `certified` 等 | `--certify` 时的认证 witness 与精确 `certified_M_l<0`。 |
+
+使用 `--certify` 且认证成功时，程序会自动尝试将多边形登记到 `--database` 指定的
+搜索 SQLite 库。只有首点为原点、首边方向为 `(1,0)`、严格凸且无零测度边，并能
+严格还原为 canonical candidate 的输入才会导入；否则仍输出认证结果，但不会写入
+搜索候选表。成功导入时会额外输出 `registered_database` 和 `registered_key`。
+
+退出码：`0` 找到（且若要求则已认证）witness；`2` 未发现反例或认证失败；
+`1` 参数/输入/运行错误。
+
+## 单割线分解搜索
+
+`k_stability_decompose` 用于探索 Székelyhidi optimal test function 的两片
+分解。第一版只寻找一条 chord（两端均在原多边形边界上）的分解；它不枚举多个
+内部节点或多个割边。
+
+设 chord 的两个端点为 $U,V$，切分得到 $Q_1,Q_2$。原多边形的每段外边界
+继承原边上的 $\mathrm{d}\sigma$ 密度：若端点将一条原边按参数 $s$ 切开，则
+该段边界测度长度为原长度的相应比例。输入文件 `null measure edges` 中已有的
+零测度边也继续为零。新增 chord $UV$ 在两片中均取
+$\mathrm{d}\sigma|_{UV}=0$。
+
+程序对每个切分精确计算
+
+$$
+\ell_{Q_1}(x,y),\qquad \ell_{Q_2}(x,y),
+$$
+
+并求解连续性条件
+
+$$
+(\ell_{Q_1}-\ell_{Q_2})(U)=0,
+\qquad
+(\ell_{Q_1}-\ell_{Q_2})(V)=0.
+$$
+
+由于两者之差是 affine 函数，这两个端点条件等价于两片的 $\ell$ 在整条 chord
+上相等。工具还检查其拼接函数在 chord 两侧的局部凹性；只有连续、凹、且两片
+都没有在现有 simple-convex 扫描中找到负 witness 的候选才会输出。
+
+运行前，父多边形必须先由现有路径找到数值负 witness，且其有理 witness 认证
+成功。未认证的父不稳定性、或父多边形没有找到负 witness，都会使程序拒绝继续。
+
+### 用法
+
+```bash
+./build/K-stability/k_stability_decompose --polygon examples/d5_a74
+```
+
+提高子片扫描精度、增加根求解起点，或收紧连续性容差的例子：
+
+```bash
+./build/K-stability/k_stability_decompose \
+  --polygon examples/d5_a74 \
+  --theta-steps 1440 \
+  --t-steps 1024 \
+  --root-starts 12 \
+  --root-iterations 100 \
+  --root-tolerance 1e-12
+```
+
+### 参数
+
+| 参数 | 默认值 | 含义 |
+| --- | ---: | --- |
+| `--polygon FILE` | 必选 | 父多边形文件；接受 `k_stability` 的普通顶点格式和可选 `null measure edges` 区段。 |
+| `--theta-steps N` | `720` | 父多边形及每片 relative-K witness 扫描的方向数。 |
+| `--t-steps N` | `512` | 每个扫描方向上的偏移采样数。 |
+| `--no-refine` | 关 | 跳过父多边形 witness 搜索的局部细化。子片扫描目前使用同一 `SearchOptions`。 |
+| `--root-starts N` | `7` | 每一对非相邻边的二维连续性方程的初始点数。增大可降低遗漏不同实根的风险。 |
+| `--root-iterations N` | `60` | 每个起点的阻尼 Newton / 最小二乘迭代上限。 |
+| `--root-tolerance X` | `1e-10` | 数值连续性残差 $\sqrt{r_U^2+r_V^2}$ 的接受阈值。 |
+| `--rational-max-denom N` | `1048576` | 将数值切点参数重构为有理数时的分母上限。 |
+| `--certify-max-denom N` | `1048576` | 父不稳定 witness 有理认证的分母上限。 |
+
+返回码：`0` 表示至少找到一个通过所有数值筛选的分解候选；`2` 表示父多边形未
+通过不稳定认证，或没有找到合格分解；`1` 表示参数、输入或计算错误。
+
+### 输出
+
+标准输出采用逐行 `key=value`。在开始枚举 chord 前，程序输出父多边形状态：
+
+| 字段 | 含义 |
+| --- | --- |
+| `parent_relative_K_status` | 父多边形数值扫描状态。只有 `unstable` 才继续。 |
+| `parent_certified` | 父多边形的数值 witness 是否已通过有理精确认证。只有 `true` 才继续。 |
+| `parent_certified_M_l` | 认证 witness 的精确负相对 DF 值。 |
+| `decomposition_candidates` | 最终输出的合格 chord 候选数。 |
+
+每个候选以 `candidate=0`、`candidate=1` 等开头，随后字段为：
+
+| 字段 | 含义 |
+| --- | --- |
+| `candidate_edges=i,j` | chord 端点所在的原边编号。边 `i` 是规范化后顶点 `i` 到顶点 `(i+1) mod n`；编号从 `0` 开始。 |
+| `candidate_parameters=s,t` | 两端在其原边上的参数；端点为 $p_i+s(p_{i+1}-p_i)$ 与 $p_j+t(p_{j+1}-p_j)$。 |
+| `candidate_endpoints` | chord 的两个端点坐标；有理认证成功时输出精确分数，否则输出十进制近似。 |
+| `candidate_continuity_residual` | 两个连续性方程组成的残差范数。该值不超过 `--root-tolerance` 才会被接受。 |
+| `candidate_concave` | 两片 affine 函数按该 chord 拼接后是否通过局部凹性检查；输出候选恒为 `true`。 |
+| `candidate_certified_rational` | 切点参数是否被有理重构，并以精确有理 moment 系统重新验证连续性和凹性。 |
+| `candidate_parameters_rational` | 仅在 `candidate_certified_rational=true` 时出现的精确有理参数。 |
+
+每个候选随后有 `first_piece_*` 与 `second_piece_*` 两组字段。`first_piece` 是从
+第一个 chord 端点沿父多边形的逆时针边界走到第二个端点所得的片；另一个片为
+`second_piece`。这两个名称只是输出约定，不表示数学上的优先顺序。
+
+| 字段 | 含义 |
+| --- | --- |
+| `*_vertices` | 子多边形按逆时针顺序的顶点。最后一条边是新 chord，回到首顶点。数值候选用十进制；有理认证候选用精确分数。 |
+| `*_edge_measures` | 与 `*_vertices` 同序的每条边总 $\mathrm{d}\sigma$ 测度。最后一项对应新 chord，恒为 `0`。 |
+| `*_ell` | 在该子多边形及其继承测度下由 moment 条件唯一确定的 affine 函数。 |
+| `*_relative_K_status` | 对该片运行现有 simple-convex 扫描的结果。输出候选中均为 `no_counterexample_found`。 |
+
+`candidate_certified_rational=false` 不表示该候选错误，只表示在给定分母上限内
+未找到可精确验证的有理切点。相反，`true` 只认证 chord 几何、两片 moment
+系统、连续性和凹性；它**不**认证子片 K-semistability。所有子片的
+`no_counterexample_found` 都只是目前扫描没有发现 destabilizing simple convex
+function，不是严格的半稳定性证明。
+
+核心层还定义了后续多割线模式的 `DecompositionTreeTopology`：它验证用户给出的
+树是否连通无环、内部节点是否均为 degree 3、边界节点是否均为 degree 1，以及
+每个内部节点的循环边顺序。当前命令行只求解该模型的单割线特例；多割线的拓扑
+将由用户提供而不会自动枚举。
+
+## 面积优先搜索
+
+`k_stability_search` 在固定顶点数 `d` 下逐步生成严格凸整点多边形。每一步只从
+满足相邻转角和当前闭合扇区条件的方向中采样，并即时丢弃没有合法步长的分支；
+闭合边自动计算且不受 `N,M` 限制。整体步长公因子会被约去。使用
+`--smooth-only` 时还要求每次相邻 primitive 方向的行列式绝对值为 `1`，奇异方向
+在采样阶段直接剔除。候选按精确 `twice_area` 与 Donaldson
+probe 分数进入两个 frontier，依次使用 `probe`、`confirm`、`final` profile，
+最终只有 `df_simple_exact(...) < 0` 才计为 `verified_unstable`。
+
+搜索状态、候选的方向/步长/顶点/facet normals/`ell_P`、各 detector profile
+和认证 witness 均保存在 SQLite 中。`candidate_validations` 按候选和完整
+probe→confirm→final profile 保存 `pending`、`unverified` 或
+`verified_unstable`：verified 永久跳过；同一 profile 的 unverified 跳过；
+旧 profile 的 unverified 重新完整检测；pending 按 `last_stage` 恢复。搜索不
+内置文献多边形或种子。
+
+```bash
+./build/K-stability/k_stability_search --d 6 --N 4 --M 4 \
+  --time-limit 3600
+```
+
+### 输入参数
+
+必需参数：
+
+| 参数 | 含义 |
+| --- | --- |
+| `--d D` | 固定顶点数，`D >= 3`。实际搜索通常从 `D >= 6` 开始。 |
+| `--N N` | 初始受约束方向的坐标上界，`|p_x|,|p_y| <= N`。 |
+| `--M M` | 初始前 `d-1` 条边的步长上界，`1 <= k_i <= M`。闭合边不受此限制。 |
+| `--time-limit SEC` | 全局搜索时间预算，单位为秒，必须为正数。 |
+
+可选参数：
+
+| 参数 | 默认值 | 含义 |
+| --- | --- | --- |
+| `--database FILE` | `K-stability/k_stability_search.sqlite` | SQLite 状态及候选记录文件。 |
+| `--output-dir DIR` | `.` | 结果报告目录；写入 `k_stability_search_result.txt`。 |
+| `--shell-seconds SEC` | `60` | 每个 shell 的时间片；到期后切换到下一个 shell。 |
+| `--beam-width K` | `48` | 每批随机/beam 候选生成数量。 |
+| `--seed S` | `1` | 作用是控制随机方向和步长采样。使用同一个新数据库、同样的参数和同一个 seed，通常可以得到可复现的随机序列。 |
+| `--stop-on-first` | 关闭 | 第一个精确认证候选出现后立即结束。默认持续搜索到时间预算耗尽。 |
+| `--smooth-only` | 关闭 | 只生成和检测每个顶点都光滑的多边形；奇异方向在采样时直接剔除。 |
+| `--certify-max-denom Q` | `1048576` | 数值 witness 有理化时的最大分母。该值改变会产生新的 detector profile。 |
+| `--verbose` | 关闭 | 输出额外进度信息。 |
+
+自动 shell 线性扩展；同一组范围连续运行 4 个 shell，再交替增大方向坐标上界
+`N` 与步长上界 `M`。令命令行参数中的初值为 `N0`、`M0`，并令
+`stage=floor(shell/4)`：
+
+* `stage=2k`：`N=N0*(k+1)`，`M=M0*(k+1)`；
+* `stage=2k+1`：`N=N0*(k+2)`，`M=M0*(k+1)`。
+
+例如 `N0=3,M0=2` 时：`shell=0-3` 使用 `(3,2)`，`shell=4-7` 使用 `(6,2)`，
+`shell=8-11` 使用 `(6,4)`，`shell=12-15` 使用 `(9,4)`。
+
+每个 shell 的范围是一个**累计上界**，不是排除前面范围的环带：例如同一组范围
+内的后续 shell 仍然可以生成更小范围内的方向和步长。
+每个 shell 只在自己的时间片内随机采样，不会穷举完整范围。每次运行从 `shell=0`
+开始，但恢复该维度的 RNG 状态；数据库继续去重候选并恢复验证阶段。代码不再设置
+固定的 `N/M` 上限，实际可达到的范围由时间预算和计算资源决定。
+
+方向抽样使用权重 $1/(1+\max(|p_x|,|p_y|))^2$，步长抽样有 90% 概率落在
+`[1,min(M,2)]`，另有 10% 概率覆盖完整 `[1,M]`，以偏向小面积并保留少量大范围探索。
+候选 frontier 每 8 个取出 7 个最小 `twice_area` 候选，1 个取出 probe 分数最低的
+候选。方向枚举 `primitive_directions(N)` 的复杂度为 $O(N^2)$，因此高 `N` shell
+单位时间内可生成的候选数会下降。全局 `--time-limit` 和每个 shell 的
+`--shell-seconds` 都是在阶段边界检查的软截止，不能中断已经开始的方向枚举或单个
+detector 调用。
+
+### 以最小面积为目标的搜索建议
+
+搜索结果按 `twice_area` 排序，但 shell 本身不是按面积分层，随机采样也不保证
+穷举某个范围。因此固定给每个 shell 相同时间并不等价于固定候选数量；本策略通过
+在低范围连续停留 4 个时间片、方向和步长偏置以及 7:1 面积 frontier 比例来补偿。
+
+如果首要目标是找到面积尽可能小的 unstable 多边形，建议让搜索尽量停留在低
+shell，例如：
+
+```bash
+./build/K-stability/k_stability_search \
+  --d 6 --N 3 --M 2 \
+  --time-limit 60 --shell-seconds 60
+```
+
+这样一次运行主要搜索 `shell=0`；重复运行会沿用数据库中的候选、验证结果和 RNG
+状态，不会重复计入已经完成的检测。需要扩大范围时，再逐步提高 `N0`、`M0` 或
+缩短 `--shell-seconds` 让程序进入后续 shell，并始终以数据库中的最小
+`best_twice_area` 作为比较标准。
+
+### 输出说明
+
+程序向标准输出写逐行 `key=value`：
+
+| 字段 | 含义 |
+| --- | --- |
+| `database` | 实际使用的 SQLite 路径。 |
+| `report_file` | 实际写出的结果报告路径。 |
+| `total tested` | 当前 `--d` 维数中，`attempts` 表存在任意 probe/confirm/final 记录的不同候选总数。 |
+| `new tested` | 本轮实际调用 Donaldson detector 的不同当前 `d` 候选数；同一候选的多个 stage 只计一次。 |
+| `total verified unstable` | 搜索结束后当前 `--d` 维数中已精确认证 `M_l<0` 的候选总数。 |
+| `new verified unstable` | 本轮新产生精确认证的不同候选数；加载已有 verified 候选不计入。 |
+| `smaller volume found` / `same least volume` | 本轮结束后的当前 `d` 最小 `twice_area` 是否严格小于开始时的最小值；若开始时没有 verified 候选而本轮找到第一个，也输出 `smaller volume found`。 |
+| `The top 5 with least volume` | 当前 `d` 的 verified 候选前五名，按精确 `twice_area`、canonical key 排序；每行输出 `key` 和 `twice_area`。 |
+| `generated` | 本次运行新生成且通过几何校验、尚未在内存中去重的候选数量。 |
+| `rejected` | 本次运行生成但未通过方向、上半平面、严格凸性、自交或面积等几何校验的数量。 |
+| `probes` / `confirms` / `finals` | 本次运行实际调用 probe、confirm、final 检测的次数；从已保存 stage 恢复时不重复计数。 |
+| `verified` / `unverified` | 搜索结束时当前 `--d` 维数的累计数量，不是本次新增数量。verified 只表示存在精确认证的 `M_l<0`；unverified 只表示当前完整 profile 已完成但未找到 witness。 |
+| `skipped` | 本次运行跳过的候选处理次数，包括 verified 候选、当前 profile 已完成的 unverified 候选，以及 frontier 中因状态已改变而失效的重复条目。 |
+| `have_verified` | 是否已经找到精确认证的不稳定候选。 |
+| `best_twice_area` | 当前 `--d` 维数中已认证候选的最小二倍面积；实际面积为该值的一半。 |
+| `first_verified_key` | 首个认证候选的 canonical key。 |
+| `best_verified_key` | 当前最小面积认证候选的 canonical key。 |
+
+只有 `verified_unstable` 候选才会记录数值 witness、精确有理 witness 及精确
+`M_l<0`；`unverified` 不能解释为半稳定或稳定。
+
+### 输出文件位置
+
+SQLite 持久化输出在 `--database FILE` 指定的文件中，文字结果报告在
+`--output-dir DIR/k_stability_search_result.txt`：
+
+- 默认数据库路径为项目根目录下的 `K-stability/k_stability_search.sqlite`；显式给出的相对路径相对于启动命令时的当前工作目录解析；
+- 文件不存在时自动创建父目录和数据库；
+- `candidates` 表保存方向序列、步长序列、顶点、facet normals、`ell_P`、面积和状态；
+- verified 候选额外保存 `vertex_singularity_flags`（按顶点排列的 `0/1` 光滑/奇异标记）和 `singular_vertex_count`；
+- `candidate_validations` 表保存候选级完整 profile 状态和最后完成阶段；
+- `attempts` 表保存每个候选/profile/stage 的检测结果，只有认证记录含 witness 字段；
+- `state` 表保存按维数隔离的随机游标等状态，例如 `d3|rng`；shell 每次运行从 `0` 开始，`generator_revision` 是全库共享的几何生成器版本。
+- 单个 SQLite 文件可以保存多个 `d` 的候选，但搜索启动时只加载当前 `--d` 的记录，统计和结果报告也只针对当前维数；数据库通过 `(d,status)` 索引加速筛选。
+- 找到认证候选时，报告文件保存其完整几何信息、面积、边界测度、`ell_P`、
+  奇异点标记、profile 和精确 witness；没有找到时报告内容为 `没找到`。
+
+SQLite 运行期间可能同时出现同名的 `-wal` 和 `-shm` 临时文件；它们与主
+数据库放在同一目录。除上述 SQLite 和结果报告外，程序不会生成多边形文本
+或 SVG 文件。
+
+返回码 `0` 表示数据库中已有精确认证候选，`2` 表示时间预算内尚未找到，
+`1` 表示参数、输入或运行错误。
+
+SQLite 数据库的统计、指定 key 查询和 witness 查看命令见
+[search_database_commands.md](search_database_commands.md)。
+
+### 按 key 绘制候选多边形
+
+`plot_candidate.py` 从搜索 SQLite 库读取指定 key，生成一个不依赖
+Matplotlib 的 SVG。图中包含：
+
+- 每个顶点的坐标标注；
+- 蓝色虚线 `ell_P=0`；
+- 红色 witness 折痕线；
+- 奇异顶点的紫色圆点和紫色坐标标注。
+
+默认读取 `K-stability/k_stability_search.sqlite`。使用 `--save` 时，SVG 和顶点
+文件写入项目根目录的 `examples` 文件夹：
+
+```bash
+python3 K-stability/plot_candidate.py \
+  --save \
+  'd5|p=1:0;-6:7;2:-5;5:-6;1:-1|k=1,3,1,1,10'
+```
+
+`--save` 会生成：
+
+```text
+examples/d5_a74.svg
+examples/d5_a74
+```
+
+其中无扩展名文件是可直接供 `k_stability` 读取的顶点文件，所有多边形元信息
+以 `#` 注释保存。若任一同名文件已经存在，程序报错并拒绝覆盖。
+
+关闭 `--save` 时必须指定输出文件，也可以同时指定数据库：
+
+```bash
+python3 K-stability/plot_candidate.py \
+  --database K-stability/k_stability_search.sqlite \
+  --key 'd5|p=1:0;-6:7;2:-5;5:-6;1:-1|k=1,3,1,1,10' \
+  --output K-stability/K-results/candidate.svg
+```
+
+程序优先使用 `attempts` 中保存的精确 witness；若只有数值 witness，则使用
+数值折痕线。运行结束会打印 SVG 路径和奇异顶点总数。
+
+### 按面积上限绘制面积–$Q_P(g)^2$ 分布
+
+`plot_area_q.py` 用于重复生成面积与候选级 $Q_P(g)^2$ 的联合分布图。它只读取
+`status='verified_unstable'` 且已有 Q 值的候选；面积按
+$V_P=\texttt{twice_area}/2$ 计算，并保留 $V_P\le V$ 的对象。
+
+```bash
+python3 K-stability/plot_area_q.py \\
+  --max-area 10000 \\
+  --top-n 10 \\
+  --database K-stability/k_stability_search.sqlite \\
+  --output K-stability/Q_volume_joint_graph/area-q-squared-v10000.html
+```
+
+`--max-area` 是必需参数，`--top-n` 默认是 `10`；省略 `--output` 时，程序会在
+`K-stability/Q_volume_joint_graph/` 下按面积上限自动命名 HTML 文件。程序同时在
+标准输出列出面积不超过上限的对象中，按精确
+
+$$
+\frac{Q_P(g)^2}{V_P}
+$$
+
+降序排列的前 `top-n` 个候选 key。数据库中的 `q_squared_value` 是
+$Q_P(g)^2$ 的浮点辅助字段，排名使用 `q_squared_exact` 和精确面积计算。
+
+## 测试
+
+```bash
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+```
+
+`k_stability_tests` 覆盖：三个手算 $\ell_P$ 基准、扇形矩公式、边界测度、
+$\ell_P$ 定义性质（任意仿射 $h$ 精确 $M_\ell(h)=0$）、正方形手算回归
+$M_\ell(\max\{x-\frac12,0\})=\frac14$、double/exact 一致性、退化折痕、
+解析器校验、连分数逼近、半稳定集成扫描，以及（用错误 $\ell$ 的）搜索 +
+认证 + SVG 机械测试。
