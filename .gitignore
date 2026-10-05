@@ -2,6 +2,7 @@
 /build*/
 **/build*/
 GKZ_GUI/dist/
+K-stability/stable_decompose/
 **/.venv/
 **/.venv-*/
 **/.pytest_cache/
