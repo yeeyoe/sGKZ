@@ -4,8 +4,10 @@
 #include <Eigen/Core>
 
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -124,6 +126,8 @@ struct SolverOptions {
   double projection_relative_gap = 1e-2;
   int projection_rank_stall_window = 64;
   double projection_rank_tolerance = 1e-11;
+  std::atomic_bool* cancellation = nullptr;
+  std::function<void(int, std::size_t)> progress_callback;
 };
 
 struct ExactCertificate {
@@ -148,6 +152,7 @@ ExactCertificate certify_active_set_exact(
 
 struct SolverResult {
   bool converged = false;
+  bool cancelled = false;
   int iterations = 0;
   Eigen::VectorXd sigma;
   double norm_squared = 0.0;
@@ -169,6 +174,15 @@ struct SolverResult {
   double final_qp_norm_squared = 0.0;
   double final_qp_gap = 0.0;
 };
+
+struct CertifiedPlotData {
+  std::vector<CGAL::Gmpq> sigma_vee;
+  std::vector<std::array<std::size_t, 3>> triangulation_faces;
+  std::vector<std::vector<std::size_t>> subdivision_cells;
+};
+
+CertifiedPlotData compute_certified_plot_data(
+    const PointConfiguration& configuration, const SolverResult& result);
 
 class ShortestGkzSolver {
  public:

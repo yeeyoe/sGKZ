@@ -1505,6 +1505,11 @@ SolverResult ShortestGkzSolver::solve(
       configuration.size() >= 4 ? configuration.size() - 4 : 0;
 
   for (int iteration = 0; iteration <= options_.max_iterations; ++iteration) {
+    if (options_.cancellation && options_.cancellation->load()) {
+      result.cancelled = true;
+      result.exact.message = "cancelled";
+      return result;
+    }
     const Eigen::VectorXd candidate = combine(active, coefficients);
     GkzVector minimizing_vertex =
         exact_endgame
@@ -1527,6 +1532,9 @@ SolverResult ShortestGkzSolver::solve(
     }
 
     result.iterations = iteration;
+    if (options_.progress_callback) {
+      options_.progress_callback(iteration, active.size());
+    }
     result.norm_squared = static_cast<double>(norm_squared);
     result.gap = static_cast<double>(gap);
     result.l2_error_bound = std::sqrt(2.0 * result.gap);
@@ -1585,6 +1593,11 @@ SolverResult ShortestGkzSolver::solve(
               "Exact certification skipped because active_size exceeds "
               "exact_max_active.";
         } else {
+          if (options_.cancellation && options_.cancellation->load()) {
+            result.cancelled = true;
+            result.exact.message = "cancelled";
+            return result;
+          }
           result.exact = certify_active_set_exact(configuration, active);
           if (!result.exact.certified && result.exact.has_witness &&
               iteration < options_.max_iterations) {
@@ -1730,6 +1743,31 @@ void write_result_csv(const std::filesystem::path& path,
   }
 }
 
+CertifiedPlotData compute_certified_plot_data(
+    const PointConfiguration& configuration, const SolverResult& result) {
+  if (!result.exact.certified ||
+      result.exact.sigma.size() != configuration.size()) {
+    throw std::invalid_argument(
+        "Certified plot data requires an exact certificate for this point set.");
+  }
+  const RegularTriangulationOracle oracle(configuration);
+  const GkzVector triangulation = oracle.minimize_exact_integer(
+      clear_height_denominators(result.exact.sigma), /*keep_faces=*/true);
+  if (!triangulation.triangulation) {
+    throw std::runtime_error("The oracle did not return triangulation faces.");
+  }
+
+  CertifiedPlotData data;
+  data.triangulation_faces = *triangulation.triangulation;
+  data.sigma_vee = lower_envelope_values_exact(
+      configuration, result.exact.sigma, data.triangulation_faces);
+  const auto cells = subdivision_cells_exact(
+      configuration, result.exact.sigma, data.triangulation_faces);
+  data.subdivision_cells.reserve(cells.size());
+  for (const auto& cell : cells) data.subdivision_cells.push_back(cell.vertices);
+  return data;
+}
+
 void write_plot_data(const std::filesystem::path& prefix,
                      const PointConfiguration& configuration,
                      const SolverResult& result,
@@ -1806,7 +1844,7 @@ void write_plot_data(const std::filesystem::path& prefix,
                 Rational(configuration.level())
           : Rational(0);
 
-  surface << "x,y,sigma,sigma_vee,psi\n" << std::setprecision(17);
+  surface << "x,y,sigma,sigma_vee,psi,sigma_vee_exact\n" << std::setprecision(17);
   ell_stream << "x,y,ell_A,ell_A_exact\n" << std::setprecision(17);
   for (std::size_t i = 0; i < configuration.size(); ++i) {
     const auto& point = configuration.points()[i];
@@ -1825,6 +1863,10 @@ void write_plot_data(const std::filesystem::path& prefix,
         surface << static_cast<double>(psi_factor * envelope -
                                        2.0L * configuration.level());
       }
+    }
+    surface << ',';
+    if (result.exact.certified) {
+      surface << rational_to_string(exact_sigma_vee[i]);
     }
     surface << '\n';
 
