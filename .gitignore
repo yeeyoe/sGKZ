@@ -5,6 +5,7 @@ GKZ_GUI/dist/
 GKZ_GUI/
 sGKZ_ndim/ChowK/
 K-stability/stable_decompose/
+K-stability/Delzant/
 **/.venv/
 **/.venv-*/
 **/.pytest_cache/
