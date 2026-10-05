@@ -15,5 +15,7 @@ include(CTest)
 if(BUILD_TESTING)
   add_executable(sgkz_tests tests/gkz_ndim_tests.cpp)
   target_link_libraries(sgkz_tests PRIVATE sgkz_core)
+  target_compile_definitions(sgkz_tests PRIVATE
+    SGKZ_SIX_POINTS_FIXTURE="${CMAKE_CURRENT_SOURCE_DIR}/../examples/six_points.points")
   add_test(NAME sgkz_tests COMMAND sgkz_tests)
 endif()

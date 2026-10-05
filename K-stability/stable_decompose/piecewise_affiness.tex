@@ -1,0 +1,67 @@
+%% LyX 2.5.0 created this file.  For more info, see https://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amstext}
+\usepackage{amssymb}
+\usepackage{esint}
+\usepackage{babel}
+\begin{document}
+
+\section{Setup}
+
+Let $P\subset\mathbb{R}^{n}$ be a $n$-dimensional lattice polytope
+with volume $V_{P}$. Let $\mathrm{d}\sigma$ be the lattice boundary
+measure on $\partial P$, which is defined as follows. For each facet
+$F\subset\partial P$ spanning affine subspace $\mathrm{Aff}(F)$,
+$\mathrm{d}\sigma|_{F}$ is the Lebesgue measure normalized by the
+lattice $\mathrm{Aff}(F)\cap\mathbb{Z}^{n}$. If 
+\[
+F=\left\{ x\in\mathbb{R}^{n}\mid\left\langle x,v_{F}\right\rangle +a_{F}\ge0\right\} ,
+\]
+where $v_{F}\in\mathbb{Z}^{n}$ is primitive. Then $\mathrm{d}\sigma|_{F}=\mathrm{d}s/\left|v_{F}\right|$,
+$\mathrm{d}s$ is the Euclidean boundary measure. 
+
+\section{Question }
+
+Let $\mathcal{C}(P)$ be the space of convex functions on $P$ (continuous
+up to $\partial P$). Consider a functional 
+\[
+\Psi(f)=\frac{1}{2}\int_{P}f^{2}\mathrm{d}x+\int_{\partial P}f\ \mathrm{d}\sigma,\ f\in\mathcal{C}(P).
+\]
+Known facts: 
+\begin{enumerate}
+\item $\Psi$ admits a unique minimizer $\psi=-\Theta_{P}\in\mathcal{C}(P)$,
+which is continuous up to $\partial P$. Refer to \cite{Szekelyhidi}
+and \cite{Sheng-Yao}. We call $\Theta_{P}$ the optimal test-function,
+which equals to $B$ in \cite{Szekelyhidi}. 
+\item variational inequality: $\int_{\partial P}f\mathrm{d}\sigma\ge\int_{P}f\Theta_{P},\ \text{for }\forall f\in\mathcal{C}(P)$.
+$\int_{\partial P}\Theta_{P}\mathrm{d}\sigma=\int_{P}\Theta^{2}_{P}$. 
+\item $\Theta_{P}$ is the unique element with minimal $L^{2}$-norm in
+the set 
+\[
+\mathcal{S}(P)=\left\{ \theta\in L^{2}(P)\mid\int_{\partial P}f\mathrm{d}\sigma\ge\int_{P}f\theta,\ \forall f\in\mathcal{C}(P)\right\} .
+\]
+\item $\sup_{P}\Theta_{P}=\sup_{\partial P}\Theta_{P}>0$. 
+\item \cite{Li-Zhou} $\psi=-\Theta_{P}$ satisfies the homogenous Monge--Ampère
+equation in the sense of Alexandrov. Precisely, for any compact set
+$K\subset\mathrm{int}P$, the Lebesgue measure $\left|\partial u(K)\right|=0$. 
+\end{enumerate}
+Question: Is $\Theta_{P}$ piecewisely affine or not ?
+\begin{thebibliography}{Donaldson02}
+\bibitem[Donaldson02]{Donaldson02}Simon Donaldson, Scalar Curvature
+and Stability of Toric Varieties. 
+
+\bibitem[Szekelyhidi]{Szekelyhidi} Gabor Szekelyhidi, Optimal test-configurations
+for toric varieties. 
+
+\bibitem[Li-Zhou]{Li-Zhou}Yan Li and Bin Zhou, K-stability and polystable
+degenerations of polarized spherical varieties. 
+
+\bibitem[Sheng-Yao]{Sheng-Yao}Li Sheng and Yi Yao, Properties of
+optimal test-function for toric varieties. 
+
+\end{thebibliography}
+
+\end{document}

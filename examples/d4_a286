@@ -1,0 +1,16 @@
+# candidate_key=d4|p=1:0;63:62;24:25;-1:-1|k=1,1,2,112
+# d=4
+# twice_area=286
+# status=verified_unstable
+# directions=1:0;63:62;24:25;-1:-1
+# steps=1,1,2,112
+# facet_normals=0:1;-62:63;-25:24;1:-1
+# ell_P(x,y)=835909194/350499265 + (-870674778/350499265) x + (174502752/70099853) y
+# vertex_singularity_flags=0,1,1,0
+# singular_vertex_count=2
+# witness_kind=exact
+# witness_line=(-7/10) x + (-7/10) y + (297/4) = 0
+0 0
+1 0
+64 62
+112 112

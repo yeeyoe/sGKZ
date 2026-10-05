@@ -1,0 +1,18 @@
+# candidate_key=d6|p=1:0;13:4;-7:11;-7:-3;-13:-6;5:-4|k=10,2,1,3,1,1
+# d=6
+# twice_area=752
+# status=verified_unstable
+# directions=1:0;13:4;-7:11;-7:-3;-13:-6;5:-4
+# steps=10,2,1,3,1,1
+# facet_normals=0:1;-4:13;-11:-7;3:-7;6:-13;4:5
+# ell_P(x,y)=1288097007/9581094521 + (-227439768/239527363025) x + (-2114221386/239527363025) y
+# vertex_singularity_flags=1,1,1,1,1,1
+# singular_vertex_count=6
+# witness_kind=exact
+# witness_line=(7/10) x + (-7/10) y + (-17/4) = 0
+0 0
+10 0
+36 8
+29 19
+8 10
+-5 4

@@ -1,0 +1,25 @@
+{
+  "sample": "d5_a382",
+  "level": 6,
+  "status": "solved",
+  "iterations": 2350,
+  "primal_residual": 6.6971076661095446e-12,
+  "dual_residual": 3.7473653737366204e-11,
+  "solve_time": 1.378214958589524,
+  "psi": -1.4698192439859064,
+  "max_constraint_violation": 6.697309373748794e-12,
+  "affine_fit_residual": 0.0321210578894588,
+  "gradient_jump_max": 0.022359781120498308,
+  "gradient_jump_mean": 7.831799344168504e-05,
+  "gradient_jump_quantiles": [
+    3.8524775980989325e-12,
+    7.55577565204675e-11,
+    2.182102738082475e-10
+  ],
+  "gradient_jump_count": 64,
+  "gradient_jump_length": 12.083045973594572,
+  "l2_difference": 1.5841391078666727e-09,
+  "node_count": 6305,
+  "triangle_count": 12288,
+  "interior_edge_count": 18272
+}

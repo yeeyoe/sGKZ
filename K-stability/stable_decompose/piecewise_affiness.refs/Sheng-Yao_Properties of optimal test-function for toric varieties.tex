@@ -1,0 +1,590 @@
+% 预览源文件
+
+%% LyX 2.5.0 created this file.  For more info, see https://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english,a4paper,12pt,reqno]{amsart}
+\usepackage{tgtermes}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{babel}
+\usepackage{verbatim}
+\usepackage{mathtools}
+\usepackage{amstext}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage[bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=3,
+ breaklinks=true,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=true]
+ {hyperref}
+\hypersetup{
+ bookmarksdepth=3,linkcolor=red,citecolor=blue}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+%\usepackage[all]{xy}
+\usepackage{tikz-cd}
+\usepackage[twoside,inner=1.3in,outer=1in,top=1in,bottom=1in]{geometry}
+\usepackage{csquotes}
+
+% 定义两个安全的局部深度切换命令，专门供 TOC 读取，不污染正文计数器
+\DeclareRobustCommand{\skipsubsectionsinTOC}{\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}}
+\DeclareRobustCommand{\showsubsectionsinTOC}{\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}} 
+% 注：amsart 默认的最终深度通常是 3 (显示到 subsection)
+
+\makeatother
+
+\theoremstyle{plain}
+\newtheorem{thm}{\protect\theoremname}
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{\protect\definitionname}
+\theoremstyle{remark}
+\newtheorem{rem}[thm]{\protect\remarkname}
+\theoremstyle{plain}
+\newtheorem{prop}[thm]{\protect\propositionname}
+\usepackage[style=alphabetic,backref=true, isbn=false, url=false, doi=false]{biblatex}
+\providecommand{\definitionname}{Definition}
+\providecommand{\propositionname}{Proposition}
+\providecommand{\remarkname}{Remark}
+\providecommand{\theoremname}{Theorem}
+
+\addbibresource{5@part1.bib}
+\begin{document}
+\title{Properties of optimal test-function for toric varieties}
+\author{Li Sheng}
+\address{School of Mathematics, Sichuan University, Chengdu 610064, P. R. China.}
+\email{lshengscu@gmail.com}
+\author{Yi Yao}
+\address{School of Mathematics, Hunan University, Changsha 410082, P. R. China.}
+\email{yeeyoe@163.com}
+
+\maketitle
+\global\long\def\lam{\lambda}%
+ 
+\global\long\def\vphi{\varphi}%
+ 
+\global\long\def\cch{\mathcal{H}}%
+ 
+\global\long\def\bbc{\mathbb{C}}%
+ 
+\global\long\def\bbcs{\mathbb{C}^{*}}%
+ 
+\global\long\def\bbr{\mathbb{R}}%
+ 
+\global\long\def\bbz{\mathbb{Z}}%
+ 
+\global\long\def\bbn{\mathbb{N}}%
+
+\global\long\def\ra{\rightarrow}%
+ 
+\global\long\def\lead{\leadsto}%
+ 
+\global\long\def\bdot{\bm{\cdot}}%
+ 
+\global\long\def\'{\prime}%
+ 
+\global\long\def\cleq{\preceq}%
+\global\long\def\cgeq{\succeq}%
+ 
+\global\long\def\na{{\scriptscriptstyle \mathsf{NA}}}%
+ 
+\global\long\def\an{\mathrm{an}}%
+ 
+\global\long\def\ma{\mathrm{MA}}%
+
+\tableofcontents{}
+
+\section{\label{sec:4}Optimal test functions for K-stability}
+
+\subsection{\label{subsec:Szekelyhidi's-optimal-test}Székelyhidi's optimal test
+function $\Theta_{P}$}
+
+We recap the optimal test-function for K-unstable toric varieties
+in \cite{szekelyhidi_optimal_2008}. For an introduction to K-stability
+of toric varieties, refer to \cite{donaldson_scalar_2002,szekelyhidi_extremal_2006,wang_k-stability_2014}. 
+
+Let $P\subset M_{\bbr}$ be a lattice polytope. Given a rational piecewise
+affine convex function $\eta$ over $P$, one can build a toric test-configuration
+for $(X_{P},L_{P})$, see \cite{donaldson_scalar_2002}. Donaldson
+shows that the attached DF-invariant is equal to 
+\[
+\mathbb{M}_{P}(\eta)\coloneqq\int_{\partial P}\eta\ \mathrm{d}\sigma-\int_{P}\eta\bar{S}\ \mathrm{d}x,\ \bar{S}=\frac{V_{\partial P,\mathrm{d}\sigma}}{V_{P}}.
+\]
+When $\eta$ is affine, it recovers the classical Futaki invariant
+with respect to the automorphism torus action. 
+
+Since we focus on the unstable case, we only recall the K-semistability
+and its relative version. The relative DF-invariant is defined as
+\[
+\mathbb{M}^{\mathrm{rel}}_{P}(\eta)\coloneqq\int_{\partial P}\eta\ \mathrm{d}\sigma-\int_{P}\eta\ell_{P}\ \mathrm{d}x,
+\]
+where $\ell_{P}$ is the unique affine function such that $\mathbb{M}^{\mathrm{rel}}_{P}$
+vanishes on all affine functions. Conventionally, $\ell_{P}$ is called
+the \textit{extremal affine function}, since it can give the Hamiltonian
+function for the extremal vector field.
+\begin{defn}[K-semistabilities]
+ Given a lattice polytope $P\subset M_{\mathbb{R}}$. 
+
+(1) we say $P$ is K-semistable if $\mathbb{M}_{P}(\eta)\geq0$ for
+all $\eta\in\mathcal{C}(P)$. Otherwise, we say $P$ is K-unstable. 
+
+(2) we say $P$ is relatively K-semistable if $\mathbb{M}^{\mathrm{rel}}_{P}(\eta)\geq0$
+for all $\eta\in\mathcal{C}(P)$. Otherwise, we say $P$ is relatively
+K-unstable. 
+\end{defn}
+
+In the K-unstable case, Székelyhidi \cite{szekelyhidi_optimal_2008}
+considered the minimization problem for the normalized invariant 
+\[
+\bar{\mathbb{M}}_{P}(\eta)\coloneqq\frac{\mathbb{M}_{P}(\eta)}{\left\Vert \eta\right\Vert _{2}},\ \left\Vert \eta\right\Vert ^{2}_{2}=\int_{P}\eta^{2},
+\]
+and obtained a minimizer in an enlarged space. Let $P^{*}$ equals
+to $P$ excluding all the faces with codimension $\geq2$, which is
+also a convex set. Consider space 
+\begin{equation}
+\mathcal{C}_{1}(P)=\left\{ \eta:P^{*}\ra\bbr\text{ continuous convex }\Big|\int_{\partial P}\eta\,\mathrm{d}\sigma<\infty\right\} .\label{eq:space C1}
+\end{equation}
+Functions in $\mathcal{C}_{1}(P)$ can be extended to lsc convex functions
+on the whole $P$ (may take $+\infty$). By \cite[Lemma 5.1.3]{donaldson_scalar_2002},
+they are integrable over $P$, thus $\mathbb{M}_{P}$ is well-defined
+on $\mathcal{C}_{1}(P)$. 
+\begin{thm}[\cite{szekelyhidi_optimal_2008}]
+\label{thm: Gabor paper} Given a lattice polytope $P\subset M_{\mathbb{R}}$. 
+
+(1) Suppose $P$ is K-unstable, then 
+\[
+\inf\left\{ \bar{\mathbb{M}}_{P}(\eta)\mid0\neq\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)\right\} =-\left\Vert \Theta_{P}-\bar{S}\right\Vert _{2}
+\]
+admits a unique (up to scaling) minimizer $\bar{S}-\Theta_{P}\in\mathcal{C}_{1}(P)\cap L^{2}(P)$.
+We call concave function $\Theta_{P}$ the optimal test-function for
+$P$ (denoted by $B$ in \cite{szekelyhidi_optimal_2008}), which
+satisfies 
+\begin{equation}
+\int_{\partial P}\eta\ge\int_{P}\eta\Theta_{P},\ \forall\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)\ \textrm{and}\ \int_{\partial P}\Theta_{P}=\int_{P}\Theta^{2}_{P}.\label{eq: property of Theta}
+\end{equation}
+When $P$ is K-semistable, we define $\Theta_{P}=\bar{S}$, above
+conditions still hold. 
+
+When $P$ is relatively K-semistable, we have $\Theta_{P}=\ell_{P}$.
+If $P$ is relatively K-unstable, $\ell_{P}-\Theta_{P}$ is the unique
+minimizer of $\mathbb{M}^{\mathrm{rel}}_{P}(\eta)/\left\Vert \eta\right\Vert $. 
+
+(2) Consider the space of ``scalar curvatures'' 
+\begin{equation}
+\mathcal{S}(P)=\left\{ \theta\in L^{2}(P)\ \Big|\int_{\partial P}\eta\ge\int_{P}\eta\theta,\ \forall\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)\right\} ,\label{eq: space of scalar curvature}
+\end{equation}
+then $\Theta_{P}$ is the unique element in $\mathcal{S}(P)$ with
+minimal $L^{2}$-norm. Recall that if $u:P\ra\bbr$ is the symplectic
+potential of an invariant Kähler metric, its scalar curvature is $S(u)=-\sum_{i,j}\partial_{i}\partial_{j}u^{ij}\in\mathcal{S}(P)$.
+
+(3) Consider the Calabi flow on $X_{P}$ with invariant initial data,
+which can be reduced into evolution equation on $P$: 
+\[
+\dot{u}_{t}=-S(u_{t})=\sum_{i,j}\partial_{i}\partial_{j}u^{ij}_{t}.
+\]
+Assume it admits long-time solutions, then $S(u_{t})\stackrel{L^{2}}{\rightarrow}\Theta_{P}$
+as $t\rightarrow\infty$. 
+
+(4) (canonical semi-stable decomposition) Assume $P$ is relatively
+K-unstable and $\Theta_{P}$ is piecewise affine. Let $Q\subset P$
+be a maximal subpolytope over which $\Theta_{P}$ is affine, then
+$Q$ is relatively K-semistable in the following sense: 
+\begin{equation}
+\int_{\partial Q\cap\partial P}\eta\ \mathrm{d}\sigma\ge\int_{Q}\eta\Theta_{P}\ \mathrm{d}x,\ \forall\eta\in\mathcal{C}(Q).\label{eq: semi-decom}
+\end{equation}
+\end{thm}
+
+\begin{rem}[no island]
+ Under the assumptions in (4), we can deduce that each subpolytope
+$Q$ must have a facet which is entirely contained in $\partial P$.
+If not, we have $\left|\partial Q\cap\partial P\right|_{\mathrm{d}\sigma}=0$.
+Take $\eta$ in (\ref{eq: semi-decom}) to be the affine functions
+extending $\pm\Theta|_{Q}$, it implies 
+\[
+\int_{Q}\Theta^{2}=\int_{\partial Q\cap\partial P}\Theta\ \mathrm{d}\sigma=0.
+\]
+So $\Theta\equiv0$ on $Q$. Since $\Theta$ is concave, this implies
+$\Theta\leq0$ on $P$, but this contradicts with $\int_{P}\Theta=V_{\partial P,\mathrm{d}\sigma}>0$,
+which follows from (\ref{eq: property of Theta}). 
+\end{rem}
+
+
+\subsection{More properties of $\Theta_{P}$}
+
+A central question is whether $\Theta$ is piecewise affine. The answer
+is still unknown. A closely related result is Theorem \ref{thm: Li Zhou}.
+In this section, we give some properties about $\Theta$. First, we
+re-characterize $\Theta$ as the unique minimizer of a simpler convex
+functional, which is inspired by the work \cite{inoue_entropies_2022-1}
+of Inoue. 
+\begin{prop}
+\begin{comment}
+(1) We have 
+\[
+\min\left\{ \frac{-\int_{\partial P}\eta}{\left\Vert \eta\right\Vert _{2}}\mid0\neq\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)\right\} =-\left\Vert \Theta\right\Vert _{2},
+\]
+and the minimizers are of the form $a\Theta,\ \forall a>0$.
+\end{comment}
+\label{prop: recharac Theta}Convex function $-\Theta_{P}$ is the
+unique minimizer of functional 
+\begin{equation}
+\Psi(\eta)\coloneqq\frac{1}{2}\int_{P}\eta^{2}\mathrm{d}x+\int_{\partial P}\eta\ \mathrm{d}\sigma,\ \eta\in\mathcal{C}_{1}(P)\cap L^{2}(P).\label{eq: Inoue functional}
+\end{equation}
+\end{prop}
+
+\begin{proof}
+For any $\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)$, (\ref{eq: property of Theta})
+implies 
+\[
+\int_{\partial P}\eta\geq\int_{P}\eta\Theta\geq-\left\Vert \eta\right\Vert _{2}\left\Vert \Theta\right\Vert _{2}\geq-\frac{1}{2}\left\Vert \eta\right\Vert ^{2}_{2}-\frac{1}{2}\left\Vert \Theta\right\Vert ^{2}_{2}.
+\]
+Thus $\Psi(\eta)\geq-\frac{1}{2}\left\Vert \Theta\right\Vert ^{2}_{2}$.
+This lower bound is achieved by $\eta=-\Theta$ since $\int_{P}\Theta^{2}=\int_{\partial P}\Theta$.
+The uniqueness follows from the strict convexity of $L^{2}$-norm. 
+\end{proof}
+
+\begin{prop}
+\label{prop: sup of theta}We have $\sup_{P}\Theta_{P}=\sup_{\partial P}\Theta_{P}>0$.
+\end{prop}
+
+\begin{proof}
+Set $u=-\Theta$, we show $\inf_{P}u=\inf_{\partial P}u$. If this
+is not true, let $m\coloneqq\inf_{P}u<\inf_{\partial P}u$. Since
+$\int_{P}\Theta=\left|\partial P\right|_{\mathrm{d}\sigma}>0$, we
+know $m<0$. Take $\delta>0$ such that $0>m+\delta<\inf_{\partial P}u$.
+Consider $u'=\max\left\{ u,m+\delta\right\} $. Since $u\geq\inf_{\partial P}u>m+\delta$
+on $\partial P$, we have $u'=u$ on $\partial P$. Then it is easy
+to see
+\[
+\Psi(u')=\frac{1}{2}\int_{P}u'^{2}+\int_{\partial P}u'<\frac{1}{2}\int_{P}u^{2}+\int_{\partial P}u=\Psi(u).
+\]
+It is absurd since $u$ is a minimizer of $\Psi$. 
+\end{proof}
+
+In \cite{li_extremal_2023}, the authors showed the boundedness of
+$\Theta_{P}$. We find that their proof can yield stronger results.
+For readers' convenience, we reproduce the proof with some simplifications. 
+\begin{thm}
+The optimal test function $\Theta_{P}$ can extend to a concave function
+on the whole space. In particular, $\Theta_{P}$ is continuous up
+to the boundary of $P$, and the subdifferential set $\partial\left(-\Theta_{P}\right)\left(\mathrm{int}P\right)$
+is bounded. 
+\end{thm}
+
+\begin{proof}
+For readers to make comparisons, we use the same notations as \cite[Theorem 6.2]{li_extremal_2023}.
+For example, coordinates on $N_{\bbr}$ are denoted by $x$, and $\xi$
+for $M_{\bbr}$. 
+
+Translate $P$ such that $0\in\mathrm{int}P$, then $a_{\rho}>0$.
+Let 
+\[
+u\coloneqq-\Theta_{P}:P\ra\bbr\cup\{+\infty\},
+\]
+which is lsc, convex and taking finite values on $P^{*}$. We set
+$u=+\infty$ outside $P$. Fix any $p^{o}\in\partial u(0)$, let $\ell(\xi)\coloneqq u(0)+\left\langle p^{o},\xi\right\rangle $
+be the attached support function. Define $u^{o}\coloneqq u-\ell$,
+we have $u^{o}(\xi)\geq u^{o}(0)=0$ for $\forall\xi\in P$. Let 
+\[
+f^{o}(x)\coloneqq\left(u^{o}\right)^{*}(x)\coloneqq\sup_{\xi\in P}\left\langle x,\xi\right\rangle -u^{o}(\xi),\ x\in N_{\bbr}
+\]
+be the Legendre dual of $u^{o}$. We also have $f^{o}(x)\geq f^{o}(0)=0$.
+Since $0\in\mathrm{int}P$, there exists a closed ball $B\subset\mathrm{int}P$
+centered at $0$, then we have 
+\[
+I_{P}\leq u^{o}\leq I_{B}+\sup_{B}u^{o},
+\]
+where $I_{B}$ is the convex characteristic function of $B$, i.e.
+$I_{B}=0$ on $B$ and $=+\infty$ otherwise. Taking the Legendre
+dual, we obtain 
+\[
+\sup_{\xi\in P}\left\langle x,\xi\right\rangle \geq f^{o}(x)\geq\sup_{\xi\in B}\left\langle x,\xi\right\rangle -\sup_{B}u^{o},\ x\in N_{\bbr}.
+\]
+It implies that the sublevel set 
+\[
+S_{f^{o}}(h)\coloneqq\left\{ x\in N_{\bbr}\mid f^{o}(x)\leq h\right\} 
+\]
+is compact and convex. 
+
+We introduce the key construction in \cite[before Lem. 3.9]{li_extremal_2023}.
+For $h>0$, we define the \textit{Legendre truncation} of $u^{o}$
+is 
+\[
+u^{o}_{h}(\xi)\coloneqq\sup_{x:f^{o}(x)\leq h}\left\langle x,\xi\right\rangle -f^{o}(x)=\left(\left(u^{o}\right)^{*}+I_{S_{f^{o}}(h)}\right)^{*}(\xi).
+\]
+It is the tropical analogue of the Fourier truncation. Intuitionally,
+for $h\gg1$, $u^{o}_{h}$ is the flattening of $u$ over the region
+with large slope. Since $f^{o}\geq0$, it is easy to see 
+\begin{equation}
+\sup_{f^{o}(x)\leq h}\left\langle x,\xi\right\rangle -h\leq u^{o}_{h}\leq u^{o},\ \sup_{f^{o}(x)\leq h}\left\langle x,\xi\right\rangle .\label{eq:bound of uo_h}
+\end{equation}
+Set 
+\[
+u_{h}\coloneqq u^{o}_{h}+\ell\leq u^{o}+\ell=u,
+\]
+which is nondecreasing in $h$. We will show that 
+\[
+u_{h}=u,\ \text{on }P\text{ when }h\gg1.
+\]
+The proof proceeds in many steps. For $h>0$, let 
+\[
+W_{h}\coloneqq\partial f^{o}\left\{ f^{o}\leq h\right\} \subset P,
+\]
+which is compact by \cite[Lemma A.22]{figalli_monge-ampere_2017},
+and may not be convex.
+
+\textbf{(a)} We show $u^{o}_{h}=u^{o}$ on $W_{h}$. Suppose $\xi\in\partial f^{o}(x)$
+with $f^{o}(x)\leq h$, then we have 
+\[
+u^{o}_{h}(\xi)\geq\left\langle x,\xi\right\rangle -f^{o}(x)=u^{o}(\xi),
+\]
+where the equality is due to $\xi\in\partial f^{o}(x)$. Since $u^{o}_{h}\leq u^{o}$,
+it forces $u^{o}_{h}(\xi)=u^{o}(\xi)$.
+
+\textbf{(b)} We show that $W_{h}$ is a star set, i.e. if $\xi\in W_{h}$
+then $t\xi\in W_{h}$ for any $t\in[0,1)$.
+
+Suppose $\xi\in\partial f^{o}(x)$ with $f^{o}(x)\leq h$. Take any
+$x_{t}\in\partial u^{o}(t\xi)$, since $t\xi\in\partial f^{o}(x_{t})$,
+it suffices to show $f^{o}(x_{t})\leq h$. Since $x\in\partial u^{o}(\xi)$
+and $x_{t}\in\partial u^{o}(t\xi)$, by the definition of subdifferentials,
+we have 
+\begin{align*}
+u^{o}(t\xi) & \geq u^{o}(\xi)+\left\langle x,t\xi-\xi\right\rangle ,\\
+u^{o}(\xi) & \geq u^{o}(t\xi)+\left\langle x_{t},\xi-t\xi\right\rangle .
+\end{align*}
+They imply $\left\langle x_{t},\xi\right\rangle \leq\left\langle x,\xi\right\rangle $.
+Then we have 
+\begin{align*}
+f^{o}(x_{t}) & =\left\langle x_{t},t\xi\right\rangle -u^{o}(t\xi)\leq t\left\langle x,\xi\right\rangle -u^{o}(t\xi)\\
+ & \leq t\left\langle x,\xi\right\rangle -\left[u^{o}(\xi)+\left\langle x,t\xi-\xi\right\rangle \right]\\
+ & =\left\langle x,\xi\right\rangle -u^{o}(\xi)=f^{o}(x)\leq h.
+\end{align*}
+Since $W_{h}$ is a star set, we can describe it as 
+\[
+W_{h}=\left\{ tq\mid q\in\partial P,0\leq t\leq r_{h}(q)\leq1\right\} ,
+\]
+where $r_{h}:\partial P\ra[0,1]$ is a function. Since $W_{h}$ is
+closed, $r_{h}(q)$ is usc in $q$ and nondecreasing in $h$. We simply
+write $r_{q}\coloneqq r_{h}(q)$. 
+
+\textbf{(c)} We show that $\lim_{h\ra\infty}r_{h}(q)=1$ uniformly
+for $q\in\partial P$. 
+
+For any $\varepsilon\in(0,1)$, let $P_{\varepsilon}\coloneqq(1-\varepsilon)P$.
+By \cite[Lemma A.22]{figalli_monge-ampere_2017}, $\partial u^{o}\left(P_{\varepsilon}\right)$
+is a compact set in $N_{\bbr}$. We claim that 
+\[
+P_{\varepsilon}\subset W_{h}\ \text{when }h>H_{\varepsilon}\coloneqq\sup_{\partial u^{o}\left(P_{\varepsilon}\right)}f^{o}.
+\]
+For any $\xi\in P_{\varepsilon}$, take $x\in\partial u^{o}(\xi)\subset\partial u^{o}\left(P_{\varepsilon}\right)$,
+we have $\xi\in\partial f^{o}(x)$ and $f^{o}(x)\leq H_{\varepsilon}$,
+so $\xi\in W_{h>H_{\varepsilon}}$. By the definition of $r_{h}(q)$,
+we have 
+\[
+1-\varepsilon\leq r_{h}(q)\leq1,\ \forall q\in\partial P
+\]
+when $h>H_{\varepsilon}$. Hence \textbf{(c)} follows. 
+
+\textbf{(d)} For any $q\in\partial P$, $u^{o}_{h}$ is affine restricting
+on the ray $\left\{ tq\mid t\geq r_{q}\coloneqq r_{h}(q)\right\} $.
+Explicitly, we have 
+\[
+u^{o}_{h}(tq)=\frac{t}{r_{q}}\left(u^{o}(r_{q}q)+h\right)-h,\ \text{for }t\geq r_{q}.
+\]
+Proof: For any $q\in\partial P$, fix a $t>r_{q}$. Since $S_{f^{o}}(h)$
+is compact, the supremum 
+\[
+u^{o}_{h}(tq)\coloneqq\sup_{x\in S_{f^{o}}(h)}\left\langle x,\xi\right\rangle -f^{o}(x)=\sup_{x\in N_{\bbr}}\left\langle x,tq\right\rangle -\left(f^{o}(x)+I_{S_{f^{o}}(h)}(x)\right)
+\]
+is attained by some $x^{*}\in S_{f^{o}}(h)$, and this occurs if and
+only if 
+\begin{equation}
+tq\in\partial\left(f^{o}+I_{S_{f^{o}}(h)}\right)(x^{*})=\partial f^{o}(x^{*})+\partial I_{S_{f^{o}}(h)}(x^{*}).\label{eq:Moreau-Rockafellar}
+\end{equation}
+The last equality is due to Moreau--Rockafellar theorem.
+
+If $x^{*}$ does not lie on the boundary of $S_{f^{o}}(h)$, (\ref{eq:Moreau-Rockafellar})
+implies $tq\in\partial f^{o}(x^{*})\subset W_{h}$. That is absurd
+since $t>r_{q}$. Hence $x^{*}$ must lie on the boundary and $f^{o}(x^{*})=h$.
+
+By the definition of subdifferentials, we note that 
+\begin{align*}
+\partial I_{S_{f^{o}}(h)}(x^{*}) & =\left\{ \xi\mid\left\langle x-x^{*},\xi\right\rangle \leq0,\ \forall x\in S_{f^{o}}(h)\right\} \\
+ & =\left\{ \lam\eta\mid\lam\geq0,\ \eta\in\partial f^{o}(x^{*})\right\} .
+\end{align*}
+Thus by (\ref{eq:Moreau-Rockafellar}), we can write $tq=\eta_{1}+\lam\eta_{2}$
+with $\eta_{i}\in\partial f^{o}(x^{*})$ and $\lam>0$. 
+
+For any $a\geq1$, we find 
+\[
+atq=\eta_{1}+\left(a-1+a\lam\right)\frac{\left(a-1\right)\eta_{1}+a\lam\eta_{2}}{a-1+a\lam}\in\partial f^{o}(x^{*})+\partial I_{S_{f^{o}}(h)}(x^{*}),
+\]
+where the convexity of $\partial f^{o}(x^{*})$ is used. This inclusion
+relation implies that the supremum 
+\[
+u^{o}_{h}(atq)\coloneqq\sup_{x\in N_{\bbr}}\left\langle x,atq\right\rangle -\left(f^{o}(x)+I_{S_{f^{o}}(h)}(x)\right)
+\]
+is still attained by $x^{*}$. So $u^{o}_{h}(atq)=\left\langle x^{*},atq\right\rangle -h$
+for all $a\geq1$. Since $t$ can be arbitrarily close to $r_{q}$,
+\textbf{(d)} follows. 
+
+\textbf{(e)} It is ready to show $u=u_{h}$ for $h\gg1$. Let 
+\[
+v_{h}\coloneqq u-u_{h}=u^{o}-u^{o}_{h}\geq0.
+\]
+By property \textbf{(c)}, for any $q\in\partial P$, the function
+$[r_{q},1]\ni t\mapsto v_{h}(tq)$ is convex and vanishes at $t=r_{q}$
+by \textbf{(a)}. It implies that this function is nondecreasing, so
+\begin{equation}
+v_{h}(tq)\leq v_{h}(q),\ \forall t\in[r_{q},1].\label{eq:controll v_h}
+\end{equation}
+Note that $v_{h}(q)<\infty$, when $q$ lies in the relative interior
+of facets, since $u<+\infty$ on $P^{*}$. 
+
+To estimate the integrals over $P$, we decompose $P=\bigcup_{\rho\in\mathcal{F}_{P}(1)}P_{\rho}$,
+where $P_{\rho}$ is the cone with apex $0$ and base $F_{\rho}$
+(facet of $P$ associated to $\rho$). Consider the map 
+\[
+[0,1]\times F_{\rho}\ra P_{\rho},\ \left(t,q\right)\mapsto tq.
+\]
+One can check that the pullback of Lebesgue measure $\mathrm{d}\mu$
+along this map is $a_{\rho}t^{n-1}\mathrm{d}t\wedge\mathrm{d\sigma}$. 
+
+By \textbf{(a)}, $v_{h}(tq)=0$ when $t\in[0,r_{q}]$. Use (\ref{eq:controll v_h}),
+we have 
+\[
+\int_{P_{\rho}}v_{h}\mathrm{d}\mu=a_{\rho}\int_{F_{\rho}}\int^{1}_{r_{q}}v_{h}(tq)t^{n-1}\mathrm{d}t\mathrm{d\sigma}\leq\frac{a_{\rho}}{n}\int_{F_{\rho}}\left(1-r^{n}_{q}\right)v_{h}(q)\mathrm{d\sigma}.
+\]
+Take the sum over $\rho$, we obtain 
+\begin{equation}
+0\leq\int_{P}v_{h}\mathrm{d}\mu\leq\frac{\max_{\rho}a_{\rho}}{n}\left(1-\inf_{q\in\partial P}r^{n}_{q}\right)\int_{\partial P}v_{h}\mathrm{d\sigma}.\label{eq:controll vh int}
+\end{equation}
+Compare the $L^{2}$-norms, 
+\begin{align*}
+\int_{P}u^{2}_{h}-\int_{P}u^{2} & =\int_{P}\left(u^{o}_{h}+\ell\right)^{2}-\int_{P}\left(u^{o}+\ell\right)^{2}=\int_{P}\left(u^{o}_{h}\right)^{2}-\int_{P}\left(u^{o}\right)^{2}-2\int_{P}v_{h}\ell\\
+ & \leq2\max_{P}\left|\ell\right|\int_{P}v_{h}\leq\frac{2}{n}\max_{P}\left|\ell\right|\max_{\rho}a_{\rho}\left(1-\inf_{q\in\partial P}r^{n}_{q}\right)\int_{\partial P}v_{h}\mathrm{d\sigma}.
+\end{align*}
+where $\int_{P}\left(u^{o}_{h}\right)^{2}\leq\int_{P}\left(u^{o}\right)^{2}$
+is due to $0\leq u^{o}_{h}\leq u^{o}$. 
+
+We obtain a comparison of functional values, 
+\[
+\left(\frac{1}{2}\int_{P}u^{2}_{h}+\int_{\partial P}u_{h}\right)-\left(\frac{1}{2}\int_{P}u^{2}+\int_{\partial P}u\right)\leq\left[C\left(1-\inf_{q\in\partial P}r^{n}_{q}\right)-1\right]\int_{\partial P}v_{h}\mathrm{d\sigma}.
+\]
+By \textbf{(c)}, we know $\inf_{q\in\partial P}r^{n}_{q}\ra1$. So
+there exists $h_{0}>0$, when $h>h_{0}$, the RHS $\leq-\frac{1}{2}\int_{\partial P}v_{h}$.
+Since $u$ is a minimizer of (\ref{eq: Inoue functional}), we must
+have $\int_{\partial P}v_{h}\mathrm{d\sigma}=0$ for $h>h_{0}$. By
+(\ref{eq:controll vh int}), it implies $\int_{P}v_{h}=0$, so $u=u_{h}$
+almost everywhere. Since $u$ is continuous on $P^{*}$ and $u_{h}$
+is continuous everywhere, so $u=u_{h}$ on $P^{*}$. Note $u$ is
+also lsc, so 
+\[
+u_{h}=u,\ \text{on }P\text{ when }h>h_{0}.
+\]
+Moreover, by (\ref{eq:bound of uo_h}), we have 
+\[
+\partial u\left(\mathrm{int}P\right)=\partial u_{h}\left(\mathrm{int}P\right)\subset\partial u_{h}\left(M_{\bbr}\right)=S_{f^{o}}(h)+p^{o}
+\]
+when $h>h_{0}$. Since $S_{f^{o}}(h)$ is bounded, so is $\partial u\left(\mathrm{int}P\right)$. 
+\end{proof}
+
+The following property is due to Li and Zhou. They deal with a general
+problem and assume a smoothness condition (P2) which is not satisfied
+by $\Theta_{P}$, but the proof is still valid. 
+\begin{thm}[{\cite[Proposition 3.2]{li_k-stability_2022}}]
+\label{thm: Li Zhou} Convex function $u=-\Theta_{P}$ satisfies
+the homogenous Monge--Ampère equation in the sense of Alexandrov.
+Precisely, for any compact set $K\subset\mathrm{int}P$, the Lebesgue
+measure $\left|\partial u(K)\right|=0$. 
+\end{thm}
+
+\begin{proof}
+We already know that $u:P\ra\bbr$ is continuous up to the boundary.
+By property (\ref{eq: property of Theta}), we have 
+\begin{equation}
+\mathcal{L}\left(u\right)=0\text{ and }\mathcal{L}\left(f\right)\coloneqq\int_{\partial P}f\mathrm{d}\sigma+\int_{P}fu\mathrm{d}x\geq0,\ \forall f\in\mathcal{C}(P).\label{eq: property L}
+\end{equation}
+Our aim is to modify $u$ to decrease the value of $\mathcal{L}$.
+Consider 
+\[
+P_{-}=\left\{ x\in P\mid u(x)<0\right\} \text{ and }P_{\geq}=\left\{ x\in P\mid u(x)\geq0\right\} .
+\]
+By (\ref{prop: sup of theta}), we have $\inf_{P}u=\inf_{\partial P}u<0$.
+So $P_{-}$ is a convex set with nonempty interior. First, we show
+\[
+\left\{ u=0\right\} \subset\partial\left\{ u\leq0\right\} .
+\]
+This implies that $\left\{ u=0\right\} $ has measure zero, since
+$\left\{ u\leq0\right\} $ is a closed convex set. If the above relation
+is false, we have a point $x\in\{u=0\}\cap\mathrm{int}\left\{ u\leq0\right\} $.
+Then there is a ball $B(x)\subset P$ centered at $x$ such that $u\leq0$
+on $B(x)$. Since $\inf_{P}u<0$, we can take a point $y\in P$ such
+that $u(y)<0$. Consider the line $\ell$ passing through $x$ and
+$y$. By the convexity of $u$, there must be a point $z\in\ell\cap B(x)$
+such that $u(z)>0$. That is absurd. 
+
+(1) Show that $u$ is equal to 
+\[
+u_{+}(x)\coloneqq\sup\left\{ l(x)\mid\text{affine }l\leq u\text{ on }P_{\geq}\cup\partial P\right\} ,\ x\in P.
+\]
+First we claim that $u_{+}\ge u$ and $u_{+}=u$ on $P_{\geq}\cup\partial P$.
+Obviously, $u_{+}\leq u$ on $P_{\geq}\cup\partial P$, so it suffices
+to show $u_{+}\geq u$. For any $x\in P$, take any support function
+$l$ of $u$ at $x$, which satisfies $l(x)=u(x)$ and $l\leq u$.
+By definition of $u_{+}$, we have $u_{+}(x)\ge l(x)=u(x)$. 
+
+It follows that $\mathcal{L}\left(u\right)\geq\mathcal{L}\left(u_{+}\right)$.
+Then (\ref{eq: property L}) forces $\mathcal{L}\left(u\right)=\mathcal{L}\left(u_{+}\right)$.
+Note that 
+\[
+0=\mathcal{L}\left(u_{+}\right)-\mathcal{L}\left(u\right)=\int_{P_{-}}\left(u_{+}-u\right)u\mathrm{d}x,
+\]
+this implies $u=u_{+}$. 
+
+(2) Show that $u$ is equal to 
+\[
+u_{-}\coloneqq\sup\left\{ l\mid l\text{ is a support function of }u\text{ at some }x\in P_{-}\right\} .
+\]
+Obviously, we have $u_{-}\leq u$. Similar to (1), we can show $u_{-}=u$
+on $P_{-}$. It follows that $\mathcal{L}\left(u\right)\geq\mathcal{L}\left(u_{-}\right)$.
+Then (\ref{eq: property L}) forces $\mathcal{L}\left(u\right)=\mathcal{L}\left(u_{-}\right)$.
+Note that 
+\[
+0=\mathcal{L}\left(u\right)-\mathcal{L}\left(u_{-}\right)=\int_{\partial P}\left(u-u_{-}\right)\mathrm{d}\sigma+\int_{P_{\geq}}\left(u-u_{-}\right)u\mathrm{d}x.
+\]
+Consider that $u\geq u_{-}$ and $\left\{ u=0\right\} $ has measure
+zero, it implies $u=u_{-}$. 
+
+(3) Show that for any compact set $K\subset\mathrm{int}P$, we have
+$\left|\partial u(K)\right|=0$. 
+
+Let $P^{\epsilon}_{-}=\left\{ u\leq-\epsilon<0\right\} $, consider
+\[
+u^{\epsilon}_{-}\coloneqq\sup\left\{ l\mid l\text{ is a support function of }u\text{ at some }x\in P^{\epsilon}_{-}\right\} .
+\]
+Since $P_{-}=\bigcup_{\epsilon>0}P^{\epsilon}_{-}$, when $\epsilon\rightarrow0$,
+$u^{\epsilon}_{-}$ converges increasingly to $u_{-}$. The key observation
+is that any support function of $u^{\epsilon}_{-}$ is the support
+function of $u$ at some point in $P^{\epsilon}_{-}$. Hence there
+exists $\delta>0$ such that 
+\[
+\partial u^{\epsilon}_{-}(K)\subset\partial u\left(P^{\epsilon}_{-}\cap P_{\delta}\right),\ \text{where }P_{\delta}\coloneqq\left\{ x\in P\mid d\left(x,\partial P\right)\geq\delta\right\} .
+\]
+Since $P^{\epsilon}_{-}\cap P_{\delta}$ keeps away from $P_{\geq}\cup\partial P$
+with a positive distance, by the definition of $u_{+}=u$, we have
+$\left|\partial u\left(P^{\epsilon}_{-}\cap P_{\delta}\right)\right|=0$.
+Thus $\left|\partial u^{\epsilon}_{-}(K)\right|=0$ for all $\epsilon>0$
+and compact set $K\subset\mathrm{int}P$. Since the MA measure $\mathrm{MA}\left(u^{\epsilon}_{-}\right)$
+weakly converges to $\mathrm{MA}\left(u_{-}\right)$, it implies $\left|\partial u_{-}(K)\right|=0$
+for all $K$. We have showed $u_{-}=u$. 
+\end{proof}
+
+\printbibliography
+
+\end{document}
+

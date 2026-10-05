@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 820" width="1120" height="820">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="560.00" y="30.00" fill="#111827" font-family="Arial, sans-serif" font-size="20px" font-weight="bold" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">K-stability candidate d=5</text>
+<text x="560.00" y="52.00" fill="#4b5563" font-family="Arial, sans-serif" font-size="10px" font-weight="normal" text-anchor="middle" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">d5|p=1:0;-31:12;-27:-4;-16:-3;16:-5|k=58,1,1,1,1</text>
+<polygon points="375.51,560.29 940.29,560.29 638.43,443.44 375.51,482.39 219.71,511.61" fill="#eff6ff" stroke="#111827" stroke-width="2"/>
+<line x1="90.00" y1="513.91" x2="1070.00" y2="477.90" stroke="#2563eb" stroke-width="2" stroke-dasharray="8 5"/>
+<line x1="512.81" y1="690.00" x2="512.81" y2="313.74" stroke="#dc2626" stroke-width="3"/>
+<circle cx="375.51" cy="560.29" r="6" fill="#a855f7" stroke="#7c3aed" stroke-width="2"/>
+<text x="385.51" y="550.29" fill="#7c3aed" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">v1=(0,0)</text>
+<circle cx="940.29" cy="560.29" r="6" fill="#a855f7" stroke="#7c3aed" stroke-width="2"/>
+<text x="930.29" y="550.29" fill="#7c3aed" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" text-anchor="end" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">v2=(58,0)</text>
+<circle cx="638.43" cy="443.44" r="6" fill="#a855f7" stroke="#7c3aed" stroke-width="2"/>
+<text x="648.43" y="433.44" fill="#7c3aed" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">v3=(27,12)</text>
+<circle cx="375.51" cy="482.39" r="6" fill="#a855f7" stroke="#7c3aed" stroke-width="2"/>
+<text x="385.51" y="472.39" fill="#7c3aed" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">v4=(0,8)</text>
+<circle cx="219.71" cy="511.61" r="6" fill="#a855f7" stroke="#7c3aed" stroke-width="2"/>
+<text x="229.71" y="501.61" fill="#7c3aed" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">v5=(-16,5)</text>
+<line x1="90" y1="728" x2="122" y2="728" stroke="#2563eb" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="130.00" y="733.00" fill="#111827" font-family="Arial, sans-serif" font-size="13px" font-weight="normal" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">ell_P=0</text>
+<line x1="250" y1="728" x2="282" y2="728" stroke="#dc2626" stroke-width="3"/>
+<text x="290.00" y="733.00" fill="#dc2626" font-family="Arial, sans-serif" font-size="13px" font-weight="normal" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">witness crease</text>
+<circle cx="490" cy="728" r="6" fill="#a855f7" stroke="#7c3aed" stroke-width="2"/>
+<text x="505.00" y="733.00" fill="#7c3aed" font-family="Arial, sans-serif" font-size="13px" font-weight="normal" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">singular vertex</text>
+<text x="90.00" y="762.00" fill="#111827" font-family="Arial, sans-serif" font-size="12px" font-weight="normal" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">ell_P(x,y) = 1057376613/3017036080 + (13301859/6034072160)x + (-90517359/1508518040)y</text>
+<text x="90.00" y="786.00" fill="#dc2626" font-family="Arial, sans-serif" font-size="12px" font-weight="normal" text-anchor="start" paint-order="stroke" stroke="white" stroke-width="4" stroke-opacity="0.9">witness: a x + b y + c = 0; exact</text>
+</svg>

@@ -1,6 +1,10 @@
 # Build products and binaries
 /build*/
 **/build*/
+GKZ_GUI/dist/
+**/.venv/
+**/.venv-*/
+**/.pytest_cache/
 CMakeFiles/
 **/CMakeFiles/
 *.dSYM/

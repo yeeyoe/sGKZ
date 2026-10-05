@@ -19,7 +19,6 @@
 | 程序 | 源码 / 构建路径 | 功能 |
 |---|---|---|
 | `k_stability` | `K-stability/main.cpp`；`build/K-stability/k_stability` | 读取二维格点多边形，精确计算连续的 `ell_P`，扫描 `g=max{<x,u>-t,0}` 并评估相对 DF 不变量。支持 `--check-line` 检查指定折痕、`--certify` 精确认证 witness、`--svg` 输出多边形和折痕图。 |
-| `k_stability_decompose` | `K-stability/decompose_main.cpp`；`build/K-stability/k_stability_decompose` | 对已认证不稳定的父多边形搜索单 chord 两片分解，计算两片的 `ell`，检查 chord 上连续性、拼接凹性，并对两片执行 simple-convex 扫描。 |
 | `k_stability_search` | `K-stability/search_main.cpp`；`build/K-stability/k_stability_search` | 面积优先生成并检测固定顶点数的严格凸整点多边形。按 probe、confirm、final 阶段验证并将候选、状态、witness 和 `Q_P(g)^2` 保存到 SQLite。支持从数据库恢复搜索。 |
 | `k_stability_search --backfill-q` | 同上 | 数据库维护模式：为已有精确认证 witness 补算精确及浮点 `Q_P(g)^2` 字段。 |
 | `plot_candidate.py` | `K-stability/plot_candidate.py` | 按 canonical key 从搜索数据库读取候选，绘制顶点、`ell_P=0`、witness 折痕和奇异顶点。可保存 SVG，也可一并导出多边形顶点文件。 |
@@ -74,7 +73,7 @@ Python 回归测试位于 `tests/`：`plot_results_test.py`、`plot_iterations_t
 | 库 | 功能 |
 |---|---|
 | `gkz_core` | 根目录二维 Shortest GKZ 的几何、regular triangulation、QP 和精确认证。 |
-| `k_stability_core` | 二维 `ell_P`、DF 计算、simple-convex 扫描、认证与 chord 分解。 |
+| `k_stability_core` | 二维 `ell_P`、DF 计算、simple-convex 扫描与认证。 |
 | `k_stability_search_core` | 二维面积优先候选生成、搜索检测流程与 SQLite 状态管理。 |
 | `k_stability_highdim_core` | 高维 polytope 矩、Delaunay 剖分、PL 评估及认证。 |
 | `sgkz_core` | `sGKZ_ndim` 子项目的动态维 shortest GKZ 核心。 |

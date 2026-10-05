@@ -2,9 +2,62 @@
 
 #include <cassert>
 #include <cmath>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
+
+namespace {
+void check(bool condition, const std::string& message) {
+  if (!condition) throw std::runtime_error(message);
+}
+
+std::vector<std::string> split_csv(const std::string& line) {
+  std::vector<std::string> fields;
+  std::stringstream stream(line);
+  std::string field;
+  while (std::getline(stream, field, ',')) fields.push_back(field);
+  return fields;
+}
+
+void check_six_points_fixture() {
+  std::ifstream input(SGKZ_SIX_POINTS_FIXTURE);
+  check(static_cast<bool>(input), "cannot open six_points.points fixture");
+
+  std::vector<sgkz::IntVector> recorded_points;
+  std::vector<std::string> recorded_sigma;
+  std::string line;
+  while (std::getline(input, line)) {
+    const auto first = line.find_first_not_of(" \t");
+    if (first == std::string::npos || line[first] != '#') continue;
+    const auto fields = split_csv(line.substr(first + 1));
+    if (fields.size() != 4) continue;
+    try {
+      recorded_points.push_back({std::stoll(fields[0]), std::stoll(fields[1])});
+      recorded_sigma.push_back(fields[3]);
+    } catch (const std::invalid_argument&) {
+      // Other comments, including prose and headers, are not result rows.
+    }
+  }
+
+  const auto configuration =
+      sgkz::PointConfiguration::from_points_file(SGKZ_SIX_POINTS_FIXTURE);
+  check(recorded_points.size() == configuration.size(),
+        "six_points.points must record one result row per point");
+  for (std::size_t i = 0; i < configuration.size(); ++i)
+    check(recorded_points[i] == configuration.points()[i],
+          "six_points.points result rows must follow point order");
+
+  const auto result = sgkz::ShortestGkzSolver().solve(configuration);
+  check(result.exact.certified, "six_points.points result is not exactly certified");
+  for (std::size_t i = 0; i < recorded_sigma.size(); ++i)
+    check(sgkz::rational_string(result.exact.sigma[i]) == recorded_sigma[i],
+          "six_points.points recorded exact GKZ coordinate changed at row " +
+              std::to_string(i));
+}
+}  // namespace
 
 int main() {
   using sgkz::IntVector;
@@ -52,6 +105,8 @@ int main() {
     limited = true;
   }
   assert(limited);
+
+  check_six_points_fixture();
 
   std::cout << "ok\n";
 }

@@ -1,0 +1,2918 @@
+#LyX 2.5 created this file. For more info see https://www.lyx.org/
+\lyxformat 643
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass amsart
+\begin_preamble
+%\usepackage[all]{xy}
+\usepackage{tikz-cd}
+\usepackage[twoside,inner=1.3in,outer=1in,top=1in,bottom=1in]{geometry}
+\usepackage{csquotes}
+
+% 定义两个安全的局部深度切换命令，专门供 TOC 读取，不污染正文计数器
+\DeclareRobustCommand{\skipsubsectionsinTOC}{\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}}
+\DeclareRobustCommand{\showsubsectionsinTOC}{\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}} 
+% 注：amsart 默认的最终深度通常是 3 (显示到 subsection)
+\end_preamble
+\options a4paper,12pt,reqno
+\use_default_options true
+\begin_modules
+theorems-ams
+eqs-within-sections
+figs-within-sections
+\end_modules
+\maintain_unincluded_children no
+\language english
+\language_package default
+\inputencoding utf8
+\fontencoding auto
+\font_roman "tgtermes" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command biber
+\index_command default
+\float_placement class
+\float_alignment class
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen true
+\pdf_bookmarksopenlevel 3
+\pdf_breaklinks true
+\pdf_pdfborder true
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle false
+\pdf_quoted_options "bookmarksdepth=3,linkcolor=red,citecolor=blue"
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine biblatex
+\cite_engine_type authoryear
+\biblio_style plain
+\biblio_options backref=true, isbn=false, url=false, doi=false
+\biblatex_bibstyle alphabetic
+\biblatex_citestyle alphabetic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification false
+\crossref_package refstyle
+\use_formatted_ref 0
+\use_minted 0
+\use_lineno 0
+\backgroundcolor none
+\fontcolor none
+\notefontcolor lightgray
+\boxbgcolor red
+\table_border_color default
+\table_odd_row_color default
+\table_even_row_color default
+\table_alt_row_colors_start 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 1
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\tablestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\postpone_fragile_content false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\docbook_mathml_version 0
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Properties of optimal test-function for toric varieties
+\end_layout
+
+\begin_layout Author
+Li Sheng
+\end_layout
+
+\begin_layout Address
+School of Mathematics,
+ Sichuan University,
+ Chengdu 610064,
+ P.
+ R.
+ China.
+\end_layout
+
+\begin_layout Email
+lshengscu@gmail.com
+\end_layout
+
+\begin_layout Author
+Yi Yao
+\end_layout
+
+\begin_layout Address
+School of Mathematics,
+ Hunan University,
+ Changsha 410082,
+ P.
+ R.
+ China.
+\end_layout
+
+\begin_layout Email
+yeeyoe@163.com
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\lam}{\lambda}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\vphi}{\varphi}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\cch}{\mathcal{H}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\bbc}{\mathbb{C}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\bbcs}{\mathbb{C}^{*}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\bbr}{\mathbb{R}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\bbz}{\mathbb{Z}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\bbn}{\mathbb{N}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset FormulaMacro
+\newcommand{\ra}{\rightarrow}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\lead}{\leadsto}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\bdot}{\bm{\cdot}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\'}{\prime}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\cleq}{\preceq}
+\end_inset
+
+
+\begin_inset FormulaMacro
+\newcommand{\cgeq}{\succeq}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\na}{{\scriptscriptstyle \mathsf{NA}}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\an}{\mathrm{an}}
+\end_inset
+
+ 
+\begin_inset FormulaMacro
+\newcommand{\ma}{\mathrm{MA}}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:4"
+
+\end_inset
+
+Optimal test functions for K-stability
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:Szekelyhidi's-optimal-test"
+
+\end_inset
+
+Székelyhidi's optimal test function 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We recap the optimal test-function for K-unstable toric varieties in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "szekelyhidi_optimal_2008"
+literal "false"
+
+\end_inset
+
+.
+ For an introduction to K-stability of toric varieties,
+ refer to 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "donaldson_scalar_2002,szekelyhidi_extremal_2006,wang_k-stability_2014"
+literal "false"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $P\subset M_{\bbr}$
+\end_inset
+
+ be a lattice polytope.
+ Given a rational piecewise affine convex function 
+\begin_inset Formula $\eta$
+\end_inset
+
+ over 
+\begin_inset Formula $P$
+\end_inset
+
+,
+ one can build a toric test-configuration for 
+\begin_inset Formula $(X_{P},L_{P})$
+\end_inset
+
+,
+ see 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "donaldson_scalar_2002"
+literal "false"
+
+\end_inset
+
+.
+ Donaldson shows that the attached DF-invariant is equal to 
+\begin_inset Formula 
+\[
+\mathbb{M}_{P}(\eta)\coloneqq\int_{\partial P}\eta\ \mathrm{d}\sigma-\int_{P}\eta\bar{S}\ \mathrm{d}x,\ \bar{S}=\frac{V_{\partial P,\mathrm{d}\sigma}}{V_{P}}.
+\]
+
+\end_inset
+
+When 
+\begin_inset Formula $\eta$
+\end_inset
+
+ is affine,
+ it recovers the classical Futaki invariant with respect to the automorphism torus action.
+ 
+\end_layout
+
+\begin_layout Standard
+Since we focus on the unstable case,
+ we only recall the K-semistability and its relative version.
+ The relative DF-invariant is defined as 
+\begin_inset Formula 
+\[
+\mathbb{M}^{\mathrm{rel}}_{P}(\eta)\coloneqq\int_{\partial P}\eta\ \mathrm{d}\sigma-\int_{P}\eta\ell_{P}\ \mathrm{d}x,
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\ell_{P}$
+\end_inset
+
+ is the unique affine function such that 
+\begin_inset Formula $\mathbb{M}^{\mathrm{rel}}_{P}$
+\end_inset
+
+ vanishes on all affine functions.
+ Conventionally,
+ 
+\begin_inset Formula $\ell_{P}$
+\end_inset
+
+ is called the 
+\shape italic
+extremal affine function
+\shape default
+,
+ since it can give the Hamiltonian function for the extremal vector field.
+\end_layout
+
+\begin_layout Definition
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+K-semistabilities
+\end_layout
+
+\end_inset
+
+ Given a lattice polytope 
+\begin_inset Formula $P\subset M_{\mathbb{R}}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Definition
+(1) we say 
+\begin_inset Formula $P$
+\end_inset
+
+ is K-semistable if 
+\begin_inset Formula $\mathbb{M}_{P}(\eta)\geq0$
+\end_inset
+
+ for all 
+\begin_inset Formula $\eta\in\mathcal{C}(P)$
+\end_inset
+
+.
+ Otherwise,
+ we say 
+\begin_inset Formula $P$
+\end_inset
+
+ is K-unstable.
+ 
+\end_layout
+
+\begin_layout Definition
+(2) we say 
+\begin_inset Formula $P$
+\end_inset
+
+ is relatively K-semistable if 
+\begin_inset Formula $\mathbb{M}^{\mathrm{rel}}_{P}(\eta)\geq0$
+\end_inset
+
+ for all 
+\begin_inset Formula $\eta\in\mathcal{C}(P)$
+\end_inset
+
+.
+ Otherwise,
+ we say 
+\begin_inset Formula $P$
+\end_inset
+
+ is relatively K-unstable.
+ 
+\end_layout
+
+\begin_layout Standard
+In the K-unstable case,
+ Székelyhidi 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "szekelyhidi_optimal_2008"
+literal "false"
+
+\end_inset
+
+ considered the minimization problem for the normalized invariant 
+\begin_inset Formula 
+\[
+\bar{\mathbb{M}}_{P}(\eta)\coloneqq\frac{\mathbb{M}_{P}(\eta)}{\left\Vert \eta\right\Vert _{2}},\ \left\Vert \eta\right\Vert ^{2}_{2}=\int_{P}\eta^{2},
+\]
+
+\end_inset
+
+and obtained a minimizer in an enlarged space.
+ Let 
+\begin_inset Formula $P^{*}$
+\end_inset
+
+ equals to 
+\begin_inset Formula $P$
+\end_inset
+
+ excluding all the faces with codimension 
+\begin_inset Formula $\geq2$
+\end_inset
+
+,
+ which is also a convex set.
+ Consider space 
+\begin_inset Formula 
+\begin{equation}
+\mathcal{C}_{1}(P)=\left\{ \eta:P^{*}\ra\bbr\text{ continuous convex }\Big|\int_{\partial P}\eta\,\mathrm{d}\sigma<\infty\right\} .\label{eq:space C1}
+\end{equation}
+
+\end_inset
+
+Functions in 
+\begin_inset Formula $\mathcal{C}_{1}(P)$
+\end_inset
+
+ can be extended to lsc convex functions on the whole 
+\begin_inset Formula $P$
+\end_inset
+
+ (may take 
+\begin_inset Formula $+\infty$
+\end_inset
+
+).
+ By 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Lemma 5.1.3"
+key "donaldson_scalar_2002"
+literal "false"
+
+\end_inset
+
+,
+ they are integrable over 
+\begin_inset Formula $P$
+\end_inset
+
+,
+ thus 
+\begin_inset Formula $\mathbb{M}_{P}$
+\end_inset
+
+ is well-defined on 
+\begin_inset Formula $\mathcal{C}_{1}(P)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Theorem
+\begin_inset CommandInset label
+LatexCommand label
+name "thm: Gabor paper"
+
+\end_inset
+
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset citation
+LatexCommand cite
+key "szekelyhidi_optimal_2008"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ Given a lattice polytope 
+\begin_inset Formula $P\subset M_{\mathbb{R}}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Theorem
+(1) Suppose 
+\begin_inset Formula $P$
+\end_inset
+
+ is K-unstable,
+ then 
+\begin_inset Formula 
+\[
+\inf\left\{ \bar{\mathbb{M}}_{P}(\eta)\mid0\neq\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)\right\} =-\left\Vert \Theta_{P}-\bar{S}\right\Vert _{2}
+\]
+
+\end_inset
+
+admits a unique (up to scaling) minimizer 
+\begin_inset Formula $\bar{S}-\Theta_{P}\in\mathcal{C}_{1}(P)\cap L^{2}(P)$
+\end_inset
+
+.
+ We call concave function 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+ the optimal test-function for 
+\begin_inset Formula $P$
+\end_inset
+
+ (denoted by 
+\begin_inset Formula $B$
+\end_inset
+
+ in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "szekelyhidi_optimal_2008"
+literal "false"
+
+\end_inset
+
+),
+ which satisfies 
+\begin_inset Formula 
+\begin{equation}
+\int_{\partial P}\eta\ge\int_{P}\eta\Theta_{P},\ \forall\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)\ \textrm{and}\ \int_{\partial P}\Theta_{P}=\int_{P}\Theta^{2}_{P}.\label{eq: property of Theta}
+\end{equation}
+
+\end_inset
+
+When 
+\begin_inset Formula $P$
+\end_inset
+
+ is K-semistable,
+ we define 
+\begin_inset Formula $\Theta_{P}=\bar{S}$
+\end_inset
+
+,
+ above conditions still hold.
+ 
+\end_layout
+
+\begin_layout Theorem
+When 
+\begin_inset Formula $P$
+\end_inset
+
+ is relatively K-semistable,
+ we have 
+\begin_inset Formula $\Theta_{P}=\ell_{P}$
+\end_inset
+
+.
+ If 
+\begin_inset Formula $P$
+\end_inset
+
+ is relatively K-unstable,
+ 
+\begin_inset Formula $\ell_{P}-\Theta_{P}$
+\end_inset
+
+ is the unique minimizer of 
+\begin_inset Formula $\mathbb{M}^{\mathrm{rel}}_{P}(\eta)/\left\Vert \eta\right\Vert $
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Theorem
+(2) Consider the space of 
+\begin_inset Quotes eld
+\end_inset
+
+scalar curvatures
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\begin_inset Formula 
+\begin{equation}
+\mathcal{S}(P)=\left\{ \theta\in L^{2}(P)\ \Big|\int_{\partial P}\eta\ge\int_{P}\eta\theta,\ \forall\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)\right\} ,\label{eq: space of scalar curvature}
+\end{equation}
+
+\end_inset
+
+then 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+ is the unique element in 
+\begin_inset Formula $\mathcal{S}(P)$
+\end_inset
+
+ with minimal 
+\begin_inset Formula $L^{2}$
+\end_inset
+
+-norm.
+ Recall that if 
+\begin_inset Formula $u:P\ra\bbr$
+\end_inset
+
+ is the symplectic potential of an invariant Kähler metric,
+ its scalar curvature is 
+\begin_inset Formula $S(u)=-\sum_{i,j}\partial_{i}\partial_{j}u^{ij}\in\mathcal{S}(P)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Theorem
+(3) Consider the Calabi flow on 
+\begin_inset Formula $X_{P}$
+\end_inset
+
+ with invariant initial data,
+ which can be reduced into evolution equation on 
+\begin_inset Formula $P$
+\end_inset
+
+:
+ 
+\begin_inset Formula 
+\[
+\dot{u}_{t}=-S(u_{t})=\sum_{i,j}\partial_{i}\partial_{j}u^{ij}_{t}.
+\]
+
+\end_inset
+
+Assume it admits long-time solutions,
+ then 
+\begin_inset Formula $S(u_{t})\stackrel{L^{2}}{\rightarrow}\Theta_{P}$
+\end_inset
+
+ as 
+\begin_inset Formula $t\rightarrow\infty$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Theorem
+(4) (canonical semi-stable decomposition) Assume 
+\begin_inset Formula $P$
+\end_inset
+
+ is relatively K-unstable and 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+ is piecewise affine.
+ Let 
+\begin_inset Formula $Q\subset P$
+\end_inset
+
+ be a maximal subpolytope over which 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+ is affine,
+ then 
+\begin_inset Formula $Q$
+\end_inset
+
+ is relatively K-semistable in the following sense:
+ 
+\begin_inset Formula 
+\begin{equation}
+\int_{\partial Q\cap\partial P}\eta\ \mathrm{d}\sigma\ge\int_{Q}\eta\Theta_{P}\ \mathrm{d}x,\ \forall\eta\in\mathcal{C}(Q).\label{eq: semi-decom}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Remark
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+no island
+\end_layout
+
+\end_inset
+
+ Under the assumptions in (4),
+ we can deduce that each subpolytope 
+\begin_inset Formula $Q$
+\end_inset
+
+ must have a facet which is entirely contained in 
+\begin_inset Formula $\partial P$
+\end_inset
+
+.
+ If not,
+ we have 
+\begin_inset Formula $\left|\partial Q\cap\partial P\right|_{\mathrm{d}\sigma}=0$
+\end_inset
+
+.
+ Take 
+\begin_inset Formula $\eta$
+\end_inset
+
+ in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq: semi-decom"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+
+\end_inset
+
+) to be the affine functions extending 
+\begin_inset Formula $\pm\Theta|_{Q}$
+\end_inset
+
+,
+ it implies 
+\begin_inset Formula 
+\[
+\int_{Q}\Theta^{2}=\int_{\partial Q\cap\partial P}\Theta\ \mathrm{d}\sigma=0.
+\]
+
+\end_inset
+
+So 
+\begin_inset Formula $\Theta\equiv0$
+\end_inset
+
+ on 
+\begin_inset Formula $Q$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $\Theta$
+\end_inset
+
+ is concave,
+ this implies 
+\begin_inset Formula $\Theta\leq0$
+\end_inset
+
+ on 
+\begin_inset Formula $P$
+\end_inset
+
+,
+ but this contradicts with 
+\begin_inset Formula $\int_{P}\Theta=V_{\partial P,\mathrm{d}\sigma}>0$
+\end_inset
+
+,
+ which follows from (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq: property of Theta"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+).
+ 
+\end_layout
+
+\begin_layout Subsection
+More properties of 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A central question is whether 
+\begin_inset Formula $\Theta$
+\end_inset
+
+ is piecewise affine.
+ The answer is still unknown.
+ A closely related result is Theorem 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "thm: Li Zhou"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+.
+ In this section,
+ we give some properties about 
+\begin_inset Formula $\Theta$
+\end_inset
+
+.
+ First,
+ we re-characterize 
+\begin_inset Formula $\Theta$
+\end_inset
+
+ as the unique minimizer of a simpler convex functional,
+ which is inspired by the work 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "inoue_entropies_2022-1"
+literal "false"
+
+\end_inset
+
+ of Inoue.
+ 
+\end_layout
+
+\begin_layout Proposition
+\begin_inset Note Comment
+status collapsed
+
+\begin_layout Plain Layout
+(1) We have 
+\begin_inset Formula 
+\[
+\min\left\{ \frac{-\int_{\partial P}\eta}{\left\Vert \eta\right\Vert _{2}}\mid0\neq\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)\right\} =-\left\Vert \Theta\right\Vert _{2},
+\]
+
+\end_inset
+
+and the minimizers are of the form 
+\begin_inset Formula $a\Theta,\ \forall a>0$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "prop: recharac Theta"
+
+\end_inset
+
+Convex function 
+\begin_inset Formula $-\Theta_{P}$
+\end_inset
+
+ is the unique minimizer of functional 
+\begin_inset Formula 
+\begin{equation}
+\Psi(\eta)\coloneqq\frac{1}{2}\int_{P}\eta^{2}\mathrm{d}x+\int_{\partial P}\eta\ \mathrm{d}\sigma,\ \eta\in\mathcal{C}_{1}(P)\cap L^{2}(P).\label{eq: Inoue functional}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Proof
+For any 
+\begin_inset Formula $\eta\in\mathcal{C}_{1}(P)\cap L^{2}(P)$
+\end_inset
+
+,
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq: property of Theta"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+
+\end_inset
+
+) implies 
+\begin_inset Formula 
+\[
+\int_{\partial P}\eta\geq\int_{P}\eta\Theta\geq-\left\Vert \eta\right\Vert _{2}\left\Vert \Theta\right\Vert _{2}\geq-\frac{1}{2}\left\Vert \eta\right\Vert ^{2}_{2}-\frac{1}{2}\left\Vert \Theta\right\Vert ^{2}_{2}.
+\]
+
+\end_inset
+
+Thus 
+\begin_inset Formula $\Psi(\eta)\geq-\frac{1}{2}\left\Vert \Theta\right\Vert ^{2}_{2}$
+\end_inset
+
+.
+ This lower bound is achieved by 
+\begin_inset Formula $\eta=-\Theta$
+\end_inset
+
+ since 
+\begin_inset Formula $\int_{P}\Theta^{2}=\int_{\partial P}\Theta$
+\end_inset
+
+.
+ The uniqueness follows from the strict convexity of 
+\begin_inset Formula $L^{2}$
+\end_inset
+
+-norm.
+ 
+\end_layout
+
+\begin_layout Proposition
+\begin_inset CommandInset label
+LatexCommand label
+name "prop: sup of theta"
+
+\end_inset
+
+We have 
+\begin_inset Formula $\sup_{P}\Theta_{P}=\sup_{\partial P}\Theta_{P}>0$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Proof
+Set 
+\begin_inset Formula $u=-\Theta$
+\end_inset
+
+,
+ we show 
+\begin_inset Formula $\inf_{P}u=\inf_{\partial P}u$
+\end_inset
+
+.
+ If this is not true,
+ let 
+\begin_inset Formula $m\coloneqq\inf_{P}u<\inf_{\partial P}u$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $\int_{P}\Theta=\left|\partial P\right|_{\mathrm{d}\sigma}>0$
+\end_inset
+
+,
+ we know 
+\begin_inset Formula $m<0$
+\end_inset
+
+.
+ Take 
+\begin_inset Formula $\delta>0$
+\end_inset
+
+ such that 
+\begin_inset Formula $0>m+\delta<\inf_{\partial P}u$
+\end_inset
+
+.
+ Consider 
+\begin_inset Formula $u'=\max\left\{ u,m+\delta\right\} $
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $u\geq\inf_{\partial P}u>m+\delta$
+\end_inset
+
+ on 
+\begin_inset Formula $\partial P$
+\end_inset
+
+,
+ we have 
+\begin_inset Formula $u'=u$
+\end_inset
+
+ on 
+\begin_inset Formula $\partial P$
+\end_inset
+
+.
+ Then it is easy to see
+\begin_inset Formula 
+\[
+\Psi(u')=\frac{1}{2}\int_{P}u'^{2}+\int_{\partial P}u'<\frac{1}{2}\int_{P}u^{2}+\int_{\partial P}u=\Psi(u).
+\]
+
+\end_inset
+
+It is absurd since 
+\begin_inset Formula $u$
+\end_inset
+
+ is a minimizer of 
+\begin_inset Formula $\Psi$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+In 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "li_extremal_2023"
+literal "false"
+
+\end_inset
+
+,
+ the authors showed the boundedness of 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+.
+ We find that their proof can yield stronger results.
+ For readers' convenience,
+ we reproduce the proof with some simplifications.
+ 
+\end_layout
+
+\begin_layout Theorem
+The optimal test function 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+ can extend to a concave function on the whole space.
+ In particular,
+ 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+ is continuous up to the boundary of 
+\begin_inset Formula $P$
+\end_inset
+
+,
+ and the subdifferential set 
+\begin_inset Formula $\partial\left(-\Theta_{P}\right)\left(\mathrm{int}P\right)$
+\end_inset
+
+ is bounded.
+ 
+\end_layout
+
+\begin_layout Proof
+For readers to make comparisons,
+ we use the same notations as 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Theorem 6.2"
+key "li_extremal_2023"
+literal "false"
+
+\end_inset
+
+.
+ For example,
+ coordinates on 
+\begin_inset Formula $N_{\bbr}$
+\end_inset
+
+ are denoted by 
+\begin_inset Formula $x$
+\end_inset
+
+,
+ and 
+\begin_inset Formula $\xi$
+\end_inset
+
+ for 
+\begin_inset Formula $M_{\bbr}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+Translate 
+\begin_inset Formula $P$
+\end_inset
+
+ such that 
+\begin_inset Formula $0\in\mathrm{int}P$
+\end_inset
+
+,
+ then 
+\begin_inset Formula $a_{\rho}>0$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula 
+\[
+u\coloneqq-\Theta_{P}:P\ra\bbr\cup\{+\infty\},
+\]
+
+\end_inset
+
+which is lsc,
+ convex and taking finite values on 
+\begin_inset Formula $P^{*}$
+\end_inset
+
+.
+ We set 
+\begin_inset Formula $u=+\infty$
+\end_inset
+
+ outside 
+\begin_inset Formula $P$
+\end_inset
+
+.
+ Fix any 
+\begin_inset Formula $p^{o}\in\partial u(0)$
+\end_inset
+
+,
+ let 
+\begin_inset Formula $\ell(\xi)\coloneqq u(0)+\left\langle p^{o},\xi\right\rangle $
+\end_inset
+
+ be the attached support function.
+ Define 
+\begin_inset Formula $u^{o}\coloneqq u-\ell$
+\end_inset
+
+,
+ we have 
+\begin_inset Formula $u^{o}(\xi)\geq u^{o}(0)=0$
+\end_inset
+
+ for 
+\begin_inset Formula $\forall\xi\in P$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula 
+\[
+f^{o}(x)\coloneqq\left(u^{o}\right)^{*}(x)\coloneqq\sup_{\xi\in P}\left\langle x,\xi\right\rangle -u^{o}(\xi),\ x\in N_{\bbr}
+\]
+
+\end_inset
+
+be the Legendre dual of 
+\begin_inset Formula $u^{o}$
+\end_inset
+
+.
+ We also have 
+\begin_inset Formula $f^{o}(x)\geq f^{o}(0)=0$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $0\in\mathrm{int}P$
+\end_inset
+
+,
+ there exists a closed ball 
+\begin_inset Formula $B\subset\mathrm{int}P$
+\end_inset
+
+ centered at 
+\begin_inset Formula $0$
+\end_inset
+
+,
+ then we have 
+\begin_inset Formula 
+\[
+I_{P}\leq u^{o}\leq I_{B}+\sup_{B}u^{o},
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $I_{B}$
+\end_inset
+
+ is the convex characteristic function of 
+\begin_inset Formula $B$
+\end_inset
+
+,
+ i.e.
+ 
+\begin_inset Formula $I_{B}=0$
+\end_inset
+
+ on 
+\begin_inset Formula $B$
+\end_inset
+
+ and 
+\begin_inset Formula $=+\infty$
+\end_inset
+
+ otherwise.
+ Taking the Legendre dual,
+ we obtain 
+\begin_inset Formula 
+\[
+\sup_{\xi\in P}\left\langle x,\xi\right\rangle \geq f^{o}(x)\geq\sup_{\xi\in B}\left\langle x,\xi\right\rangle -\sup_{B}u^{o},\ x\in N_{\bbr}.
+\]
+
+\end_inset
+
+It implies that the sublevel set 
+\begin_inset Formula 
+\[
+S_{f^{o}}(h)\coloneqq\left\{ x\in N_{\bbr}\mid f^{o}(x)\leq h\right\} 
+\]
+
+\end_inset
+
+is compact and convex.
+ 
+\end_layout
+
+\begin_layout Proof
+We introduce the key construction in 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "before Lem. 3.9"
+key "li_extremal_2023"
+literal "false"
+
+\end_inset
+
+.
+ For 
+\begin_inset Formula $h>0$
+\end_inset
+
+,
+ we define the 
+\shape italic
+Legendre truncation
+\shape default
+ of 
+\begin_inset Formula $u^{o}$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\[
+u^{o}_{h}(\xi)\coloneqq\sup_{x:f^{o}(x)\leq h}\left\langle x,\xi\right\rangle -f^{o}(x)=\left(\left(u^{o}\right)^{*}+I_{S_{f^{o}}(h)}\right)^{*}(\xi).
+\]
+
+\end_inset
+
+It is the tropical analogue of the Fourier truncation.
+ Intuitionally,
+ for 
+\begin_inset Formula $h\gg1$
+\end_inset
+
+,
+ 
+\begin_inset Formula $u^{o}_{h}$
+\end_inset
+
+ is the flattening of 
+\begin_inset Formula $u$
+\end_inset
+
+ over the region with large slope.
+ Since 
+\begin_inset Formula $f^{o}\geq0$
+\end_inset
+
+,
+ it is easy to see 
+\begin_inset Formula 
+\begin{equation}
+\sup_{f^{o}(x)\leq h}\left\langle x,\xi\right\rangle -h\leq u^{o}_{h}\leq u^{o},\ \sup_{f^{o}(x)\leq h}\left\langle x,\xi\right\rangle .\label{eq:bound of uo_h}
+\end{equation}
+
+\end_inset
+
+Set 
+\begin_inset Formula 
+\[
+u_{h}\coloneqq u^{o}_{h}+\ell\leq u^{o}+\ell=u,
+\]
+
+\end_inset
+
+which is nondecreasing in 
+\begin_inset Formula $h$
+\end_inset
+
+.
+ We will show that 
+\begin_inset Formula 
+\[
+u_{h}=u,\ \text{on }P\text{ when }h\gg1.
+\]
+
+\end_inset
+
+The proof proceeds in many steps.
+ For 
+\begin_inset Formula $h>0$
+\end_inset
+
+,
+ let 
+\begin_inset Formula 
+\[
+W_{h}\coloneqq\partial f^{o}\left\{ f^{o}\leq h\right\} \subset P,
+\]
+
+\end_inset
+
+which is compact by 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Lemma A.22"
+key "figalli_monge-ampere_2017"
+literal "false"
+
+\end_inset
+
+,
+ and may not be convex.
+\end_layout
+
+\begin_layout Proof
+
+\series bold
+(a)
+\series default
+ We show 
+\begin_inset Formula $u^{o}_{h}=u^{o}$
+\end_inset
+
+ on 
+\begin_inset Formula $W_{h}$
+\end_inset
+
+.
+ Suppose 
+\begin_inset Formula $\xi\in\partial f^{o}(x)$
+\end_inset
+
+ with 
+\begin_inset Formula $f^{o}(x)\leq h$
+\end_inset
+
+,
+ then we have 
+\begin_inset Formula 
+\[
+u^{o}_{h}(\xi)\geq\left\langle x,\xi\right\rangle -f^{o}(x)=u^{o}(\xi),
+\]
+
+\end_inset
+
+where the equality is due to 
+\begin_inset Formula $\xi\in\partial f^{o}(x)$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $u^{o}_{h}\leq u^{o}$
+\end_inset
+
+,
+ it forces 
+\begin_inset Formula $u^{o}_{h}(\xi)=u^{o}(\xi)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Proof
+
+\series bold
+(b)
+\series default
+ We show that 
+\begin_inset Formula $W_{h}$
+\end_inset
+
+ is a star set,
+ i.e.
+ if 
+\begin_inset Formula $\xi\in W_{h}$
+\end_inset
+
+ then 
+\begin_inset Formula $t\xi\in W_{h}$
+\end_inset
+
+ for any 
+\begin_inset Formula $t\in[0,1)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Proof
+Suppose 
+\begin_inset Formula $\xi\in\partial f^{o}(x)$
+\end_inset
+
+ with 
+\begin_inset Formula $f^{o}(x)\leq h$
+\end_inset
+
+.
+ Take any 
+\begin_inset Formula $x_{t}\in\partial u^{o}(t\xi)$
+\end_inset
+
+,
+ since 
+\begin_inset Formula $t\xi\in\partial f^{o}(x_{t})$
+\end_inset
+
+,
+ it suffices to show 
+\begin_inset Formula $f^{o}(x_{t})\leq h$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $x\in\partial u^{o}(\xi)$
+\end_inset
+
+ and 
+\begin_inset Formula $x_{t}\in\partial u^{o}(t\xi)$
+\end_inset
+
+,
+ by the definition of subdifferentials,
+ we have 
+\begin_inset Formula 
+\begin{align*}
+u^{o}(t\xi) & \geq u^{o}(\xi)+\left\langle x,t\xi-\xi\right\rangle ,\\
+u^{o}(\xi) & \geq u^{o}(t\xi)+\left\langle x_{t},\xi-t\xi\right\rangle .
+\end{align*}
+
+\end_inset
+
+They imply 
+\begin_inset Formula $\left\langle x_{t},\xi\right\rangle \leq\left\langle x,\xi\right\rangle $
+\end_inset
+
+.
+ Then we have 
+\begin_inset Formula 
+\begin{align*}
+f^{o}(x_{t}) & =\left\langle x_{t},t\xi\right\rangle -u^{o}(t\xi)\leq t\left\langle x,\xi\right\rangle -u^{o}(t\xi)\\
+ & \leq t\left\langle x,\xi\right\rangle -\left[u^{o}(\xi)+\left\langle x,t\xi-\xi\right\rangle \right]\\
+ & =\left\langle x,\xi\right\rangle -u^{o}(\xi)=f^{o}(x)\leq h.
+\end{align*}
+
+\end_inset
+
+Since 
+\begin_inset Formula $W_{h}$
+\end_inset
+
+ is a star set,
+ we can describe it as 
+\begin_inset Formula 
+\[
+W_{h}=\left\{ tq\mid q\in\partial P,0\leq t\leq r_{h}(q)\leq1\right\} ,
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $r_{h}:\partial P\ra[0,1]$
+\end_inset
+
+ is a function.
+ Since 
+\begin_inset Formula $W_{h}$
+\end_inset
+
+ is closed,
+ 
+\begin_inset Formula $r_{h}(q)$
+\end_inset
+
+ is usc in 
+\begin_inset Formula $q$
+\end_inset
+
+ and nondecreasing in 
+\begin_inset Formula $h$
+\end_inset
+
+.
+ We simply write 
+\begin_inset Formula $r_{q}\coloneqq r_{h}(q)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+
+\series bold
+(c)
+\series default
+ We show that 
+\begin_inset Formula $\lim_{h\ra\infty}r_{h}(q)=1$
+\end_inset
+
+ uniformly for 
+\begin_inset Formula $q\in\partial P$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+For any 
+\begin_inset Formula $\varepsilon\in(0,1)$
+\end_inset
+
+,
+ let 
+\begin_inset Formula $P_{\varepsilon}\coloneqq(1-\varepsilon)P$
+\end_inset
+
+.
+ By 
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Lemma A.22"
+key "figalli_monge-ampere_2017"
+literal "false"
+
+\end_inset
+
+,
+ 
+\begin_inset Formula $\partial u^{o}\left(P_{\varepsilon}\right)$
+\end_inset
+
+ is a compact set in 
+\begin_inset Formula $N_{\bbr}$
+\end_inset
+
+.
+ We claim that 
+\begin_inset Formula 
+\[
+P_{\varepsilon}\subset W_{h}\ \text{when }h>H_{\varepsilon}\coloneqq\sup_{\partial u^{o}\left(P_{\varepsilon}\right)}f^{o}.
+\]
+
+\end_inset
+
+For any 
+\begin_inset Formula $\xi\in P_{\varepsilon}$
+\end_inset
+
+,
+ take 
+\begin_inset Formula $x\in\partial u^{o}(\xi)\subset\partial u^{o}\left(P_{\varepsilon}\right)$
+\end_inset
+
+,
+ we have 
+\begin_inset Formula $\xi\in\partial f^{o}(x)$
+\end_inset
+
+ and 
+\begin_inset Formula $f^{o}(x)\leq H_{\varepsilon}$
+\end_inset
+
+,
+ so 
+\begin_inset Formula $\xi\in W_{h>H_{\varepsilon}}$
+\end_inset
+
+.
+ By the definition of 
+\begin_inset Formula $r_{h}(q)$
+\end_inset
+
+,
+ we have 
+\begin_inset Formula 
+\[
+1-\varepsilon\leq r_{h}(q)\leq1,\ \forall q\in\partial P
+\]
+
+\end_inset
+
+when 
+\begin_inset Formula $h>H_{\varepsilon}$
+\end_inset
+
+.
+ Hence 
+\series bold
+(c)
+\series default
+ follows.
+ 
+\end_layout
+
+\begin_layout Proof
+
+\series bold
+(d)
+\series default
+ For any 
+\begin_inset Formula $q\in\partial P$
+\end_inset
+
+,
+ 
+\begin_inset Formula $u^{o}_{h}$
+\end_inset
+
+ is affine restricting on the ray 
+\begin_inset Formula $\left\{ tq\mid t\geq r_{q}\coloneqq r_{h}(q)\right\} $
+\end_inset
+
+.
+ Explicitly,
+ we have 
+\begin_inset Formula 
+\[
+u^{o}_{h}(tq)=\frac{t}{r_{q}}\left(u^{o}(r_{q}q)+h\right)-h,\ \text{for }t\geq r_{q}.
+\]
+
+\end_inset
+
+Proof:
+ For any 
+\begin_inset Formula $q\in\partial P$
+\end_inset
+
+,
+ fix a 
+\begin_inset Formula $t>r_{q}$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $S_{f^{o}}(h)$
+\end_inset
+
+ is compact,
+ the supremum 
+\begin_inset Formula 
+\[
+u^{o}_{h}(tq)\coloneqq\sup_{x\in S_{f^{o}}(h)}\left\langle x,\xi\right\rangle -f^{o}(x)=\sup_{x\in N_{\bbr}}\left\langle x,tq\right\rangle -\left(f^{o}(x)+I_{S_{f^{o}}(h)}(x)\right)
+\]
+
+\end_inset
+
+is attained by some 
+\begin_inset Formula $x^{*}\in S_{f^{o}}(h)$
+\end_inset
+
+,
+ and this occurs if and only if 
+\begin_inset Formula 
+\begin{equation}
+tq\in\partial\left(f^{o}+I_{S_{f^{o}}(h)}\right)(x^{*})=\partial f^{o}(x^{*})+\partial I_{S_{f^{o}}(h)}(x^{*}).\label{eq:Moreau-Rockafellar}
+\end{equation}
+
+\end_inset
+
+The last equality is due to Moreau–Rockafellar theorem.
+\end_layout
+
+\begin_layout Proof
+If 
+\begin_inset Formula $x^{*}$
+\end_inset
+
+ does not lie on the boundary of 
+\begin_inset Formula $S_{f^{o}}(h)$
+\end_inset
+
+,
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:Moreau-Rockafellar"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+) implies 
+\begin_inset Formula $tq\in\partial f^{o}(x^{*})\subset W_{h}$
+\end_inset
+
+.
+ That is absurd since 
+\begin_inset Formula $t>r_{q}$
+\end_inset
+
+.
+ Hence 
+\begin_inset Formula $x^{*}$
+\end_inset
+
+ must lie on the boundary and 
+\begin_inset Formula $f^{o}(x^{*})=h$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Proof
+By the definition of subdifferentials,
+ we note that 
+\begin_inset Formula 
+\begin{align*}
+\partial I_{S_{f^{o}}(h)}(x^{*}) & =\left\{ \xi\mid\left\langle x-x^{*},\xi\right\rangle \leq0,\ \forall x\in S_{f^{o}}(h)\right\} \\
+ & =\left\{ \lam\eta\mid\lam\geq0,\ \eta\in\partial f^{o}(x^{*})\right\} .
+\end{align*}
+
+\end_inset
+
+Thus by (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:Moreau-Rockafellar"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+),
+ we can write 
+\begin_inset Formula $tq=\eta_{1}+\lam\eta_{2}$
+\end_inset
+
+ with 
+\begin_inset Formula $\eta_{i}\in\partial f^{o}(x^{*})$
+\end_inset
+
+ and 
+\begin_inset Formula $\lam>0$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+For any 
+\begin_inset Formula $a\geq1$
+\end_inset
+
+,
+ we find 
+\begin_inset Formula 
+\[
+atq=\eta_{1}+\left(a-1+a\lam\right)\frac{\left(a-1\right)\eta_{1}+a\lam\eta_{2}}{a-1+a\lam}\in\partial f^{o}(x^{*})+\partial I_{S_{f^{o}}(h)}(x^{*}),
+\]
+
+\end_inset
+
+where the convexity of 
+\begin_inset Formula $\partial f^{o}(x^{*})$
+\end_inset
+
+ is used.
+ This inclusion relation implies that the supremum 
+\begin_inset Formula 
+\[
+u^{o}_{h}(atq)\coloneqq\sup_{x\in N_{\bbr}}\left\langle x,atq\right\rangle -\left(f^{o}(x)+I_{S_{f^{o}}(h)}(x)\right)
+\]
+
+\end_inset
+
+is still attained by 
+\begin_inset Formula $x^{*}$
+\end_inset
+
+.
+ So 
+\begin_inset Formula $u^{o}_{h}(atq)=\left\langle x^{*},atq\right\rangle -h$
+\end_inset
+
+ for all 
+\begin_inset Formula $a\geq1$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $t$
+\end_inset
+
+ can be arbitrarily close to 
+\begin_inset Formula $r_{q}$
+\end_inset
+
+,
+ 
+\series bold
+(d)
+\series default
+ follows.
+ 
+\end_layout
+
+\begin_layout Proof
+
+\series bold
+(e)
+\series default
+ It is ready to show 
+\begin_inset Formula $u=u_{h}$
+\end_inset
+
+ for 
+\begin_inset Formula $h\gg1$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula 
+\[
+v_{h}\coloneqq u-u_{h}=u^{o}-u^{o}_{h}\geq0.
+\]
+
+\end_inset
+
+By property 
+\series bold
+(c)
+\series default
+,
+ for any 
+\begin_inset Formula $q\in\partial P$
+\end_inset
+
+,
+ the function 
+\begin_inset Formula $[r_{q},1]\ni t\mapsto v_{h}(tq)$
+\end_inset
+
+ is convex and vanishes at 
+\begin_inset Formula $t=r_{q}$
+\end_inset
+
+ by 
+\series bold
+(a)
+\series default
+.
+ It implies that this function is nondecreasing,
+ so 
+\begin_inset Formula 
+\begin{equation}
+v_{h}(tq)\leq v_{h}(q),\ \forall t\in[r_{q},1].\label{eq:controll v_h}
+\end{equation}
+
+\end_inset
+
+Note that 
+\begin_inset Formula $v_{h}(q)<\infty$
+\end_inset
+
+,
+ when 
+\begin_inset Formula $q$
+\end_inset
+
+ lies in the relative interior of facets,
+ since 
+\begin_inset Formula $u<+\infty$
+\end_inset
+
+ on 
+\begin_inset Formula $P^{*}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+To estimate the integrals over 
+\begin_inset Formula $P$
+\end_inset
+
+,
+ we decompose 
+\begin_inset Formula $P=\bigcup_{\rho\in\mathcal{F}_{P}(1)}P_{\rho}$
+\end_inset
+
+,
+ where 
+\begin_inset Formula $P_{\rho}$
+\end_inset
+
+ is the cone with apex 
+\begin_inset Formula $0$
+\end_inset
+
+ and base 
+\begin_inset Formula $F_{\rho}$
+\end_inset
+
+ (facet of 
+\begin_inset Formula $P$
+\end_inset
+
+ associated to 
+\begin_inset Formula $\rho$
+\end_inset
+
+).
+ Consider the map 
+\begin_inset Formula 
+\[
+[0,1]\times F_{\rho}\ra P_{\rho},\ \left(t,q\right)\mapsto tq.
+\]
+
+\end_inset
+
+One can check that the pullback of Lebesgue measure 
+\begin_inset Formula $\mathrm{d}\mu$
+\end_inset
+
+ along this map is 
+\begin_inset Formula $a_{\rho}t^{n-1}\mathrm{d}t\wedge\mathrm{d\sigma}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+By 
+\series bold
+(a)
+\series default
+,
+ 
+\begin_inset Formula $v_{h}(tq)=0$
+\end_inset
+
+ when 
+\begin_inset Formula $t\in[0,r_{q}]$
+\end_inset
+
+.
+ Use (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:controll v_h"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+),
+ we have 
+\begin_inset Formula 
+\[
+\int_{P_{\rho}}v_{h}\mathrm{d}\mu=a_{\rho}\int_{F_{\rho}}\int^{1}_{r_{q}}v_{h}(tq)t^{n-1}\mathrm{d}t\mathrm{d\sigma}\leq\frac{a_{\rho}}{n}\int_{F_{\rho}}\left(1-r^{n}_{q}\right)v_{h}(q)\mathrm{d\sigma}.
+\]
+
+\end_inset
+
+Take the sum over 
+\begin_inset Formula $\rho$
+\end_inset
+
+,
+ we obtain 
+\begin_inset Formula 
+\begin{equation}
+0\leq\int_{P}v_{h}\mathrm{d}\mu\leq\frac{\max_{\rho}a_{\rho}}{n}\left(1-\inf_{q\in\partial P}r^{n}_{q}\right)\int_{\partial P}v_{h}\mathrm{d\sigma}.\label{eq:controll vh int}
+\end{equation}
+
+\end_inset
+
+Compare the 
+\begin_inset Formula $L^{2}$
+\end_inset
+
+-norms,
+ 
+\begin_inset Formula 
+\begin{align*}
+\int_{P}u^{2}_{h}-\int_{P}u^{2} & =\int_{P}\left(u^{o}_{h}+\ell\right)^{2}-\int_{P}\left(u^{o}+\ell\right)^{2}=\int_{P}\left(u^{o}_{h}\right)^{2}-\int_{P}\left(u^{o}\right)^{2}-2\int_{P}v_{h}\ell\\
+ & \leq2\max_{P}\left|\ell\right|\int_{P}v_{h}\leq\frac{2}{n}\max_{P}\left|\ell\right|\max_{\rho}a_{\rho}\left(1-\inf_{q\in\partial P}r^{n}_{q}\right)\int_{\partial P}v_{h}\mathrm{d\sigma}.
+\end{align*}
+
+\end_inset
+
+where 
+\begin_inset Formula $\int_{P}\left(u^{o}_{h}\right)^{2}\leq\int_{P}\left(u^{o}\right)^{2}$
+\end_inset
+
+ is due to 
+\begin_inset Formula $0\leq u^{o}_{h}\leq u^{o}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+We obtain a comparison of functional values,
+ 
+\begin_inset Formula 
+\[
+\left(\frac{1}{2}\int_{P}u^{2}_{h}+\int_{\partial P}u_{h}\right)-\left(\frac{1}{2}\int_{P}u^{2}+\int_{\partial P}u\right)\leq\left[C\left(1-\inf_{q\in\partial P}r^{n}_{q}\right)-1\right]\int_{\partial P}v_{h}\mathrm{d\sigma}.
+\]
+
+\end_inset
+
+By 
+\series bold
+(c)
+\series default
+,
+ we know 
+\begin_inset Formula $\inf_{q\in\partial P}r^{n}_{q}\ra1$
+\end_inset
+
+.
+ So there exists 
+\begin_inset Formula $h_{0}>0$
+\end_inset
+
+,
+ when 
+\begin_inset Formula $h>h_{0}$
+\end_inset
+
+,
+ the RHS 
+\begin_inset Formula $\leq-\frac{1}{2}\int_{\partial P}v_{h}$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $u$
+\end_inset
+
+ is a minimizer of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq: Inoue functional"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+),
+ we must have 
+\begin_inset Formula $\int_{\partial P}v_{h}\mathrm{d\sigma}=0$
+\end_inset
+
+ for 
+\begin_inset Formula $h>h_{0}$
+\end_inset
+
+.
+ By (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:controll vh int"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+),
+ it implies 
+\begin_inset Formula $\int_{P}v_{h}=0$
+\end_inset
+
+,
+ so 
+\begin_inset Formula $u=u_{h}$
+\end_inset
+
+ almost everywhere.
+ Since 
+\begin_inset Formula $u$
+\end_inset
+
+ is continuous on 
+\begin_inset Formula $P^{*}$
+\end_inset
+
+ and 
+\begin_inset Formula $u_{h}$
+\end_inset
+
+ is continuous everywhere,
+ so 
+\begin_inset Formula $u=u_{h}$
+\end_inset
+
+ on 
+\begin_inset Formula $P^{*}$
+\end_inset
+
+.
+ Note 
+\begin_inset Formula $u$
+\end_inset
+
+ is also lsc,
+ so 
+\begin_inset Formula 
+\[
+u_{h}=u,\ \text{on }P\text{ when }h>h_{0}.
+\]
+
+\end_inset
+
+Moreover,
+ by (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:bound of uo_h"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+),
+ we have 
+\begin_inset Formula 
+\[
+\partial u\left(\mathrm{int}P\right)=\partial u_{h}\left(\mathrm{int}P\right)\subset\partial u_{h}\left(M_{\bbr}\right)=S_{f^{o}}(h)+p^{o}
+\]
+
+\end_inset
+
+when 
+\begin_inset Formula $h>h_{0}$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $S_{f^{o}}(h)$
+\end_inset
+
+ is bounded,
+ so is 
+\begin_inset Formula $\partial u\left(\mathrm{int}P\right)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+The following property is due to Li and Zhou.
+ They deal with a general problem and assume a smoothness condition (P2) which is not satisfied by 
+\begin_inset Formula $\Theta_{P}$
+\end_inset
+
+,
+ but the proof is still valid.
+ 
+\end_layout
+
+\begin_layout Theorem
+\begin_inset CommandInset label
+LatexCommand label
+name "thm: Li Zhou"
+
+\end_inset
+
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset citation
+LatexCommand cite
+after "Proposition 3.2"
+key "li_k-stability_2022"
+literal "false"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ Convex function 
+\begin_inset Formula $u=-\Theta_{P}$
+\end_inset
+
+ satisfies the homogenous Monge–Ampère equation in the sense of Alexandrov.
+ Precisely,
+ for any compact set 
+\begin_inset Formula $K\subset\mathrm{int}P$
+\end_inset
+
+,
+ the Lebesgue measure 
+\begin_inset Formula $\left|\partial u(K)\right|=0$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+We already know that 
+\begin_inset Formula $u:P\ra\bbr$
+\end_inset
+
+ is continuous up to the boundary.
+ By property (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq: property of Theta"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+),
+ we have 
+\begin_inset Formula 
+\begin{equation}
+\mathcal{L}\left(u\right)=0\text{ and }\mathcal{L}\left(f\right)\coloneqq\int_{\partial P}f\mathrm{d}\sigma+\int_{P}fu\mathrm{d}x\geq0,\ \forall f\in\mathcal{C}(P).\label{eq: property L}
+\end{equation}
+
+\end_inset
+
+Our aim is to modify 
+\begin_inset Formula $u$
+\end_inset
+
+ to decrease the value of 
+\begin_inset Formula $\mathcal{L}$
+\end_inset
+
+.
+ Consider 
+\begin_inset Formula 
+\[
+P_{-}=\left\{ x\in P\mid u(x)<0\right\} \text{ and }P_{\geq}=\left\{ x\in P\mid u(x)\geq0\right\} .
+\]
+
+\end_inset
+
+By (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "prop: sup of theta"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+),
+ we have 
+\begin_inset Formula $\inf_{P}u=\inf_{\partial P}u<0$
+\end_inset
+
+.
+ So 
+\begin_inset Formula $P_{-}$
+\end_inset
+
+ is a convex set with nonempty interior.
+ First,
+ we show 
+\begin_inset Formula 
+\[
+\left\{ u=0\right\} \subset\partial\left\{ u\leq0\right\} .
+\]
+
+\end_inset
+
+This implies that 
+\begin_inset Formula $\left\{ u=0\right\} $
+\end_inset
+
+ has measure zero,
+ since 
+\begin_inset Formula $\left\{ u\leq0\right\} $
+\end_inset
+
+ is a closed convex set.
+ If the above relation is false,
+ we have a point 
+\begin_inset Formula $x\in\{u=0\}\cap\mathrm{int}\left\{ u\leq0\right\} $
+\end_inset
+
+.
+ Then there is a ball 
+\begin_inset Formula $B(x)\subset P$
+\end_inset
+
+ centered at 
+\begin_inset Formula $x$
+\end_inset
+
+ such that 
+\begin_inset Formula $u\leq0$
+\end_inset
+
+ on 
+\begin_inset Formula $B(x)$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $\inf_{P}u<0$
+\end_inset
+
+,
+ we can take a point 
+\begin_inset Formula $y\in P$
+\end_inset
+
+ such that 
+\begin_inset Formula $u(y)<0$
+\end_inset
+
+.
+ Consider the line 
+\begin_inset Formula $\ell$
+\end_inset
+
+ passing through 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $y$
+\end_inset
+
+.
+ By the convexity of 
+\begin_inset Formula $u$
+\end_inset
+
+,
+ there must be a point 
+\begin_inset Formula $z\in\ell\cap B(x)$
+\end_inset
+
+ such that 
+\begin_inset Formula $u(z)>0$
+\end_inset
+
+.
+ That is absurd.
+ 
+\end_layout
+
+\begin_layout Proof
+(1) Show that 
+\begin_inset Formula $u$
+\end_inset
+
+ is equal to 
+\begin_inset Formula 
+\[
+u_{+}(x)\coloneqq\sup\left\{ l(x)\mid\text{affine }l\leq u\text{ on }P_{\geq}\cup\partial P\right\} ,\ x\in P.
+\]
+
+\end_inset
+
+First we claim that 
+\begin_inset Formula $u_{+}\ge u$
+\end_inset
+
+ and 
+\begin_inset Formula $u_{+}=u$
+\end_inset
+
+ on 
+\begin_inset Formula $P_{\geq}\cup\partial P$
+\end_inset
+
+.
+ Obviously,
+ 
+\begin_inset Formula $u_{+}\leq u$
+\end_inset
+
+ on 
+\begin_inset Formula $P_{\geq}\cup\partial P$
+\end_inset
+
+,
+ so it suffices to show 
+\begin_inset Formula $u_{+}\geq u$
+\end_inset
+
+.
+ For any 
+\begin_inset Formula $x\in P$
+\end_inset
+
+,
+ take any support function 
+\begin_inset Formula $l$
+\end_inset
+
+ of 
+\begin_inset Formula $u$
+\end_inset
+
+ at 
+\begin_inset Formula $x$
+\end_inset
+
+,
+ which satisfies 
+\begin_inset Formula $l(x)=u(x)$
+\end_inset
+
+ and 
+\begin_inset Formula $l\leq u$
+\end_inset
+
+.
+ By definition of 
+\begin_inset Formula $u_{+}$
+\end_inset
+
+,
+ we have 
+\begin_inset Formula $u_{+}(x)\ge l(x)=u(x)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+It follows that 
+\begin_inset Formula $\mathcal{L}\left(u\right)\geq\mathcal{L}\left(u_{+}\right)$
+\end_inset
+
+.
+ Then (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq: property L"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+) forces 
+\begin_inset Formula $\mathcal{L}\left(u\right)=\mathcal{L}\left(u_{+}\right)$
+\end_inset
+
+.
+ Note that 
+\begin_inset Formula 
+\[
+0=\mathcal{L}\left(u_{+}\right)-\mathcal{L}\left(u\right)=\int_{P_{-}}\left(u_{+}-u\right)u\mathrm{d}x,
+\]
+
+\end_inset
+
+this implies 
+\begin_inset Formula $u=u_{+}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+(2) Show that 
+\begin_inset Formula $u$
+\end_inset
+
+ is equal to 
+\begin_inset Formula 
+\[
+u_{-}\coloneqq\sup\left\{ l\mid l\text{ is a support function of }u\text{ at some }x\in P_{-}\right\} .
+\]
+
+\end_inset
+
+Obviously,
+ we have 
+\begin_inset Formula $u_{-}\leq u$
+\end_inset
+
+.
+ Similar to (1),
+ we can show 
+\begin_inset Formula $u_{-}=u$
+\end_inset
+
+ on 
+\begin_inset Formula $P_{-}$
+\end_inset
+
+.
+ It follows that 
+\begin_inset Formula $\mathcal{L}\left(u\right)\geq\mathcal{L}\left(u_{-}\right)$
+\end_inset
+
+.
+ Then (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq: property L"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+tuple "list"
+
+\end_inset
+
+) forces 
+\begin_inset Formula $\mathcal{L}\left(u\right)=\mathcal{L}\left(u_{-}\right)$
+\end_inset
+
+.
+ Note that 
+\begin_inset Formula 
+\[
+0=\mathcal{L}\left(u\right)-\mathcal{L}\left(u_{-}\right)=\int_{\partial P}\left(u-u_{-}\right)\mathrm{d}\sigma+\int_{P_{\geq}}\left(u-u_{-}\right)u\mathrm{d}x.
+\]
+
+\end_inset
+
+Consider that 
+\begin_inset Formula $u\geq u_{-}$
+\end_inset
+
+ and 
+\begin_inset Formula $\left\{ u=0\right\} $
+\end_inset
+
+ has measure zero,
+ it implies 
+\begin_inset Formula $u=u_{-}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+(3) Show that for any compact set 
+\begin_inset Formula $K\subset\mathrm{int}P$
+\end_inset
+
+,
+ we have 
+\begin_inset Formula $\left|\partial u(K)\right|=0$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Proof
+Let 
+\begin_inset Formula $P^{\epsilon}_{-}=\left\{ u\leq-\epsilon<0\right\} $
+\end_inset
+
+,
+ consider 
+\begin_inset Formula 
+\[
+u^{\epsilon}_{-}\coloneqq\sup\left\{ l\mid l\text{ is a support function of }u\text{ at some }x\in P^{\epsilon}_{-}\right\} .
+\]
+
+\end_inset
+
+Since 
+\begin_inset Formula $P_{-}=\bigcup_{\epsilon>0}P^{\epsilon}_{-}$
+\end_inset
+
+,
+ when 
+\begin_inset Formula $\epsilon\rightarrow0$
+\end_inset
+
+,
+ 
+\begin_inset Formula $u^{\epsilon}_{-}$
+\end_inset
+
+ converges increasingly to 
+\begin_inset Formula $u_{-}$
+\end_inset
+
+.
+ The key observation is that any support function of 
+\begin_inset Formula $u^{\epsilon}_{-}$
+\end_inset
+
+ is the support function of 
+\begin_inset Formula $u$
+\end_inset
+
+ at some point in 
+\begin_inset Formula $P^{\epsilon}_{-}$
+\end_inset
+
+.
+ Hence there exists 
+\begin_inset Formula $\delta>0$
+\end_inset
+
+ such that 
+\begin_inset Formula 
+\[
+\partial u^{\epsilon}_{-}(K)\subset\partial u\left(P^{\epsilon}_{-}\cap P_{\delta}\right),\ \text{where }P_{\delta}\coloneqq\left\{ x\in P\mid d\left(x,\partial P\right)\geq\delta\right\} .
+\]
+
+\end_inset
+
+Since 
+\begin_inset Formula $P^{\epsilon}_{-}\cap P_{\delta}$
+\end_inset
+
+ keeps away from 
+\begin_inset Formula $P_{\geq}\cup\partial P$
+\end_inset
+
+ with a positive distance,
+ by the definition of 
+\begin_inset Formula $u_{+}=u$
+\end_inset
+
+,
+ we have 
+\begin_inset Formula $\left|\partial u\left(P^{\epsilon}_{-}\cap P_{\delta}\right)\right|=0$
+\end_inset
+
+.
+ Thus 
+\begin_inset Formula $\left|\partial u^{\epsilon}_{-}(K)\right|=0$
+\end_inset
+
+ for all 
+\begin_inset Formula $\epsilon>0$
+\end_inset
+
+ and compact set 
+\begin_inset Formula $K\subset\mathrm{int}P$
+\end_inset
+
+.
+ Since the MA measure 
+\begin_inset Formula $\mathrm{MA}\left(u^{\epsilon}_{-}\right)$
+\end_inset
+
+ weakly converges to 
+\begin_inset Formula $\mathrm{MA}\left(u_{-}\right)$
+\end_inset
+
+,
+ it implies 
+\begin_inset Formula $\left|\partial u_{-}(K)\right|=0$
+\end_inset
+
+ for all 
+\begin_inset Formula $K$
+\end_inset
+
+.
+ We have showed 
+\begin_inset Formula $u_{-}=u$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+设
+\begin_inset Formula $A\in GL(n,\mathbb{Z})$
+\end_inset
+
+.
+ 定义
+\begin_inset Formula $\mathbb{R}^{n}$
+\end_inset
+
+上的变换
+\begin_inset Formula $\phi(x)=\lambda\cdot Ax$
+\end_inset
+
+.
+ 
+\begin_inset Formula $P$
+\end_inset
+
+是lattice polytope.
+ 记 
+\begin_inset Formula $P_{\phi}=\phi(P)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+(1) 
+\begin_inset Formula $\ell_{P}(x)=\lambda\ell_{P_{\phi}}(\phi x)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+(2) 设
+\begin_inset Formula $f:P_{\phi}\rightarrow\mathbb{R}$
+\end_inset
+
+.
+ 求
+\begin_inset Formula $M_{P_{\phi}}(f)=\lambda^{n-1}M_{P}(\phi^{*}f)$
+\end_inset
+
+.
+ 
+\begin_inset Formula 
+\[
+Q_{P}(f)=\frac{M_{\ell_{P}}(f)}{V^{1-\frac{1}{n}}_{P}\sup_{P}\left|f\right|}\text{ is invariant}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+二维情形下,
+ 我打算用量
+\begin_inset Formula 
+\[
+Q_{P}(g)=\frac{M_{\ell_{P}}(g)}{\sqrt{V_{P}}\sup_{P}\left|g\right|}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintCited"
+bibfiles "/Users/yaoy/Nutstore Files/Research/main_project/5@part1"
+encoding "default"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

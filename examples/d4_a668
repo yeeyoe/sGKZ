@@ -1,0 +1,16 @@
+# candidate_key=d4|p=1:0;10:63;-11:-8;0:-1|k=1,1,1,55
+# d=4
+# twice_area=668
+# status=verified_unstable
+# directions=1:0;10:63;-11:-8;0:-1
+# steps=1,1,1,55
+# facet_normals=0:1;-63:10;8:-11;1:0
+# ell_P(x,y)=22114223448/48493917319 + (-4749962580/48493917319) x + (102986400/48493917319) y
+# vertex_singularity_flags=0,1,1,1
+# singular_vertex_count=3
+# witness_kind=exact
+# witness_line=(1) x + (-1/5) y + (3/2) = 0
+0 0
+1 0
+11 63
+0 55

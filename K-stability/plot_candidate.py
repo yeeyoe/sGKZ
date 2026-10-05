@@ -167,8 +167,6 @@ def render(candidate, witness, witness_kind, output: Path):
     ell_line = (ell[1], ell[2], ell[0])
     ell_segment = line_box_intersections(ell_line, bounds)
     witness_segment = line_box_intersections(witness, bounds)
-    if not ell_segment:
-        raise ValueError("ell_P=0 does not intersect the plotting box")
     if not witness_segment:
         raise ValueError("witness crease does not intersect the plotting box")
 
@@ -184,11 +182,11 @@ def render(candidate, witness, witness_kind, output: Path):
         stream.write('<polygon points="' + polygon_points + '" fill="#eff6ff" '
                      'stroke="#111827" stroke-width="2"/>\n')
 
-        ell_a, ell_b, ell_c = (float(value) for value in ell_line)
-        ex1, ey1 = screen(ell_segment[0])
-        ex2, ey2 = screen(ell_segment[1])
-        stream.write(f'<line x1="{ex1:.2f}" y1="{ey1:.2f}" x2="{ex2:.2f}" y2="{ey2:.2f}" '
-                     'stroke="#2563eb" stroke-width="2" stroke-dasharray="8 5"/>\n')
+        if ell_segment:
+            ex1, ey1 = screen(ell_segment[0])
+            ex2, ey2 = screen(ell_segment[1])
+            stream.write(f'<line x1="{ex1:.2f}" y1="{ey1:.2f}" x2="{ex2:.2f}" y2="{ey2:.2f}" '
+                         'stroke="#2563eb" stroke-width="2" stroke-dasharray="8 5"/>\n')
 
         wx1, wy1 = screen(witness_segment[0])
         wx2, wy2 = screen(witness_segment[1])
@@ -213,7 +211,8 @@ def render(candidate, witness, witness_kind, output: Path):
         stream.write('<line x1="90" y1="' + str(legend_y) +
                      '" x2="122" y2="' + str(legend_y) +
                      '" stroke="#2563eb" stroke-width="2" stroke-dasharray="8 5"/>\n')
-        stream.write(svg_text(130, legend_y + 5, "ell_P=0", size=13))
+        ell_legend = "ell_P=0" if ell_segment else "ell_P=0 (outside view)"
+        stream.write(svg_text(130, legend_y + 5, ell_legend, size=13))
         stream.write('<line x1="250" y1="' + str(legend_y) +
                      '" x2="282" y2="' + str(legend_y) +
                      '" stroke="#dc2626" stroke-width="3"/>\n')
